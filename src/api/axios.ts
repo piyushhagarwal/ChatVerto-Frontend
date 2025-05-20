@@ -1,16 +1,16 @@
-import axios from "axios";
+import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
 // Add a request interceptor
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+axiosInstance.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,15 +19,15 @@ axiosInstance.interceptors.request.use((config) => {
 
 // Add a response interceptor
 axiosInstance.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     if (error.response.status === 401) {
       // Handle unauthorized access
-      console.error("Unauthorized access - redirecting to login");
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      console.error('Unauthorized access - redirecting to login');
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
