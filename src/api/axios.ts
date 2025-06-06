@@ -23,11 +23,15 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   error => {
-    if (error.response.status === 401) {
+    if (error.response && error.response.status === 401) {
       // Handle unauthorized access
       console.error('Unauthorized access - redirecting to login');
       localStorage.removeItem('token');
-      window.location.href = '/login';
+
+      // Redirect to login only if not already there
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
