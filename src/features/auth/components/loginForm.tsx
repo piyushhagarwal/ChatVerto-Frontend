@@ -45,7 +45,7 @@ export function LoginForm({
   useEffect(() => {
     if (token) {
       // Redirect to the dashboard or home page
-      navigate('/', { replace: true });
+      navigate('/dashboard/home', { replace: true });
     }
   }, [token, navigate]);
 

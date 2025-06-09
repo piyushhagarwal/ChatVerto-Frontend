@@ -43,7 +43,7 @@ export function RegisterForm({
 
   useEffect(() => {
     if (token) {
-      navigate('/', { replace: true });
+      navigate('/dashboard/home', { replace: true });
     }
   }, [token, navigate]);
 
