@@ -17,6 +17,8 @@ import ContactPage from './features/contacts/pages/contactPage';
 import AutomationPage from './features/automations/pages/automationPage.tsx';
 import ChatsPage from './features/chats/pages/chatsPage.tsx';
 import AdvertisePage from './features/advertise/pages/advertisePage.tsx';
+import Flow from './features/automations/pages/reactflowPages/reactflowdemo.tsx';
+import FlowsPage from './features/automations/pages/flowsPage.tsx';
 
 function App() {
   // const baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -32,8 +34,10 @@ function App() {
             <Route path="contact" element={<ContactPage />} />
             <Route path="automation" element={<AutomationPage />} />
             <Route path="chats" element={<ChatsPage />} />
-            <Route path="advertise" element={<AdvertisePage  />} />
+            <Route path="advertise" element={<AdvertisePage />} />
           </Route>
+          <Route path="/flowspage" element={<FlowsPage />}></Route>
+          <Route path="/flow" element={<Flow />}></Route>
           <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
         </Routes>
       </AuthGuard>
