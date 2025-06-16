@@ -14,18 +14,17 @@ import Register from './features/auth/pages/registerPage';
 import DashboardLayout from './features/dashboard/dashboardLayout';
 import HomePage from './features/home/pages/homePage';
 import ContactPage from './features/contacts/pages/contactPage';
-import AutomationPage from './features/automations/pages/automationPage.tsx';
+import AutomationPage from './features/automations/pages/allFlowsPage.tsx';
 import ChatsPage from './features/chats/pages/chatsPage.tsx';
 import AdvertisePage from './features/advertise/pages/advertisePage.tsx';
-import Flow from './features/automations/pages/reactflowPages/reactflowdemo.tsx';
-import FlowsPage from './features/automations/pages/flowsPage.tsx';
+import FlowsPage from './features/automations/pages/singleFlowPage.tsx';
 
 function App() {
-  // const baseURL = import.meta.env.VITE_API_BASE_URL;
   return (
     <Router>
       <AuthGuard>
         <Routes>
+          <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
@@ -37,8 +36,6 @@ function App() {
             <Route path="advertise" element={<AdvertisePage />} />
           </Route>
           <Route path="/flowspage" element={<FlowsPage />}></Route>
-          <Route path="/flow" element={<Flow />}></Route>
-          <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
         </Routes>
       </AuthGuard>
     </Router>
