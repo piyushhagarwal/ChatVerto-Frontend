@@ -142,11 +142,11 @@ const flowSlice = createSlice({
   initialState,
   reducers: {
     // Create new flow locally
-    createNewFlow: state => {
+    createNewFlow: (state, action: PayloadAction<string>) => {
       const tempId = `temp-${nanoid()}`;
       state.currentFlow = {
         id: tempId,
-        name: 'Untitled',
+        name: action.payload || 'Untitled',
         nodes: [
           {
             id: 'trigger-1',
