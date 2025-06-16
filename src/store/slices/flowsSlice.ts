@@ -149,7 +149,7 @@ const flowSlice = createSlice({
         name: action.payload || 'Untitled',
         nodes: [
           {
-            id: 'trigger-1',
+            id: nanoid(),
             type: 'trigger',
             position: { x: 100, y: 100 },
             data: {},
@@ -198,6 +198,41 @@ const flowSlice = createSlice({
           state.currentFlow.edges
         );
         state.currentFlow.saved = false;
+      }
+    },
+
+    // Add new node to current flow
+    addNodeToFlow: (state, action: PayloadAction<string>) => {
+      // action.payload is the node type
+      if (state.currentFlow) {
+        const newNode: FlowNode = {
+          id: nanoid(),
+          type: action.payload,
+          position: { x: 100, y: 100 },
+          data: {},
+        };
+        state.currentFlow.nodes.push(newNode);
+        state.currentFlow.saved = false;
+      }
+    },
+
+    // Update node data
+    updateNodeData: (
+      state,
+      action: PayloadAction<{ nodeId: string; data: Record<string, any> }>
+    ) => {
+      const { nodeId, data } = action.payload;
+      if (state.currentFlow) {
+        const nodeIndex = state.currentFlow.nodes.findIndex(
+          node => node.id === nodeId
+        );
+        if (nodeIndex !== -1) {
+          state.currentFlow.nodes[nodeIndex].data = {
+            ...state.currentFlow.nodes[nodeIndex].data,
+            ...data,
+          };
+          state.currentFlow.saved = false;
+        }
       }
     },
   },
