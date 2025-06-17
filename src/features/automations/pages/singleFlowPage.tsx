@@ -2,6 +2,7 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ReactFlow, Background } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchFlowByIdThunk,
@@ -323,8 +324,8 @@ export default function SingleFlowPage() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          fitView
           className="bg-gray-50"
+          defaultViewport={{ x: 100, y: 100, zoom: 1 }}
           minZoom={0.5}
           maxZoom={2}
           snapToGrid={true}
