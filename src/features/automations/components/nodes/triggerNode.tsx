@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import TriggerSidebar from '../sidebars/triggerSidebar'; // Adjust path if needed
 import { Badge } from '@/components/ui/badge'; // Assuming you have a badge/tag component
+import { Handle, Position } from '@xyflow/react';
 
 interface TriggerNodeProps {
   id: string;
@@ -22,8 +23,21 @@ export default function TriggerNode({ id, data }: TriggerNodeProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <>
-      <Card className="w-full max-w-sm shadow-md border">
+    <div>
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        style={{
+          width: 10,
+          height: 10,
+          background: '#2563eb', // Tailwind blue-600
+          borderRadius: '50%',
+          top: '50%',
+          transform: 'translateY(-50%)',
+        }}
+      />
+      <Card className="w-full max-w-sm shadow-md border ">
         <CardHeader>
           <CardTitle className="text-lg">Trigger</CardTitle>
           <CardDescription className="mt-2">Active Keywords</CardDescription>
@@ -63,6 +77,6 @@ export default function TriggerNode({ id, data }: TriggerNodeProps) {
           onClose={() => setIsSidebarOpen(false)}
         />
       )}
-    </>
+    </div>
   );
 }
