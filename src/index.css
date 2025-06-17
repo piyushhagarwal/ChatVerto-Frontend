@@ -123,20 +123,3 @@
   width: 100vw;
   height: 100vh;
 }
-
-.react-flow__background {
-  z-index: 0;
-}
-
-.react-flow__renderer {
-  z-index: 1;
-}
-
-.react-flow {
-  height: 100vh;
-  width: 100vw;
-}
-.react-flow__controls {
-  z-index: 10 !important;
-  position: absolute;
-}
