@@ -37,10 +37,11 @@ import {
 } from 'lucide-react';
 
 // Simplified node types with initial data
-const SIMPLE_NODE_TYPES = [
+const NODES = [
   {
     type: 'trigger',
     label: 'Trigger',
+    description: 'Manual or event-based trigger',
     icon: Zap,
     initialData: {
       label: 'Trigger Node',
@@ -53,6 +54,7 @@ const SIMPLE_NODE_TYPES = [
   {
     type: 'action',
     label: 'Action',
+    description: 'Perform an action or send a message',
     icon: MessageSquare,
     initialData: {
       label: 'Action Node',
@@ -65,6 +67,7 @@ const SIMPLE_NODE_TYPES = [
   {
     type: 'condition',
     label: 'Condition',
+    description: 'Conditional logic based on input',
     icon: Filter,
     initialData: {
       label: 'Condition Node',
@@ -78,6 +81,7 @@ const SIMPLE_NODE_TYPES = [
   {
     type: 'database',
     label: 'Database',
+    description: 'Interact with a database',
     icon: Database,
     initialData: {
       label: 'Database Node',
@@ -91,6 +95,7 @@ const SIMPLE_NODE_TYPES = [
   {
     type: 'api',
     label: 'API Call',
+    description: 'Make an HTTP API call',
     icon: Globe,
     initialData: {
       label: 'API Node',
@@ -161,7 +166,7 @@ export default function SingleFlowPage() {
     }
   };
 
-  const handleAddNode = (nodeConfig: (typeof SIMPLE_NODE_TYPES)[0]) => {
+  const handleAddNode = (nodeConfig: (typeof NODES)[0]) => {
     // Pass both the type and initial data to the action
     dispatch(
       addNodeToFlow({
@@ -266,18 +271,25 @@ export default function SingleFlowPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">
-                {SIMPLE_NODE_TYPES.map(nodeConfig => {
+                {NODES.map(nodeConfig => {
                   const Icon = nodeConfig.icon;
                   return (
                     <DropdownMenuItem
                       key={nodeConfig.type}
                       onClick={() => handleAddNode(nodeConfig)}
-                      className="flex items-center space-x-3 py-2 cursor-pointer"
+                      className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50"
                     >
-                      <Icon className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium">
-                        {nodeConfig.label}
-                      </span>
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <Icon className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900">
+                          {nodeConfig.label}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {nodeConfig.description}
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                   );
                 })}
