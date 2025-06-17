@@ -17,7 +17,7 @@ import ContactPage from './features/contacts/pages/contactPage';
 import AutomationPage from './features/automations/pages/allFlowsPage.tsx';
 import ChatsPage from './features/chats/pages/chatsPage.tsx';
 import AdvertisePage from './features/advertise/pages/advertisePage.tsx';
-import FlowsPage from './features/automations/pages/singleFlowPage.tsx';
+import SingleFlowPage from './features/automations/pages/singleFlowPage.tsx';
 
 function App() {
   return (
@@ -35,7 +35,7 @@ function App() {
             <Route path="chats" element={<ChatsPage />} />
             <Route path="advertise" element={<AdvertisePage />} />
           </Route>
-          <Route path="/flowspage" element={<FlowsPage />}></Route>
+          <Route path="/flows/:flowId" element={<SingleFlowPage />}></Route>
         </Routes>
       </AuthGuard>
     </Router>
