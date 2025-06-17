@@ -133,6 +133,24 @@ export const deleteFlowThunk = createAsyncThunk(
   }
 );
 
+const shouldMarkAsUnsaved = (changes: any[]) => {
+  // Only mark as unsaved for meaningful changes, not just position/selection changes
+  return changes.some(change => {
+    switch (change.type) {
+      case 'position':
+      case 'select':
+      case 'dimensions':
+        return false; // These don't affect the flow logic
+      case 'add':
+      case 'remove':
+      case 'reset':
+        return true; // These are meaningful changes
+      default:
+        return true; // Be conservative with unknown change types
+    }
+  });
+};
+
 // ──────────────────────────────
 // 🔧 Slice
 // ──────────────────────────────
@@ -143,6 +161,7 @@ const flowSlice = createSlice({
   reducers: {
     // Create new flow locally
     createNewFlow: (state, action: PayloadAction<string>) => {
+      // action.payload is the flow name
       const tempId = `temp-${nanoid()}`;
       state.currentFlow = {
         id: tempId,
@@ -152,7 +171,9 @@ const flowSlice = createSlice({
             id: nanoid(),
             type: 'trigger',
             position: { x: 100, y: 100 },
-            data: {},
+            data: {
+              keywords: [],
+            },
           },
         ],
         edges: [],
@@ -175,7 +196,10 @@ const flowSlice = createSlice({
           action.payload,
           state.currentFlow.nodes
         );
-        state.currentFlow.saved = false;
+        // Only mark as unsaved for meaningful changes
+        if (shouldMarkAsUnsaved(action.payload)) {
+          state.currentFlow.saved = false;
+        }
       }
     },
 
@@ -186,7 +210,10 @@ const flowSlice = createSlice({
           action.payload,
           state.currentFlow.edges
         );
-        state.currentFlow.saved = false;
+        // Only mark as unsaved for meaningful changes
+        if (shouldMarkAsUnsaved(action.payload)) {
+          state.currentFlow.saved = false;
+        }
       }
     },
 
@@ -202,14 +229,17 @@ const flowSlice = createSlice({
     },
 
     // Add new node to current flow
-    addNodeToFlow: (state, action: PayloadAction<string>) => {
+    addNodeToFlow: (
+      state,
+      action: PayloadAction<{ type: string; data: any }>
+    ) => {
       // action.payload is the node type
       if (state.currentFlow) {
         const newNode: FlowNode = {
           id: nanoid(),
-          type: action.payload,
-          position: { x: 100, y: 100 },
-          data: {},
+          type: action.payload.type,
+          position: { x: 111, y: 122 },
+          data: action.payload.data,
         };
         state.currentFlow.nodes.push(newNode);
         state.currentFlow.saved = false;
@@ -270,8 +300,12 @@ const flowSlice = createSlice({
       })
       .addCase(saveFlowThunk.fulfilled, (state, action) => {
         state.loading = false;
+        // Merge local nodes/edges with the saved flag
         state.currentFlow = {
+          ...state.currentFlow,
           ...action.payload,
+          nodes: state.currentFlow?.nodes || [],
+          edges: state.currentFlow?.edges || [],
           saved: true,
         };
       })
@@ -308,6 +342,8 @@ export const {
   applyNodeChangesAction,
   applyEdgeChangesAction,
   addEdgeToFlow,
+  addNodeToFlow,
+  updateNodeData,
 } = flowSlice.actions;
 
 export default flowSlice.reducer;
