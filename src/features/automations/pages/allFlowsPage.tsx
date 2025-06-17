@@ -3,14 +3,13 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent,
   CardFooter,
 } from '@/components/ui/card';
 
 import { SiteHeader } from '@/components/site-header';
-import { DialogBox } from '../components/dialogBox';
-import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { CreateFlowDialog } from '../components/createFlowDialog';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchAllFlowsThunk, deleteFlowThunk } from '@/store/slices/flowsSlice';
 import { Trash2 } from 'lucide-react';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -37,7 +36,7 @@ export default function AutomationPage() {
     <div className="w-full h-full">
       <SiteHeader title="Automations" />
       <div className="w-full flex justify-end px-4">
-        <DialogBox />
+        <CreateFlowDialog />
       </div>
 
       <div className="flex flex-col gap-6 mt-2">
@@ -60,7 +59,7 @@ export default function AutomationPage() {
               <Card
                 key={flow.id}
                 className="shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer relative"
-                onClick={() => navigate(`/dashboard/automation/${flow.id}`)}
+                onClick={() => navigate(`/flows/${flow.id}`)}
               >
                 <CardHeader>
                   <CardTitle>{flow.name}</CardTitle>
