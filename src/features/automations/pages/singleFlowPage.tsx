@@ -39,43 +39,22 @@ import {
 // Simplified node types with initial data
 const NODES = [
   {
-    type: 'trigger',
-    label: 'Trigger',
-    description: 'Manual or event-based trigger',
-    icon: Zap,
-    initialData: {
-      label: 'Trigger Node',
-      config: {
-        event: 'manual',
-        description: 'Manual trigger',
-      },
-    },
-  },
-  {
-    type: 'action',
-    label: 'Action',
-    description: 'Perform an action or send a message',
+    type: 'textMessage',
+    label: 'Text Message',
+    description: 'Send a text message',
     icon: MessageSquare,
     initialData: {
-      label: 'Action Node',
-      config: {
-        actionType: 'custom',
-        description: 'Custom action',
-      },
+      message: '',
     },
   },
   {
-    type: 'condition',
-    label: 'Condition',
-    description: 'Conditional logic based on input',
+    type: 'textMessageWithButton',
+    label: 'Text Message with Button',
+    description: 'Send a text message with buttons',
     icon: Filter,
     initialData: {
-      label: 'Condition Node',
-      config: {
-        operator: 'equals',
-        value: '',
-        description: 'Conditional logic',
-      },
+      message: '',
+      buttons: [],
     },
   },
   {
