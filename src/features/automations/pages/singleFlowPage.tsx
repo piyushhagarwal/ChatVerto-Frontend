@@ -34,6 +34,8 @@ import {
   Database,
   Globe,
   Filter,
+  ReplyAll,
+  MessageCircleMore,
 } from 'lucide-react';
 
 // Simplified node types with initial data
@@ -51,7 +53,7 @@ const NODES = [
     type: 'textMessageWithButton',
     label: 'Text Message with Button',
     description: 'Send a text message with buttons',
-    icon: Filter,
+    icon: MessageCircleMore,
     initialData: {
       message: '',
       buttons: [],
@@ -316,11 +318,9 @@ export default function SingleFlowPage() {
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           className="bg-gray-50"
-          defaultViewport={{ x: 100, y: 100, zoom: 1 }}
+          defaultViewport={{ x: 500, y: 300, zoom: 0.8 }}
           minZoom={0.5}
           maxZoom={2}
-          snapToGrid={true}
-          snapGrid={[15, 15]}
         >
           <Background
             color="#e5e7eb"
