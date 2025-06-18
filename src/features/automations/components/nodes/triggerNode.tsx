@@ -15,7 +15,7 @@ import { Handle, Position } from '@xyflow/react';
 interface TriggerNodeProps {
   id: string;
   data: {
-    keywords?: string[];
+    keywords: string[];
   };
 }
 
@@ -27,7 +27,7 @@ export default function TriggerNode({ id, data }: TriggerNodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        id="right"
+        id="triggerSource"
         style={{
           width: 10,
           height: 10,
