@@ -1,56 +1,73 @@
-'use client';
-
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-} from '@/components/ui/sidebar';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea'; // Use Textarea for better UX with messages
 import { useState } from 'react';
+import { updateNodeData } from '@/store/slices/flowsSlice';
+import { useAppDispatch } from '@/store/hooks';
+
+interface TextMessageSidebarProps {
+  nodeId: string;
+  initialData: {
+    message?: string;
+  };
+  onClose?: () => void;
+}
 
 export default function TextMessageSidebar({
+  nodeId,
+  initialData,
   onClose,
-}: {
-  onClose: () => void;
-}) {
-  const [message, setMessage] = useState('');
-  const [url, setUrl] = useState('');
+}: TextMessageSidebarProps) {
+  const dispatch = useAppDispatch();
+  const [message, setMessage] = useState(initialData.message || '');
 
-  const handleSubmit = () => {
-    console.log('Message:', message);
-    console.log('URL:', url);
-    onClose();
+  const handleSave = () => {
+    dispatch(
+      updateNodeData({
+        nodeId,
+        data: { message },
+      })
+    );
+    if (onClose) onClose();
   };
 
-  return (
-    <SidebarProvider>
-      <Sidebar
-        collapsible="offcanvas"
-        open={true}
-        className="w-[400px] border-l bg-white shadow-xl transition-all duration-300"
-      >
-        <SidebarContent className="p-4 flex flex-col h-full">
-          <h2 className="text-xl font-semibold mb-4">Send Message</h2>
+  return createPortal(
+    <div className="fixed inset-0 z-50 pointer-events-none">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/20 pointer-events-auto"
+        onClick={onClose}
+      />
 
-          <Textarea
-            placeholder="Type your message here..."
-            value={message}
-            onChange={e => setMessage(e.target.value)}
-            className="mb-4"
-          />
+      {/* Sidebar */}
+      <div className="absolute left-0 top-0 h-full w-[350px] bg-white shadow-xl border-l pointer-events-auto overflow-y-auto">
+        <div className="p-4 flex flex-col h-full">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Text Message</h2>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              ✕
+            </Button>
+          </div>
 
-          <Input
-            placeholder="Optional URL"
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            className="mb-4"
-          />
+          <div className="flex-1">
+            <label className="text-sm font-medium mb-2 block">
+              Message Content
+            </label>
+            <Textarea
+              className="w-full"
+              rows={6}
+              placeholder="Type your message here..."
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+            />
+          </div>
 
-          <Button onClick={handleSubmit}>Submit</Button>
-        </SidebarContent>
-      </Sidebar>
-    </SidebarProvider>
+          <Button className="mt-auto w-full" onClick={handleSave}>
+            Save Message
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
