@@ -1,113 +1,139 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-} from '@/components/ui/sidebar';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Plus } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Trash2 } from 'lucide-react';
+import { nanoid } from 'nanoid';
+import { updateNodeData } from '@/store/slices/flowsSlice';
+import { useAppDispatch } from '@/store/hooks';
 
-interface Props {
-  open: boolean;
+interface ButtonItem {
+  id: string;
+  label: string;
+}
+
+interface SidebarProps {
+  nodeId: string;
+  initialData: {
+    message: string;
+    buttons: ButtonItem[];
+  };
   onClose: () => void;
-  onSubmit: (data: { message: string; listItems: string[] }) => void;
-  initialData?: { message: string; listItems: string[] };
 }
 
 export default function TextMessageWithListSidebar({
-  open,
-  onClose,
-  onSubmit,
+  nodeId,
   initialData,
-}: Props) {
-  const [message, setMessage] = useState('');
-  const [listItems, setListItems] = useState<string[]>([]);
-  const [newItem, setNewItem] = useState('');
+  onClose,
+}: SidebarProps) {
+  const dispatch = useAppDispatch();
+  const [message, setMessage] = useState(initialData.message || '');
+  const [buttons, setButtons] = useState<ButtonItem[]>(
+    initialData.buttons || []
+  );
 
-  useEffect(() => {
-    if (initialData) {
-      setMessage(initialData.message || '');
-      setListItems(initialData.listItems || []);
-    }
-  }, [initialData]);
-
-  const handleAddItem = () => {
-    if (newItem.trim() !== '') {
-      setListItems(prev => [...prev, newItem.trim()]);
-      setNewItem('');
-    }
+  const updateButtonLabel = (index: number, newLabel: string) => {
+    const updated = [...buttons];
+    updated[index].label = newLabel;
+    setButtons(updated);
   };
 
-  const handleDeleteItem = (index: number) => {
-    const updated = [...listItems];
+  const addButton = () => {
+    setButtons([...buttons, { id: nanoid(), label: '' }]);
+  };
+
+  const removeButton = (index: number) => {
+    const updated = [...buttons];
     updated.splice(index, 1);
-    setListItems(updated);
+    setButtons(updated);
   };
 
-  const handleSubmit = () => {
-    if (!message.trim() || listItems.length === 0) return;
-    onSubmit({ message, listItems });
+  const handleSave = () => {
+    dispatch(
+      updateNodeData({
+        nodeId,
+        data: {
+          message: message.trim(),
+          buttons: buttons.filter(b => b.label.trim()),
+        },
+      })
+    );
+    if (onClose) onClose();
   };
 
-  return (
-    <SidebarProvider>
-      <Sidebar
-        collapsible="offcanvas"
-        open={open}
-        onClose={onClose}
-        className="w-[400px] border-l bg-white shadow-xl transition-all duration-500 ease-in-out"
-      >
-        <SidebarContent className="p-4 flex flex-col h-full gap-4">
-          <h2 className="text-xl font-semibold">Edit Text with List</h2>
+  return createPortal(
+    <div className="fixed inset-0 z-50 pointer-events-none">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/20 pointer-events-auto"
+        onClick={onClose}
+      />
+      {/* Sidebar */}
+      <div className="absolute left-0 top-0 h-full w-[400px] bg-white shadow-xl border-l pointer-events-auto overflow-y-auto">
+        <div className="p-4 flex flex-col h-full gap-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-semibold">Text Message with Buttons</h2>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              ✕
+            </Button>
+          </div>
 
-          <div className="grid gap-2">
-            <Label>Message</Label>
+          {/* Message Textarea */}
+          <div>
+            <Label className="mb-2 block text-sm font-medium">
+              Message Content
+            </Label>
             <Textarea
+              className="w-full"
+              rows={6}
+              placeholder="Type your message here..."
               value={message}
               onChange={e => setMessage(e.target.value)}
-              placeholder="Enter your message"
-              className="resize-none"
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label>List Items</Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add item"
-                value={newItem}
-                onChange={e => setNewItem(e.target.value)}
-              />
-              <Button type="button" onClick={handleAddItem}>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            <ul className="space-y-1 text-sm">
-              {listItems.map((item, idx) => (
-                <li
-                  key={idx}
-                  className="flex items-center justify-between bg-muted px-2 py-1 rounded"
-                >
-                  <span>{item}</span>
-                  <Trash2
-                    className="w-4 h-4 text-red-500 cursor-pointer"
-                    onClick={() => handleDeleteItem(idx)}
-                  />
-                </li>
-              ))}
-            </ul>
+          {/* Buttons Section */}
+          <div className="flex items-center justify-between mt-2">
+            <Label className="text-sm font-medium">Buttons</Label>
+            <Button size="sm" onClick={addButton}>
+              Add Button
+            </Button>
           </div>
 
-          <Button className="w-full mt-auto" onClick={handleSubmit}>
-            Submit
+          <div className="flex flex-col gap-2">
+            {buttons.map((btn, index) => (
+              <div key={btn.id} className="flex items-center gap-2">
+                <Input
+                  placeholder={`Button ${index + 1} label`}
+                  value={btn.label}
+                  onChange={e => updateButtonLabel(index, e.target.value)}
+                  className="flex-1"
+                />
+                <Trash2
+                  className="w-4 h-4 text-red-500 hover:text-red-700 cursor-pointer"
+                  onClick={() => removeButton(index)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {buttons.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No buttons added yet. Click "Add Button" to create your first
+              button.
+            </p>
+          )}
+
+          {/* Save Button */}
+          <Button className="mt-auto w-full" onClick={handleSave}>
+            Save Message & Buttons
           </Button>
-        </SidebarContent>
-      </Sidebar>
-    </SidebarProvider>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
