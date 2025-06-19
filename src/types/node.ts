@@ -1,5 +1,5 @@
-import TriggerNode from '@/features/automations/components/nodes/triggerNode';
-import TextMessageNode from '@/features/automations/components/nodes/textMessageNode';
+import TriggerNode from '@/features/automations/components/nodes/trigger';
+import TextMessageNode from '@/features/automations/components/nodes/textMessage';
 import TextMessageWithButton from '@/features/automations/components/nodes/textMessageWithButton';
 import TextMessageWithList from '@/features/automations/components/nodes/textMessageWithList';
 import ContactCard from '@/features/automations/components/nodes/contactMessage';
