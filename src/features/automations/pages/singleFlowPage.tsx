@@ -29,12 +29,8 @@ import {
   Check,
   X,
   Loader2,
-  Zap,
   MessageSquare,
-  Database,
-  Globe,
-  Filter,
-  ReplyAll,
+  List,
   MessageCircleMore,
 } from 'lucide-react';
 
@@ -60,31 +56,13 @@ const NODES = [
     },
   },
   {
-    type: 'database',
-    label: 'Database',
-    description: 'Interact with a database',
-    icon: Database,
+    type: 'textMessageWithList',
+    label: 'Text Message with List',
+    description: 'Send a text message with a list of options',
+    icon: List,
     initialData: {
-      label: 'Database Node',
-      config: {
-        operation: 'select',
-        table: '',
-        description: 'Database operation',
-      },
-    },
-  },
-  {
-    type: 'api',
-    label: 'API Call',
-    description: 'Make an HTTP API call',
-    icon: Globe,
-    initialData: {
-      label: 'API Node',
-      config: {
-        method: 'GET',
-        url: '',
-        description: 'HTTP API call',
-      },
+      message: '',
+      buttons: [],
     },
   },
 ];
