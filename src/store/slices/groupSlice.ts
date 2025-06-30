@@ -1,11 +1,12 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type {
   GroupContact,
   GroupContactListResponse,
   GroupContactResponse,
   CreateGroupContactPayload,
   UpdateGroupContactPayload,
-  SingleGroupWithContactsResponse,
+  SingleGroupResponse,
 } from '@/types/contact';
 import {
   createGroup,
@@ -17,7 +18,7 @@ import {
 
 interface GroupState {
   groups: GroupContact[];
-  selectedGroup: SingleGroupWithContactsResponse | null;
+  selectedGroup: GroupContact | null;
   loading: boolean;
   error: string | null;
 }
@@ -40,19 +41,23 @@ export const fetchAllGroupsThunk = createAsyncThunk(
       const res: GroupContactListResponse = await getAllGroups();
       return res.data.groups;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch groups');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch groups'
+      );
     }
   }
 );
 
-export const fetchGroupWithContactsThunk = createAsyncThunk(
+export const fetchGroupWithIdThunk = createAsyncThunk(
   'group/fetchSingle',
   async (groupId: string, { rejectWithValue }) => {
     try {
-      const res: SingleGroupWithContactsResponse = await getGroupById(groupId);
-      return res;
+      const res: SingleGroupResponse = await getGroupById(groupId);
+      return res.data.group;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch group');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch group'
+      );
     }
   }
 );
@@ -64,7 +69,9 @@ export const createGroupThunk = createAsyncThunk(
       const res: GroupContactResponse = await createGroup(payload);
       return res.data.groupContact;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to create group');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to create group'
+      );
     }
   }
 );
@@ -72,14 +79,19 @@ export const createGroupThunk = createAsyncThunk(
 export const updateGroupThunk = createAsyncThunk(
   'group/update',
   async (
-    { groupId, payload }: { groupId: string; payload: UpdateGroupContactPayload },
+    {
+      groupId,
+      payload,
+    }: { groupId: string; payload: UpdateGroupContactPayload },
     { rejectWithValue }
   ) => {
     try {
       const res: GroupContactResponse = await updateGroup(groupId, payload);
       return res.data.groupContact;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to update group');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to update group'
+      );
     }
   }
 );
@@ -91,7 +103,9 @@ export const deleteGroupThunk = createAsyncThunk(
       const res: GroupContactResponse = await deleteGroup(groupId);
       return res.data.groupContact;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to delete group');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to delete group'
+      );
     }
   }
 );
@@ -103,7 +117,11 @@ export const deleteGroupThunk = createAsyncThunk(
 const groupSlice = createSlice({
   name: 'group',
   initialState,
-  reducers: {},
+  reducers: {
+    clearError(state) {
+      state.error = null;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchAllGroupsThunk.pending, state => {
@@ -119,26 +137,60 @@ const groupSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      .addCase(fetchGroupWithContactsThunk.fulfilled, (state, action) => {
+      .addCase(fetchGroupWithIdThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGroupWithIdThunk.fulfilled, (state, action) => {
         state.selectedGroup = action.payload;
       })
+      .addCase(fetchGroupWithIdThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
+      .addCase(createGroupThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(createGroupThunk.fulfilled, (state, action) => {
         state.groups.push(action.payload);
       })
+      .addCase(createGroupThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
+      .addCase(updateGroupThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateGroupThunk.fulfilled, (state, action) => {
         const index = state.groups.findIndex(g => g.id === action.payload.id);
         if (index !== -1) state.groups[index] = action.payload;
       })
+      .addCase(updateGroupThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
+      .addCase(deleteGroupThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(deleteGroupThunk.fulfilled, (state, action) => {
         state.groups = state.groups.filter(g => g.id !== action.payload.id);
-        if (state.selectedGroup?.group.id === action.payload.id) {
+        if (state.selectedGroup?.id === action.payload.id) {
           state.selectedGroup = null;
         }
+      })
+      .addCase(deleteGroupThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
+
+export const { clearError } = groupSlice.actions;
 
 export default groupSlice.reducer;
