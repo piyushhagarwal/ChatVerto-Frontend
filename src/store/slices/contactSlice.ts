@@ -1,4 +1,9 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  createSlice,
+  createAsyncThunk,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 import type {
   Contact,
   ContactListResponse,
@@ -9,6 +14,7 @@ import type {
 } from '@/types/contact';
 import {
   createContact,
+  getContactsByGroupId,
   deleteContact,
   getAllContacts,
   updateContact,
@@ -38,7 +44,23 @@ export const fetchAllContactsThunk = createAsyncThunk(
       const res: ContactListResponse = await getAllContacts();
       return res.data.contacts;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch contacts');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch contacts'
+      );
+    }
+  }
+);
+
+export const fetchContactsByGroupIdThunk = createAsyncThunk(
+  'contact/fetchByGroupId',
+  async (groupId: string, { rejectWithValue }) => {
+    try {
+      const res: ContactListResponse = await getContactsByGroupId(groupId);
+      return res.data.contacts;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch contacts'
+      );
     }
   }
 );
@@ -50,7 +72,9 @@ export const createContactThunk = createAsyncThunk(
       const res: ContactResponse = await createContact(payload);
       return res.data.contact;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to create contact');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to create contact'
+      );
     }
   }
 );
@@ -58,14 +82,19 @@ export const createContactThunk = createAsyncThunk(
 export const updateContactThunk = createAsyncThunk(
   'contact/update',
   async (
-    { contactId, payload }: { contactId: string; payload: UpdateContactPayload },
+    {
+      contactId,
+      payload,
+    }: { contactId: string; payload: UpdateContactPayload },
     { rejectWithValue }
   ) => {
     try {
       const res: ContactResponse = await updateContact(contactId, payload);
       return res.data.contact;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to update contact');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to update contact'
+      );
     }
   }
 );
@@ -77,7 +106,9 @@ export const deleteContactThunk = createAsyncThunk(
       const res: ContactResponse = await deleteContact(contactId);
       return res.data.contact;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to delete contact');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to delete contact'
+      );
     }
   }
 );
@@ -101,7 +132,11 @@ export const deleteContactThunk = createAsyncThunk(
 const contactSlice = createSlice({
   name: 'contact',
   initialState,
-  reducers: {},
+  reducers: {
+    clearError(state) {
+      state.error = null;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchAllContactsThunk.pending, state => {
@@ -117,23 +152,62 @@ const contactSlice = createSlice({
         state.error = action.payload as string;
       })
 
+      .addCase(fetchContactsByGroupIdThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchContactsByGroupIdThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.contacts = action.payload;
+      })
+      .addCase(fetchContactsByGroupIdThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(createContactThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(createContactThunk.fulfilled, (state, action) => {
         state.contacts.push(action.payload);
       })
+      .addCase(createContactThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
+      .addCase(updateContactThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateContactThunk.fulfilled, (state, action) => {
         const index = state.contacts.findIndex(c => c.id === action.payload.id);
         if (index !== -1) state.contacts[index] = action.payload;
       })
+      .addCase(updateContactThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
+      .addCase(deleteContactThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(deleteContactThunk.fulfilled, (state, action) => {
         state.contacts = state.contacts.filter(c => c.id !== action.payload.id);
       })
+      .addCase(deleteContactThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
 
     //   .addCase(importContactsThunk.fulfilled, (state, action) => {
     //     state.contacts = [...state.contacts, ...action.payload];
     //   });
   },
 });
+
+export const { clearError } = contactSlice.actions;
 
 export default contactSlice.reducer;
