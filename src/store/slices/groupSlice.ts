@@ -180,9 +180,7 @@ const groupSlice = createSlice({
       })
       .addCase(deleteGroupThunk.fulfilled, (state, action) => {
         state.groups = state.groups.filter(g => g.id !== action.payload.id);
-        if (state.selectedGroup?.id === action.payload.id) {
-          state.selectedGroup = null;
-        }
+        state.selectedGroup = null;
       })
       .addCase(deleteGroupThunk.rejected, (state, action) => {
         state.loading = false;

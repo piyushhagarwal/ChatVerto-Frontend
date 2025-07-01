@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  createSlice,
-  createAsyncThunk,
-  type PayloadAction,
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type {
   Contact,
   ContactListResponse,
@@ -18,6 +14,7 @@ import {
   deleteContact,
   getAllContacts,
   updateContact,
+  removeContactFromGroup,
   importContactsFromCSV,
 } from '@/api/endpoints/contact';
 
@@ -99,6 +96,25 @@ export const updateContactThunk = createAsyncThunk(
   }
 );
 
+export const removeContactFromGroupThunk = createAsyncThunk(
+  'contacts/removeContactFromGroup',
+  async (
+    { contactId, groupId }: { contactId: string; groupId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await removeContactFromGroup(contactId, groupId);
+      return response.data.contact;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          'Failed to remove contact from group'
+      );
+    }
+  }
+);
+
 export const deleteContactThunk = createAsyncThunk(
   'contact/delete',
   async (contactId: string, { rejectWithValue }) => {
@@ -113,17 +129,19 @@ export const deleteContactThunk = createAsyncThunk(
   }
 );
 
-// export const importContactsThunk = createAsyncThunk(
-//   'contact/import',
-//   async (formData: FormData, { rejectWithValue }) => {
-//     try {
-//       const res: ImportContactsResponse = await importContactsFromCSV(formData);
-//       return res.data.contact;
-//     } catch (err: any) {
-//       return rejectWithValue(err.response?.data?.message || 'Failed to import contacts');
-//     }
-//   }
-// );
+export const importContactsThunk = createAsyncThunk(
+  'contact/import',
+  async (formData: FormData, { rejectWithValue }) => {
+    try {
+      const res: ImportContactsResponse = await importContactsFromCSV(formData);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to import contacts'
+      );
+    }
+  }
+);
 
 // ──────────────────────────────
 // 🧩 Slice
@@ -190,6 +208,18 @@ const contactSlice = createSlice({
         state.error = action.payload as string;
       })
 
+      .addCase(removeContactFromGroupThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeContactFromGroupThunk.fulfilled, (state, action) => {
+        state.contacts = state.contacts.filter(c => c.id !== action.payload.id);
+      })
+      .addCase(removeContactFromGroupThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       .addCase(deleteContactThunk.pending, state => {
         state.loading = true;
         state.error = null;
@@ -200,11 +230,19 @@ const contactSlice = createSlice({
       .addCase(deleteContactThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
 
-    //   .addCase(importContactsThunk.fulfilled, (state, action) => {
-    //     state.contacts = [...state.contacts, ...action.payload];
-    //   });
+      .addCase(importContactsThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(importContactsThunk.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(importContactsThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

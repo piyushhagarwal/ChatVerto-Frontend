@@ -27,7 +27,7 @@ import {
 } from '@/store/slices/groupSlice';
 
 import type { GroupContact } from '@/types/contact';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 interface GroupsProps {
   selectedGroupId: string | null;
@@ -92,8 +92,7 @@ export default function Groups({
           className="justify-items-start border-destructive my-3"
         >
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Deletion failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertTitle>{error}</AlertTitle>
         </Alert>
       )}
       <div className="flex justify-between items-center mb-2">

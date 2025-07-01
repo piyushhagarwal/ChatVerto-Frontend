@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, UploadCloud, Search } from 'lucide-react';
+import { Trash2, Plus, UploadCloud } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,8 +22,12 @@ import {
 } from '@/components/ui/table';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
+  fetchAllContactsThunk,
+  fetchContactsByGroupIdThunk,
   createContactThunk,
+  removeContactFromGroupThunk,
   deleteContactThunk,
+  importContactsThunk,
 } from '@/store/slices/contactSlice';
 
 import type { Contact } from '@/types/contact';
@@ -38,23 +42,14 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [contactName, setContactName] = useState('');
   const [contactPhone, setContactPhone] = useState('');
+  const [csvFile, setCsvFile] = useState<File | null>(null);
 
-  const { contacts, error: contactError } = useAppSelector(
-    state => state.contact
-  );
+  const { contacts } = useAppSelector(state => state.contact);
   const { selectedGroup } = useAppSelector(state => state.group);
-
-  // Filter contacts based on selected group
-  const getFilteredContactsByGroup = () => {
-    return contacts;
-  };
-
-  const groupFilteredContacts = getFilteredContactsByGroup();
 
   useEffect(() => {
     const saved = localStorage.getItem('selectedContacts');
@@ -73,7 +68,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
 
   const toggleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedContacts(groupFilteredContacts.map(c => c.id));
+      setSelectedContacts(contacts.map(c => c.id));
     } else {
       setSelectedContacts([]);
     }
@@ -86,14 +81,44 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   };
 
   const confirmDelete = () => {
-    if (confirmDeleteId) {
-      dispatch(deleteContactThunk(confirmDeleteId));
-      setConfirmDeleteId(null);
+    if (!confirmDeleteId) return;
+
+    if (selectedGroupId) {
+      dispatch(
+        removeContactFromGroupThunk({
+          contactId: confirmDeleteId,
+          groupId: selectedGroupId,
+        })
+      ).then(() => {
+        dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
+      });
+    } else {
+      dispatch(deleteContactThunk(confirmDeleteId)).then(() => {
+        dispatch(fetchAllContactsThunk());
+      });
     }
+
+    setConfirmDeleteId(null);
   };
 
   const confirmDeleteSelected = () => {
-    selectedContacts.forEach(id => dispatch(deleteContactThunk(id)));
+    if (selectedGroupId) {
+      selectedContacts.forEach(id => {
+        dispatch(
+          removeContactFromGroupThunk({
+            contactId: id,
+            groupId: selectedGroupId,
+          })
+        );
+      });
+      dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
+    } else {
+      selectedContacts.forEach(id => {
+        dispatch(deleteContactThunk(id));
+      });
+      dispatch(fetchAllContactsThunk());
+    }
+
     setSelectedContacts([]);
     setConfirmBulkDelete(false);
   };
@@ -106,7 +131,13 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
           phone: contactPhone.trim(),
           groupsArray: selectedGroupId ? [selectedGroupId] : [],
         })
-      );
+      ).then(() => {
+        if (selectedGroupId) {
+          dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
+        } else {
+          dispatch(fetchAllContactsThunk());
+        }
+      });
       setContactName('');
       setContactPhone('');
       setIsCreateDialogOpen(false);
@@ -119,22 +150,30 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
     setIsCreateDialogOpen(false);
   };
 
-  const handleImportCSV = () => {
-    // TODO: Implement CSV import logic
-    setIsImportDialogOpen(false);
-  };
+  const handleImportCSV = async () => {
+    if (!csvFile) return;
 
-  const trimmedSearch = searchTerm.trim().toLowerCase();
-  const filteredContacts: Contact[] = groupFilteredContacts
-    .map(contact => ({
-      ...contact,
-      groups: (contact as Contact).groups ?? [],
-    }))
-    .filter(
-      contact =>
-        contact.name.toLowerCase().includes(trimmedSearch) ||
-        contact.phone.includes(trimmedSearch)
+    const formData = new FormData();
+    formData.append('file', csvFile);
+    formData.append(
+      'groupsArray',
+      JSON.stringify(selectedGroupId ? [selectedGroupId] : [])
     );
+
+    try {
+      await dispatch(importContactsThunk(formData)).unwrap();
+      setIsImportDialogOpen(false);
+      setCsvFile(null); // reset after import
+
+      if (selectedGroupId) {
+        dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
+      } else {
+        dispatch(fetchAllContactsThunk());
+      }
+    } catch (err) {
+      console.error('Import failed:', err);
+    }
+  };
 
   return (
     <section className="space-y-2">
@@ -198,10 +237,19 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
               </DialogHeader>
               <div className="border-2 border-dashed rounded-md p-6 text-center text-muted-foreground">
                 Drag and drop your CSV file here or
-                <Input type="file" accept=".csv" className="mt-4" />
+                <Input
+                  type="file"
+                  accept=".csv"
+                  className="mt-4"
+                  onChange={e => setCsvFile(e.target.files?.[0] || null)}
+                />
               </div>
               <DialogFooter className="pt-4">
-                <Button type="submit" onClick={handleImportCSV}>
+                <Button
+                  type="submit"
+                  onClick={handleImportCSV}
+                  disabled={!csvFile}
+                >
                   Save
                 </Button>
                 <Button
@@ -216,130 +264,114 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
         </div>
       </div>
 
-      {/* Contact Search Bar */}
-      <div className="flex items-center gap-2">
-        <Search className="w-4 h-4 text-gray-500" />
-        <Input
-          placeholder="Search contacts..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="max-w-md"
-        />
-      </div>
-
-      {contactError && (
-        <p className="text-muted-foreground mt-6 text-center">
-          No contacts found.
-        </p>
-      )}
-
-      {selectedContacts.length > 0 && (
-        <div className="flex gap-2 mb-2">
-          <Dialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
-            <DialogTrigger asChild>
-              <Button variant="destructive" size="sm">
-                Delete Selected
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Confirm Bulk Deletion</DialogTitle>
-              </DialogHeader>
-              <p>
-                Are you sure you want to delete these contacts? This action
-                cannot be undone.
-              </p>
-              <DialogFooter className="pt-4">
-                <Button onClick={confirmDeleteSelected}>Yes, Delete</Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setConfirmBulkDelete(false)}
-                >
-                  Cancel
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
-
       {contacts.length === 0 ? (
-        <></>
-      ) : filteredContacts.length === 0 ? (
-        <p className="text-muted-foreground mt-6">
-          No contacts match your search.
-        </p>
+        <p className="text-muted-foreground mt-6">No contacts available.</p>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10">
-                <input
-                  type="checkbox"
-                  onChange={e => toggleSelectAll(e.target.checked)}
-                  checked={
-                    selectedContacts.length === groupFilteredContacts.length &&
-                    groupFilteredContacts.length > 0
-                  }
-                />
-              </TableHead>
-              <TableHead className="text-left">Name</TableHead>
-              <TableHead className="text-left">Phone Number</TableHead>
-              <TableHead className="text-right">Delete</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredContacts.map((contact: Contact) => (
-              <TableRow key={contact.id}>
-                <TableCell className="w-10">
+        <>
+          {selectedContacts.length > 0 && (
+            <div className="flex gap-2 mb-2">
+              <Dialog
+                open={confirmBulkDelete}
+                onOpenChange={setConfirmBulkDelete}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    Delete Selected
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Bulk Deletion</DialogTitle>
+                  </DialogHeader>
+                  <p>
+                    {selectedGroupId
+                      ? `Are you sure you want to remove ${selectedContacts.length} contact(s) from the group "${selectedGroup?.name}"? They will still remain in your contact list.`
+                      : `Are you sure you want to permanently delete ${selectedContacts.length} contact(s)? This action cannot be undone.`}
+                  </p>
+                  <DialogFooter className="pt-4">
+                    <Button onClick={confirmDeleteSelected}>Yes, Delete</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setConfirmBulkDelete(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-10">
                   <input
                     type="checkbox"
-                    checked={selectedContacts.includes(contact.id)}
-                    onChange={() => toggleSelect(contact.id)}
+                    onChange={e => toggleSelectAll(e.target.checked)}
+                    checked={
+                      selectedContacts.length === contacts.length &&
+                      contacts.length > 0
+                    }
                   />
-                </TableCell>
-                <TableCell className="text-left">{contact.name}</TableCell>
-                <TableCell className="text-left">{contact.phone}</TableCell>
-                <TableCell className="text-right">
-                  <Dialog
-                    open={confirmDeleteId === contact.id}
-                    onOpenChange={open => !open && setConfirmDeleteId(null)}
-                  >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-500 hover:text-red-600"
-                        onClick={() => setConfirmDeleteId(contact.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Confirm Deletion</DialogTitle>
-                      </DialogHeader>
-                      <p>
-                        Are you sure you want to delete{' '}
-                        <strong>{contact.name}</strong>? This action is
-                        irreversible.
-                      </p>
-                      <DialogFooter className="pt-4">
-                        <Button onClick={confirmDelete}>Yes, Delete</Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setConfirmDeleteId(null)}
-                        >
-                          Cancel
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
+                </TableHead>
+                <TableHead className="text-left">Name</TableHead>
+                <TableHead className="text-left">Phone Number</TableHead>
+                <TableHead className="text-right">Delete</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {contacts.map((contact: Contact) => (
+                <TableRow key={contact.id}>
+                  <TableCell className="w-10">
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.includes(contact.id)}
+                      onChange={() => toggleSelect(contact.id)}
+                    />
+                  </TableCell>
+                  <TableCell className="text-left">{contact.name}</TableCell>
+                  <TableCell className="text-left">{contact.phone}</TableCell>
+                  <TableCell className="text-right">
+                    <Dialog
+                      open={confirmDeleteId === contact.id}
+                      onOpenChange={open => !open && setConfirmDeleteId(null)}
+                    >
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-600"
+                          onClick={() => setConfirmDeleteId(contact.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Confirm Deletion</DialogTitle>
+                        </DialogHeader>
+                        <p>
+                          {selectedGroupId
+                            ? `Are you sure you want to remove ${contact.name} from the group "${selectedGroup?.name}"? The contact will still remain in your contact list.`
+                            : `Are you sure you want to permanently delete ${contact.name}? This action cannot be undone.`}
+                        </p>
+                        <DialogFooter className="pt-4">
+                          <Button onClick={confirmDelete}>Yes, Delete</Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setConfirmDeleteId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
       )}
     </section>
   );
