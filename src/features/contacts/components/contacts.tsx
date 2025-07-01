@@ -283,13 +283,29 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                   <DialogHeader>
                     <DialogTitle>Confirm Bulk Deletion</DialogTitle>
                   </DialogHeader>
-                  <p>
-                    {selectedGroupId
-                      ? `Are you sure you want to remove ${selectedContacts.length} contact(s) from the group "${selectedGroup?.name}"? They will still remain in your contact list.`
-                      : `Are you sure you want to permanently delete ${selectedContacts.length} contact(s)? This action cannot be undone.`}
-                  </p>
+
+                  {selectedGroupId ? (
+                    <p>
+                      Are you sure you want to remove{' '}
+                      <strong>{selectedContacts.length}</strong> contact(s) from
+                      the group <strong>{selectedGroup?.name}</strong>? They
+                      will still remain in your contact list.
+                    </p>
+                  ) : (
+                    <p>
+                      Are you sure you want to permanently delete{' '}
+                      <strong>{selectedContacts.length}</strong> contact(s)?
+                      This action cannot be undone.
+                    </p>
+                  )}
+
                   <DialogFooter className="pt-4">
-                    <Button onClick={confirmDeleteSelected}>Yes, Delete</Button>
+                    <Button
+                      variant="destructive"
+                      onClick={confirmDeleteSelected}
+                    >
+                      Delete
+                    </Button>
                     <Button
                       variant="outline"
                       onClick={() => setConfirmBulkDelete(false)}
@@ -350,13 +366,26 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                         <DialogHeader>
                           <DialogTitle>Confirm Deletion</DialogTitle>
                         </DialogHeader>
-                        <p>
-                          {selectedGroupId
-                            ? `Are you sure you want to remove ${contact.name} from the group "${selectedGroup?.name}"? The contact will still remain in your contact list.`
-                            : `Are you sure you want to permanently delete ${contact.name}? This action cannot be undone.`}
-                        </p>
+
+                        {selectedGroupId ? (
+                          <p>
+                            Are you sure you want to remove{' '}
+                            <strong>{contact.name}</strong> from the group{' '}
+                            <strong>{selectedGroup?.name}</strong>. The contact
+                            will still remain in your contact list.
+                          </p>
+                        ) : (
+                          <p>
+                            Are you sure you want to permanently delete{' '}
+                            <strong>{contact.name}</strong>? This action cannot
+                            be undone.
+                          </p>
+                        )}
+
                         <DialogFooter className="pt-4">
-                          <Button onClick={confirmDelete}>Yes, Delete</Button>
+                          <Button variant="destructive" onClick={confirmDelete}>
+                            Delete
+                          </Button>
                           <Button
                             variant="outline"
                             onClick={() => setConfirmDeleteId(null)}
