@@ -1,30 +1,39 @@
 import axios from '../axios';
 import type {
-    ContactListResponse,
-    ContactResponse,
-    CreateSingleContactPayload,
-    UpdateContactPayload,
-    ImportContactsResponse,
-    CreateGroupContactPayload,
-    GroupContactResponse,
-    GroupContactListResponse,
-    UpdateGroupContactPayload,
-    SingleGroupWithContactsResponse,
-  } from '@/types/contact';
-
-  
+  ContactListResponse,
+  ContactResponse,
+  CreateSingleContactPayload,
+  UpdateContactPayload,
+  ImportContactsResponse,
+  CreateGroupContactPayload,
+  GroupContactResponse,
+  GroupContactListResponse,
+  UpdateGroupContactPayload,
+  SingleGroupResponse,
+} from '@/types/contact';
 
 // 🟢 Create a new contact
 export const createContact = async (
   payload: CreateSingleContactPayload
 ): Promise<ContactResponse> => {
-  const response = await axios.post<ContactResponse>('/contacts/create', payload);
+  const response = await axios.post<ContactResponse>(
+    '/contacts/create',
+    payload
+  );
   return response.data;
 };
 
 // 🔵 Get all contacts
 export const getAllContacts = async (): Promise<ContactListResponse> => {
   const response = await axios.get<ContactListResponse>('/contacts');
+  return response.data;
+};
+
+// 🔵 Get contacts by Group ID
+export const getContactsByGroupId = async (
+  groupId: string
+): Promise<ContactListResponse> => {
+  const response = await axios.get<ContactListResponse>(`/contacts/${groupId}`);
   return response.data;
 };
 
@@ -65,56 +74,62 @@ export const deleteContact = async (
 export const importContactsFromCSV = async (
   formData: FormData
 ): Promise<ImportContactsResponse> => {
-  const response = await axios.post<ImportContactsResponse>('/contacts/import', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
+  const response = await axios.post<ImportContactsResponse>(
+    '/contacts/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     }
-  });
+  );
   return response.data;
 };
 
-
 export const createGroup = async (
-    payload: CreateGroupContactPayload
-  ): Promise<GroupContactResponse> => {
-    const response = await axios.post<GroupContactResponse>("/group-contact", payload);
-    return response.data;
-  };
-  
-  // 🟠 Get all groups
-  export const getAllGroups = async (): Promise<GroupContactListResponse> => {
-    const response = await axios.get<GroupContactListResponse>("/group-contact");
-    return response.data;
-  };
-  
-  // 🟣 Get a single group by ID with contacts
-  export const getGroupById = async (
-    groupId: string
-  ): Promise<SingleGroupWithContactsResponse> => {
-    const response = await axios.get<SingleGroupWithContactsResponse>(
-      `/group-contact/${groupId}`
-    );
-    return response.data;
-  };
-  
-  // 🟡 Update a group by ID
-  export const updateGroup = async (
-    groupId: string,
-    payload: UpdateGroupContactPayload
-  ): Promise<GroupContactResponse> => {
-    const response = await axios.put<GroupContactResponse>(
-      `/group-contact/${groupId}`,
-      payload
-    );
-    return response.data;
-  };
-  
-  // 🔴 Delete a group by ID
-  export const deleteGroup = async (
-    groupId: string
-  ): Promise<GroupContactResponse> => {
-    const response = await axios.delete<GroupContactResponse>(
-      `/group-contact/${groupId}`
-    );
-    return response.data;
-  };
+  payload: CreateGroupContactPayload
+): Promise<GroupContactResponse> => {
+  const response = await axios.post<GroupContactResponse>(
+    '/group-contact',
+    payload
+  );
+  return response.data;
+};
+
+// 🟠 Get all groups
+export const getAllGroups = async (): Promise<GroupContactListResponse> => {
+  const response = await axios.get<GroupContactListResponse>('/group-contact');
+  return response.data;
+};
+
+// 🟣 Get a single group by ID with contacts
+export const getGroupById = async (
+  groupId: string
+): Promise<SingleGroupResponse> => {
+  const response = await axios.get<SingleGroupResponse>(
+    `/group-contact/${groupId}`
+  );
+  return response.data;
+};
+
+// 🟡 Update a group by ID
+export const updateGroup = async (
+  groupId: string,
+  payload: UpdateGroupContactPayload
+): Promise<GroupContactResponse> => {
+  const response = await axios.put<GroupContactResponse>(
+    `/group-contact/${groupId}`,
+    payload
+  );
+  return response.data;
+};
+
+// 🔴 Delete a group by ID
+export const deleteGroup = async (
+  groupId: string
+): Promise<GroupContactResponse> => {
+  const response = await axios.delete<GroupContactResponse>(
+    `/group-contact/${groupId}`
+  );
+  return response.data;
+};
