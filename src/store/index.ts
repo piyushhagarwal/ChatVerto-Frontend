@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import flowReducer from './slices/flowsSlice';
 import contactReducer from './slices/contactSlice';
 import groupReducer from './slices/groupSlice';
+import userReducer from './slices/userSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,7 +11,7 @@ export const store = configureStore({
     flow: flowReducer,
     contact: contactReducer,
     group: groupReducer,
-    
+    user: userReducer,
   },
 });
 
