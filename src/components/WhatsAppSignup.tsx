@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { FacebookLoginResponse } from '@/types/facebook';
 import React, { useEffect, useState, useRef } from 'react';
-
-interface WhatsAppSignupData {
-  code: string;
-  phoneNumberId: string;
-  wabaId: string;
-}
+import { useAppDispatch } from '@/store/hooks';
+import { fetchUserDetailsThunk } from '@/store/slices/userSlice';
+import type { EmbeddedSignupPayload } from '@/types/whatsAppES';
+import { createEmbeddedSignup } from '@/api/endpoints/whatsappES';
 
 const WhatsAppSignupButton: React.FC = () => {
   const [phoneNumberId, setPhoneNumberId] = useState<string | null>(null);
@@ -31,15 +29,24 @@ const WhatsAppSignupButton: React.FC = () => {
     featureType: '', // Replace with your Feature Type
   };
 
-  const sendToBackend = async (data: WhatsAppSignupData) => {
-    console.log('Sending complete data to backend:', data);
+  const dispatch = useAppDispatch();
+
+  const handleEmbeddedSignup = async (payload: EmbeddedSignupPayload) => {
+    try {
+      await createEmbeddedSignup(payload);
+      // After successful signup, fetch the updated user info
+      dispatch(fetchUserDetailsThunk());
+    } catch (error) {
+      // Handle error (show toast, etc.)
+      console.error('Embedded signup failed:', error);
+    }
   };
 
   const checkAndSendData = () => {
     const { code, phoneNumberId, wabaId } = signupDataRef.current;
 
     if (code && phoneNumberId && wabaId) {
-      sendToBackend({ code, phoneNumberId, wabaId });
+      handleEmbeddedSignup({ shortLivedToken: code, phoneNumberId, wabaId });
 
       // Reset the ref data after sending
       signupDataRef.current = {
@@ -92,9 +99,6 @@ const WhatsAppSignupButton: React.FC = () => {
             // Update ref for backend sending
             signupDataRef.current.phoneNumberId = tempPhoneNumberId;
             signupDataRef.current.wabaId = tempWabaId;
-
-            console.log('Phone Number ID:', tempPhoneNumberId);
-            console.log('WABA ID:', tempWabaId);
 
             // Check if we have all data and send to backend
             checkAndSendData();
