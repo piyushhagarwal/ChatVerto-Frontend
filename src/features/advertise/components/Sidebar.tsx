@@ -24,9 +24,9 @@ export function Sidebar({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent side="left" className="w-64">
+      <SheetContent side="left" className="w-64 ">
         <SheetHeader>
-          <SheetTitle className="text-lg">Advertise Menu</SheetTitle>
+          <SheetTitle className="text-lg ">Advertise Menu</SheetTitle>
         </SheetHeader>
         <div className="flex flex-col space-y-2 mt-6">
           <Button

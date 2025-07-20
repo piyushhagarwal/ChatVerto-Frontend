@@ -187,7 +187,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button size="sm" className="bg-primary">
                 <Plus className="w-4 h-4 mr-1" /> Create Contact
               </Button>
             </DialogTrigger>
@@ -227,7 +227,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
             onOpenChange={setIsImportDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
+              <Button size="sm" className="bg-primary">
                 <UploadCloud className="w-4 h-4 mr-1" /> Import from CSV
               </Button>
             </DialogTrigger>

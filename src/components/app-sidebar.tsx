@@ -61,7 +61,7 @@ const data = {
     },
     {
       title: 'Advertise',
-      url: '/dashboard/advertise',
+      url: '/dashboard/advertise/broadcast',
       icon: IconAdCircle,
     },
   ],
@@ -155,22 +155,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
-            </SidebarMenuButton>
+            <a href="#">
+              <img
+                src="/Images/Wordmark.png"
+                alt="Acme Inc."
+                className="relative right-[30px] bottom-[15px] "
+              />
+            </a>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="relative bottom-[35px]">
         <NavMain items={data.navMain} />
 
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary
+          items={data.navSecondary}
+          className="relative top-[15rem]"
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
