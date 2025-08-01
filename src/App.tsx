@@ -21,7 +21,7 @@ import SingleFlowPage from './features/automations/pages/singleFlowPage.tsx';
 import BroadcastPage from './features/advertise/pages/broadcastPage.tsx';
 import TemplatesPage from './features/advertise/pages/templatesPage.tsx';
 import CreateTemplatePage from './features/advertise/pages/createTemplates.tsx';
-import ProfilePage from './features/profile/pages/profile.tsx';
+import ProfilePage from './features/user/pages/profile.tsx';
 
 function App() {
   return (

@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   updateUserProfileThunk,
   getUserProfileThunk,
-} from '@/store/slices/profileSlice';
+} from '@/store/slices/userSlice';
 import WebsiteInputList from '@/features/profile/components/websiteInputList';
 import BusinessIndustryDropdown from '@/features/profile/components/businessIndustryDropdown';
 import { Button } from '@/components/ui/button';

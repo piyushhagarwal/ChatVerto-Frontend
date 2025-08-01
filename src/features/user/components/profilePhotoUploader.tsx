@@ -2,7 +2,7 @@ import { useAppDispatch } from '@/store/hooks';
 import {
   uploadProfilePicThunk,
   getUserProfileThunk,
-} from '@/store/slices/profileSlice';
+} from '@/store/slices/userSlice';
 import { Button } from '@/components/ui/button';
 
 export default function ProfilePhotoUploader() {

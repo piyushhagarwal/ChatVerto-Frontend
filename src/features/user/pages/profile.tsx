@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getUserProfileThunk } from '@/store/slices/profileSlice';
-import ProfilePhotoUploader from '@/features/profile/components/profilePhotoUploader';
-import ProfileForm from '@/features/profile/components/profileForm';
+import { getUserProfileThunk } from '@/store/slices/userSlice';
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
-  const { user, loading } = useAppSelector(state => state.profile);
+  const { user, loading } = useAppSelector(state => state.user);
 
   useEffect(() => {
     dispatch(getUserProfileThunk());
@@ -27,8 +25,6 @@ export default function ProfilePage() {
           />
           <p>Verified Name: {user.whatsAppDetails?.verifiedName}</p>
           <p>Phone: {user.whatsAppDetails?.displayPhoneNumber}</p>
-          <ProfilePhotoUploader />
-          <ProfileForm />
         </>
       ) : (
         <p className="text-red-600">WhatsApp is not connected.</p>
