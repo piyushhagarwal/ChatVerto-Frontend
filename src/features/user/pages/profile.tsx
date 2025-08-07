@@ -1,33 +1,38 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
+import TopCard from '@/features/user/components/topCard';
+import ProfileUpdateForm from '../components/profileUpdateform';
+import { ProfilePhotoUploader } from '../components/profilePhotoUploader';
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
-  const { user, loading } = useAppSelector(state => state.user);
+  const { user, loading, error } = useAppSelector(state => state.user);
 
   useEffect(() => {
     dispatch(getUserProfileThunk());
   }, [dispatch]);
 
-  if (loading || !user) return <p>Loading...</p>;
-
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">My Profile</h1>
-      <p>Email: {user.email}</p>
-      {user.isWhatsappConnected ? (
+
+      {loading && <p className="text-muted-foreground">Loading...</p>}
+
+      {error && (
+        <p className="text-sm text-red-500 bg-red-50 border border-red-200 p-3 rounded">
+          {error}
+        </p>
+      )}
+
+      {user && (
         <>
-          <img
-            src={user.whatsAppDetails?.profilePictureUrl || ''}
-            alt="Profile"
-            className="w-24 h-24 rounded-full object-cover"
-          />
-          <p>Verified Name: {user.whatsAppDetails?.verifiedName}</p>
-          <p>Phone: {user.whatsAppDetails?.displayPhoneNumber}</p>
+          <TopCard user={user} />
+          <ProfilePhotoUploader />
+          <ProfileUpdateForm />
+
+          {/* Add more cards like <BusinessInfoCard user={user} /> later here */}
         </>
-      ) : (
-        <p className="text-red-600">WhatsApp is not connected.</p>
       )}
     </div>
   );
