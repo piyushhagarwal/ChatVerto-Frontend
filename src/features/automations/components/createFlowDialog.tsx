@@ -52,10 +52,7 @@ export function CreateFlowDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="rounded-full bg-primary text-white px-6 py-3  mt-6 "
-        >
+        <Button className="rounded-half bg-primary px-6 py-3  mt-6 ">
           Create Flows <span className="ml-2  font-bold">+</span>
         </Button>
       </DialogTrigger>

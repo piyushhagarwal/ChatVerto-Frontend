@@ -99,7 +99,7 @@ export default function Groups({
         <h2 className="text-xl font-semibold">Groups</h2>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">
+            <Button size="sm" className="bg-primary">
               <Plus className="w-4 h-4 mr-1" /> Create Group
             </Button>
           </DialogTrigger>
@@ -133,7 +133,7 @@ export default function Groups({
           {/* All Contacts Card */}
           <Card
             className={`cursor-pointer hover:shadow ${
-              selectedGroupId === null ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+              selectedGroupId === null ? 'ring-2' : ''
             }`}
             onClick={() => onGroupSelect(null)}
           >
@@ -148,9 +148,7 @@ export default function Groups({
             <Card
               key={group.id}
               className={`cursor-pointer hover:shadow relative ${
-                selectedGroupId === group.id
-                  ? 'ring-2 ring-blue-500 bg-blue-50'
-                  : ''
+                selectedGroupId === group.id ? 'ring-2' : ''
               }`}
               onClick={() => onGroupSelect(group.id)}
             >

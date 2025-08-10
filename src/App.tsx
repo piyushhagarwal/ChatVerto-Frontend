@@ -24,6 +24,11 @@ import AdvertisePage from './features/advertise/pages/advertisePage.tsx';
 import SingleFlowPage from './features/automations/pages/singleFlowPage.tsx';
 import { useEffect } from 'react';
 
+import BroadcastPage from './features/advertise/pages/broadcastPage.tsx';
+import TemplatesPage from './features/advertise/pages/templatesPage.tsx';
+import CreateTemplatePage from './features/advertise/pages/createTemplates.tsx';
+import ProfilePage from './features/user/pages/profile.tsx';
+
 function App() {
   const dispatch = useAppDispatch();
   const token = useAppSelector(state => state.auth.token);
@@ -39,21 +44,33 @@ function App() {
       <AuthGuard>
         <WhatsAppConnectionGuard>
           <Routes>
-            <Route
-              path="/"
-              element={<Navigate to="/dashboard/home" replace />}
-            />
+            <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Navigate to="home" replace />} />
               <Route path="home" element={<HomePage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="automation" element={<AutomationPage />} />
               <Route path="chats" element={<ChatsPage />} />
-              <Route path="advertise" element={<AdvertisePage />} />
+              <Route path="profile" element={<ProfilePage />} />
+
+              {/* 🔻 Advertise main page with nested tabs */}
+              <Route path="advertise" element={<AdvertisePage />}>
+                <Route index element={<Navigate to="broadcast" replace />} />
+                <Route path="broadcast" element={<BroadcastPage />} />
+                <Route path="templates" element={<TemplatesPage />} />
+              </Route>
+
+              {/* ✅ Standalone Create Template Page (outside Advertise tab layout) */}
+              <Route
+                path="advertise/create-template"
+                element={<CreateTemplatePage />}
+              />
             </Route>
-            <Route path="/flows/:flowId" element={<SingleFlowPage />}></Route>
+
+            <Route path="/flows/:flowId" element={<SingleFlowPage />} />
           </Routes>
         </WhatsAppConnectionGuard>
       </AuthGuard>
