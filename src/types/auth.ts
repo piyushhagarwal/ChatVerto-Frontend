@@ -1,16 +1,13 @@
+import type { ApiResponse } from './api';
+
 export interface User {
   email: string;
 }
 
-export interface AuthResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    user: User;
-    token: string;
-  };
-}
+export type AuthResponse = ApiResponse<{
+  user: User;
+  token: string;
+}>;
 
 export interface LoginCredentials {
   email: string;

@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import type { ApiResponse } from './api';
+
 export interface FlowMeta {
   id: string;
   name: string;
@@ -41,30 +44,12 @@ export interface UpdateFlowPayload {
   edges?: FlowEdge[];
 }
 
-export interface FlowResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    flow: Flow;
-  };
-}
+export type FlowResponse = ApiResponse<{
+  flow: Flow;
+}>;
 
-export interface FlowListResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    flows: {
-      id: string;
-      name: string;
-    }[];
-  };
-}
+export type FlowListResponse = ApiResponse<{
+  flows: Flow[];
+}>;
 
-export interface BaseApiResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data?: any;
-}
+export type DeleteFlowResponse = ApiResponse;

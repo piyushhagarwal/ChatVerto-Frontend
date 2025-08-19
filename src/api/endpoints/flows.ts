@@ -4,7 +4,7 @@ import type {
   FlowResponse,
   CreateFlowPayload,
   UpdateFlowPayload,
-  BaseApiResponse,
+  DeleteFlowResponse,
 } from '../../types/flows';
 
 // Create a new flow
@@ -37,7 +37,9 @@ export const updateFlow = async (
 };
 
 // Delete a flow by ID
-export const deleteFlow = async (flowId: string): Promise<BaseApiResponse> => {
-  const response = await axios.delete<BaseApiResponse>(`/flows/${flowId}`);
+export const deleteFlow = async (
+  flowId: string
+): Promise<DeleteFlowResponse> => {
+  const response = await axios.delete<DeleteFlowResponse>(`/flows/${flowId}`);
   return response.data;
 };

@@ -1,3 +1,5 @@
+import type { ApiResponse } from './api';
+
 export interface Contact {
   id: string;
   name: string;
@@ -22,33 +24,18 @@ export interface UpdateContactPayload {
   groupsArray?: string[]; // group IDs to update
 }
 
-export interface ContactResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    contact: Contact;
-  };
-}
+export type ContactResponse = ApiResponse<{
+  contact: Contact;
+}>;
 
-export interface ContactListResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    contacts: Contact[];
-  };
-}
+export type ContactListResponse = ApiResponse<{
+  contacts: Contact[];
+}>;
 
-export interface ImportContactsResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    imported: string;
-    skipped: string;
-  };
-}
+export type ImportContactsResponse = ApiResponse<{
+  imported: string;
+  skipped: string;
+}>;
 
 // For parsing CSV file
 export interface ContactCSVRow {
@@ -82,29 +69,14 @@ export interface UpdateGroupContactPayload {
   description?: string;
 }
 
-export interface GroupContactResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    groupContact: GroupContact;
-  };
-}
+export type GroupContactResponse = ApiResponse<{
+  groupContact: GroupContact;
+}>;
 
-export interface GroupContactListResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    groups: GroupContact[];
-  };
-}
+export type GroupContactListResponse = ApiResponse<{
+  groups: GroupContact[];
+}>;
 
-export interface SingleGroupResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    group: GroupContact;
-  };
-}
+export type SingleGroupResponse = ApiResponse<{
+  group: GroupContact;
+}>;

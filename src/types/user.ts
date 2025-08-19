@@ -1,3 +1,5 @@
+import type { ApiResponse } from './api';
+
 export interface WhatsAppDetails {
   address?: string;
   description?: string;
@@ -16,14 +18,9 @@ export interface UserProfile {
   whatsAppDetails?: WhatsAppDetails;
 }
 
-export interface UserProfileResponse {
-  status: number;
-  success: boolean;
-  message: string;
-  data: {
-    user: UserProfile;
-  };
-}
+export type UserProfileResponse = ApiResponse<{
+  user: UserProfile;
+}>;
 
 export interface UpdateUserProfileRequest {
   address?: string;
@@ -36,12 +33,7 @@ export interface UpdateUserProfileRequest {
   profile_picture_handle?: string;
 }
 
-export interface UpdateUserProfileResponse {
-  status: number;
-  success: boolean;
-  message?: string;
-  data?: any;
-}
+export type UpdateUserProfileResponse = ApiResponse;
 
 export interface UpdateProfilePictureRequest {
   file: File;
