@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from './store/hooks.ts';
-import { fetchUserDetailsThunk } from './store/slices/userSlice.ts';
+import { getUserProfileThunk } from './store/slices/userSlice.ts';
 
 import { AuthGuard } from './components/AuthGuard';
 import { WhatsAppConnectionGuard } from './components/WhatsAppConnectionGuard.tsx';
@@ -35,7 +35,7 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchUserDetailsThunk());
+      dispatch(getUserProfileThunk());
     }
   }, [dispatch, token]);
 
@@ -44,7 +44,10 @@ function App() {
       <AuthGuard>
         <WhatsAppConnectionGuard>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
+            <Route
+              path="/"
+              element={<Navigate to="/dashboard/home" replace />}
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 

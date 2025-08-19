@@ -2,7 +2,7 @@
 import type { FacebookLoginResponse } from '@/types/facebook';
 import React, { useEffect, useState, useRef } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { fetchUserDetailsThunk } from '@/store/slices/userSlice';
+import { getUserProfileThunk } from '@/store/slices/userSlice';
 import type { EmbeddedSignupPayload } from '@/types/whatsAppES';
 import { createEmbeddedSignup } from '@/api/endpoints/whatsappES';
 
@@ -35,7 +35,7 @@ const WhatsAppSignupButton: React.FC = () => {
     try {
       await createEmbeddedSignup(payload);
       // After successful signup, fetch the updated user info
-      dispatch(fetchUserDetailsThunk());
+      dispatch(getUserProfileThunk());
     } catch (error) {
       // Handle error (show toast, etc.)
       console.error('Embedded signup failed:', error);
