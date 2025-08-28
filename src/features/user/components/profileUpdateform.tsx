@@ -48,11 +48,18 @@ export default function ProfileUpdateForm() {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
 
-  const [form, setForm] = useState({
-    description: user?.description,
-    address: user?.address,
+  const [form, setForm] = useState<{
+    description: string;
+    address: string;
+    businessEmail: string;
+    websites: string[];
+    websiteInput: string;
+    vertical: string;
+  }>({
+    description: user?.description || '',
+    address: user?.address || '',
     businessEmail: '',
-    websites: [] as string[],
+    websites: user?.websites || [],
     websiteInput: '',
     vertical: '',
   });

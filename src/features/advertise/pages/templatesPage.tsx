@@ -1,42 +1,35 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchAllTemplatesThunk } from '@/store/slices/templateSlice';
 import { TemplateCard } from '../components/TemplateCard';
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
-
-const demoTemplates = [
-  {
-    id: '1',
-    title: 'Festive Offer',
-    message: 'Get 20% off this Diwali!',
-    category: 'Marketing',
-    language: 'English',
-    status: 'Pending',
-    actionRequired: false,
-  },
-  {
-    id: '2',
-    title: 'We Miss You',
-    message: 'Come back and get free shipping!',
-    category: 'Utility',
-    language: 'English',
-    status: 'Rejected',
-    actionRequired: true,
-  },
-];
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { type Template } from '@/types/template';
 
 export default function TemplatesPage() {
+  const dispatch = useAppDispatch();
+  const { templates, loading, error } = useAppSelector(state => state.template);
+
+  useEffect(() => {
+    dispatch(fetchAllTemplatesThunk());
+  }, [dispatch]);
+
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredTemplates = demoTemplates.filter(
-    template =>
-      template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.language.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredTemplates = demoTemplates.filter(
+  //   template =>
+  //     template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     template.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     template.language.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     template.status.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   return (
     <div className="space-y-4">
@@ -62,58 +55,74 @@ export default function TemplatesPage() {
         />
       </div>
 
-      <div className="overflow-x-auto border rounded-lg">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">Template Name</th>
-              <th className="px-4 py-2 text-left">Category</th>
-              <th className="px-4 py-2 text-left">Language</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Action Required</th>
-              <th className="px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTemplates.map(template => (
-              <tr key={template.id} className="border-t">
-                <td className="px-4 py-2 font-medium">{template.title}</td>
-                <td className="px-4 py-2">{template.category}</td>
-                <td className="px-4 py-2">{template.language}</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      template.status === 'Approved'
-                        ? 'bg-green-100 text-green-800'
-                        : template.status === 'Rejected'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {template.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2">
-                  {template.actionRequired ? (
-                    <span className="text-red-600 font-semibold text-xs">
-                      Yes
-                    </span>
-                  ) : (
-                    <span className="text-gray-500 text-xs">No</span>
-                  )}
-                </td>
-                <td className="px-4 py-2 space-x-2">
-                  <Button size="sm" variant="outline">
-                    Preview
-                  </Button>
-                  <Button size="sm" variant="secondary">
-                    Edit
-                  </Button>
-                </td>
+      <div className="flex flex-col gap-6 mt-2">
+        {error && (
+          <Alert
+            variant="destructive"
+            className="justify-items-start border-destructive"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Template loading failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+
+      {templates && (
+        <div className="overflow-x-auto border rounded-lg">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left">Template Name</th>
+                <th className="px-4 py-2 text-left">Category</th>
+                <th className="px-4 py-2 text-left">Status</th>
+                <th className="px-4 py-2 text-left">Rejected Reason</th>
+                <th className="px-4 py-2 text-left">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {templates.map(template => (
+                <tr key={template.id} className="border-t">
+                  <td className="px-4 py-2 font-medium">{template.name}</td>
+                  <td className="px-4 py-2">{template.category}</td>
+
+                  <td className="px-4 py-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        template.status === 'APPROVED'
+                          ? 'bg-green-100 text-green-800'
+                          : template.status === 'REJECTED'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {template.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">{template.rejected_reason}</td>
+                  <td className="px-4 py-2 space-x-2">
+                    <Link to={`${template.id}/preview`}>
+                      <Button size="sm" variant="outline">
+                        Preview
+                      </Button>
+                    </Link>
+                    <Button size="sm" variant="secondary">
+                      Edit
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div>
+        {loading && (
+          <div className="flex items-center gap-2 text-sm text-gray-700 px-4 py-2">
+            <p>Please wait for the templates ...</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -27,6 +27,7 @@ import { useEffect } from 'react';
 import BroadcastPage from './features/advertise/pages/broadcastPage.tsx';
 import TemplatesPage from './features/advertise/pages/templatesPage.tsx';
 import CreateTemplatePage from './features/advertise/pages/createTemplates.tsx';
+import TemplatePreviewPage from './features/advertise/pages/templatePreviewPage.tsx';
 import ProfilePage from './features/user/pages/profile.tsx';
 
 function App() {
@@ -63,9 +64,14 @@ function App() {
               <Route path="advertise" element={<AdvertisePage />}>
                 <Route index element={<Navigate to="broadcast" replace />} />
                 <Route path="broadcast" element={<BroadcastPage />} />
-                <Route path="templates" element={<TemplatesPage />} />
-              </Route>
+                <Route path="templates">
+                  {/* Templates list page */}
+                  <Route index element={<TemplatesPage />} />
 
+                  {/* Template preview page */}
+                  <Route path=":id/preview" element={<TemplatePreviewPage />} />
+                </Route>
+              </Route>
               {/* ✅ Standalone Create Template Page (outside Advertise tab layout) */}
               <Route
                 path="advertise/create-template"

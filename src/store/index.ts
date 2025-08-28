@@ -4,6 +4,7 @@ import flowReducer from './slices/flowsSlice';
 import contactReducer from './slices/contactSlice';
 import groupReducer from './slices/groupSlice';
 import userReducer from './slices/userSlice';
+import templateReducer from './slices/templateSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     contact: contactReducer,
     group: groupReducer,
     user: userReducer,
+    template: templateReducer,
   },
 });
 
