@@ -45,9 +45,11 @@ export default function TemplatePreviewPage() {
             </p>
             <p>
               <span className="font-medium">Language: </span>
-              {(selectedTemplate.components &&
-                selectedTemplate.components[0]?.example?.body_text) ||
-                'N/A'}
+              {selectedTemplate.language}
+            </p>
+            <p>
+              <span className="font-medium">Status: </span>
+              {selectedTemplate.status}
             </p>
             {/* {/* <p>
               <span className="font-medium">Header: </span>
