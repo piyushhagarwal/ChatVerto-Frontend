@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchTemplateByIdThunk } from '@/store/slices/templateSlice';
+import type { Component } from '@/types/template';
 
 export default function TemplatePreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,108 +52,109 @@ export default function TemplatePreviewPage() {
               <span className="font-medium">Status: </span>
               {selectedTemplate.status}
             </p>
-            {/* {/* <p>
-              <span className="font-medium">Header: </span>
-              {selectedTemplate.components || '-'}
-            </p>
-            <p>
-              <span className="font-medium">Body: </span>
-              {selectedTemplate.components || '-'}
-            </p>
-            <p>
-              <span className="font-medium">Footer: </span>
-              {selectedTemplate.components || '-'}
-            </p>
-            {selectedTemplate.components > 0 && (
-              <div>
-                <span className="font-medium">CTA Buttons:</span>
-                {/* <ul className="list-disc list-inside">
-                  {selectedTemplate.ctaButtons.map((btn, idx) => (
-                    <li key={idx}>
-                      {btn.label} →{' '}
-                      <a
-                        href={btn.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {btn.url}
-                      </a>
-                    </li>
-                  ))}
-                </ul> */}
+            {selectedTemplate.components?.map((component: Component, idx) => {
+              switch (component.type) {
+                case 'HEADER':
+                  return (
+                    <div key={idx} className="mb-2">
+                      {component.format === 'TEXT' && (
+                        <h2 className="font-bold text-lg">{component.text}</h2>
+                      )}
+
+                      {component.format === 'IMAGE' &&
+                        component.example?.header_handle?.[0] && (
+                          <img
+                            src={component.example.header_handle[0]}
+                            alt="Header"
+                            className="rounded-lg w-full"
+                          />
+                        )}
+
+                      {component.format === 'VIDEO' &&
+                        component.example?.header_handle?.[0] && (
+                          <video
+                            controls
+                            className="rounded-lg w-full"
+                            src={component.example.header_handle[0]}
+                          />
+                        )}
+
+                      {component.format === 'DOCUMENT' &&
+                        component.example?.header_handle?.[0] && (
+                          <a
+                            href={component.example.header_handle[0]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline"
+                          >
+                            View Document
+                          </a>
+                        )}
+                    </div>
+                  );
+
+                case 'BODY':
+                  return (
+                    <div key={idx} className="my-2">
+                      <p className="text-gray-800">{component.text}</p>
+
+                      {component.example?.body_text && (
+                        <div className="mt-2 space-y-1">
+                          <p className="font-medium text-sm text-gray-600">
+                            Examples:
+                          </p>
+                          {component.example.body_text.map(
+                            (exampleSet, eIdx) => (
+                              <p key={eIdx} className="text-gray-700 text-sm">
+                                {exampleSet.join(' | ')}
+                              </p>
+                            )
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+
+                case 'FOOTER':
+                  return (
+                    <div key={idx} className="text-sm text-gray-500 mt-2">
+                      {component.text}
+                    </div>
+                  );
+
+                case 'BUTTONS':
+                  return (
+                    <div key={idx} className="flex gap-2 mt-3">
+                      {component.buttons?.map((btn, bIdx) =>
+                        btn.type === 'URL' ? (
+                          <a
+                            key={bIdx}
+                            href={btn.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 rounded-lg bg-blue-500 text-white"
+                          >
+                            {btn.text}
+                          </a>
+                        ) : (
+                          <button
+                            key={bIdx}
+                            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800"
+                          >
+                            {btn.text}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  );
+
+                default:
+                  return null;
+              }
+            })}
           </div>
         </div>
       </div>
-      {/* Right Section - WhatsApp Preview */}
-      {/* <div className="flex-1 border-l p-4 bg-white flex items-center justify-center">
-        <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col">
-          {/* Top bar */}
-      {/* <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">
-            WhatsApp Preview
-          </div> */}
-      {/* Message preview */}
-      {/* <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div
-                className={`bg-white rounded-lg text-sm max-w-xs ml-2 shadow-md transition-all duration-300 m-6 flex flex-col ${
-                  hasPreviewContent ? 'px-4 py-3' : 'px-2 py-1 text-gray-400'
-                }`}
-              >
-                {hasPreviewContent ? (
-                  <>
-                    {template.header && (
-                      <div className="font-semibold text-sm mb-1 break-words w-full">
-                        {template.header}
-                      </div>
-                    )}
-                    {template.body && (
-                      <div className="text-gray-800 whitespace-pre-wrap break-words w-full">
-                        {template.body}
-                      </div>
-                    )}
-                    {template.footer && (
-                      <div className="text-gray-600 text-xs mt-2 break-words w-full">
-                        {template.footer}
-                      </div>
-                    )}
-                    {template.ctaButtons.length > 0 && (
-                      <>
-                        <hr className="border-t border-gray-300 mt-3 mb-2" />
-                        <div className="flex flex-col items-center gap-2">
-                          {template.ctaButtons.map((btn, idx) => (
-                            <a
-                              key={idx}
-                              href={btn.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-[#25D366] text-sm font-medium"
-                            >
-                              <span className="border border-[#25D366] rounded p-1">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="#25D366"
-                                  className="w-4 h-4"
-                                >
-                                  <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3Z" />
-                                </svg>
-                              </span>
-                              {btn.label}
-                            </a>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <span>Message preview will appear here</span>
-                )}
-              </div>
-            </div> */}
-      {/* </div>
-      </div>
-    </div> */}
-      //{' '}
     </div>
   );
 }

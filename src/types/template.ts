@@ -1,3 +1,5 @@
+import type { ApiResponse } from './api';
+
 type ComponentType = 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
 
 type ButtonType =
@@ -89,23 +91,10 @@ export interface GetAllTemplateResponse {
   };
 }
 
-export interface GetTemplateResponseById {
-  status: number;
-  success: number;
-  message: string;
-  data: {
-    template: Template;
-  };
-}
+export type GetTemplateResponseById = ApiResponse<{
+  template: Template;
+}>;
 
-export interface CreateTemplateResponse {
-  status: number;
-  success: number;
-  message: string;
-}
+export type CreateTemplateResponse = ApiResponse;
 
-export interface DeleteTemplateResponse {
-  status: number;
-  success: number;
-  message: string;
-}
+export type DeleteTemplateResponse = ApiResponse;

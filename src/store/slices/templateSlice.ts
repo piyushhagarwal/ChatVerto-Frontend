@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import type {
@@ -49,7 +50,7 @@ export const fetchTemplateByIdThunk = createAsyncThunk(
   async (templateId: string, { rejectWithValue }) => {
     try {
       const res: GetTemplateResponseById = await getTemplateById(templateId);
-      return res.data.template;
+      return res.data?.template;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch templates'
@@ -99,7 +100,7 @@ const templateSlice = createSlice({
 
       .addCase(fetchTemplateByIdThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedTemplate = action.payload;
+        state.selectedTemplate = action.payload ?? null;
       })
 
       .addCase(fetchTemplateByIdThunk.rejected, (state, action) => {
