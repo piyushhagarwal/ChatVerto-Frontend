@@ -2,7 +2,9 @@ import type { ApiResponse } from './api';
 
 type ComponentType = 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
 
-type ButtonType =
+export type HeaderFormat = 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'LOCATION';
+
+export type ButtonType =
   | 'QUICK_REPLY'
   | 'URL'
   | 'PHONE_NUMBER'
@@ -45,7 +47,7 @@ export interface Template {
   components?: Component[];
 }
 
-interface Button {
+export interface Button {
   type: ButtonType;
   text: string;
   url?: string;

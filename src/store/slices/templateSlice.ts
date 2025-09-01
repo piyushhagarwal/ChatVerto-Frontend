@@ -45,6 +45,19 @@ export const fetchAllTemplatesThunk = createAsyncThunk(
   }
 );
 
+export const createTemplateThunk = createAsyncThunk(
+  'templates/create',
+  async (templateData: CreateTemplatePayload, { rejectWithValue }) => {
+    try {
+      await createTemplate(templateData);
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to create template'
+      );
+    }
+  }
+);
+
 export const fetchTemplateByIdThunk = createAsyncThunk(
   'templates/fetchTemplateById',
   async (templateId: string, { rejectWithValue }) => {
@@ -89,6 +102,19 @@ const templateSlice = createSlice({
       })
 
       .addCase(fetchAllTemplatesThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(createTemplateThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createTemplateThunk.fulfilled, state => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(createTemplateThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
