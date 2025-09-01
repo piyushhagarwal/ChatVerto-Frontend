@@ -23,8 +23,24 @@ export default function TemplatePreviewPage() {
   if (error) return <div className="text-red-500">{error}</div>;
   if (!selectedTemplate) return <div>No template found</div>;
 
+  // Extract WhatsApp preview data
+  const headerComp = selectedTemplate.components?.find(
+    (c: Component) => c.type === 'HEADER'
+  );
+  const bodyComp = selectedTemplate.components?.find(
+    (c: Component) => c.type === 'BODY'
+  );
+  const footerComp = selectedTemplate.components?.find(
+    (c: Component) => c.type === 'FOOTER'
+  );
+  const buttonsComp = selectedTemplate.components?.find(
+    (c: Component) => c.type === 'BUTTONS'
+  );
+
+  const hasPreviewContent = headerComp || bodyComp || footerComp || buttonsComp;
+
   return (
-    <div className="flex flex-col h-full w-full bg-white">
+    <div className="flex flex-col h-full w-full ">
       {/* Top Bar */}
       <div className="flex justify-between items-center p-4 border-b">
         <h1 className="text-xl font-semibold">Template Preview</h1>
@@ -32,126 +48,165 @@ export default function TemplatePreviewPage() {
           <Button variant="outline">Back to Templates</Button>
         </Link>
       </div>
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Section - Template Details */}
-        <div className="w-2/3 p-6 overflow-y-auto space-y-4 border-r">
-          <h2 className="text-2xl font-semibold mb-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Left Section - Template Details (unchanged) */}
+        <div className="pb-6">
+          <p className="text-s text-black-500 uppercase tracking-wide">
+            Template Name
+          </p>
+          <h2 className="text-2xl font-semibold mb-8">
             {selectedTemplate.name}
           </h2>
 
-          <div className="space-y-2 text-sm">
-            <p>
-              <span className="font-medium">Category: </span>
-              {selectedTemplate.category}
-            </p>
-            <p>
-              <span className="font-medium">Language: </span>
-              {selectedTemplate.language}
-            </p>
-            <p>
-              <span className="font-medium">Status: </span>
-              {selectedTemplate.status}
-            </p>
-            {selectedTemplate.components?.map((component: Component, idx) => {
-              switch (component.type) {
-                case 'HEADER':
-                  return (
-                    <div key={idx} className="mb-2">
-                      {component.format === 'TEXT' && (
-                        <h2 className="font-bold text-lg">{component.text}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Category */}
+            <div className="rounded-2xl border bg-[#CDDF7D] p-4 shadow-sm">
+              <p className="text-xs text-black-500 uppercase tracking-wide">
+                Category
+              </p>
+              <p className="text-base font-medium text-gray-800">
+                {selectedTemplate.category}
+              </p>
+            </div>
+
+            {/* Language */}
+            <div className="rounded-2xl border bg-[#CDDF7D] p-4 shadow-sm">
+              <p className="text-xs text-black-500 uppercase tracking-wide">
+                Language
+              </p>
+              <p className="text-base font-medium text-gray-800">
+                {selectedTemplate.language}
+              </p>
+            </div>
+
+            {/* Status */}
+            <div className="rounded-2xl border bg-[#CDDF7D] p-4 shadow-sm">
+              <p className="text-xs text-black-500 uppercase tracking-wide">
+                Status
+              </p>
+              <p
+                className={`text-base font-medium ${
+                  selectedTemplate.status === 'APPROVED'
+                    ? 'text-black-600'
+                    : selectedTemplate.status === 'REJECTED'
+                      ? 'text-red-600'
+                      : 'text-yellow-600'
+                }`}
+              >
+                {selectedTemplate.status}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ✅ Right Section - WhatsApp Preview */}
+        <div className="flex-1 p-4  flex items-center justify-center">
+          <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-5 border-black">
+            {/* Top bar */}
+            <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">
+              WhatsApp Preview
+            </div>
+
+            {/* Message preview */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
+              <div
+                className={`bg-white rounded-lg text-sm max-w-xs ml-2 shadow-md transition-all duration-300 m-6 flex flex-col ${
+                  hasPreviewContent ? 'px-4 py-3' : 'px-2 py-1 text-gray-400'
+                }`}
+              >
+                {hasPreviewContent ? (
+                  <>
+                    {/* ✅ Header */}
+                    {headerComp?.format === 'TEXT' && (
+                      <div className="font-semibold text-sm mb-1 break-words">
+                        {headerComp.text}
+                      </div>
+                    )}
+                    {headerComp?.format === 'IMAGE' &&
+                      headerComp.example?.header_handle?.[0] && (
+                        <img
+                          src={headerComp.example.header_handle[0]}
+                          alt="Header"
+                          className="rounded-md mb-2 max-h-32 object-cover"
+                        />
+                      )}
+                    {headerComp?.format === 'VIDEO' &&
+                      headerComp.example?.header_handle?.[0] && (
+                        <video
+                          controls
+                          className="rounded-md mb-2 max-h-32 w-full object-cover"
+                        >
+                          <source
+                            src={headerComp.example.header_handle[0]}
+                            type="video/mp4"
+                          />
+                        </video>
+                      )}
+                    {headerComp?.format === 'DOCUMENT' &&
+                      headerComp.example?.header_handle?.[0] && (
+                        <div className="text-sm text-gray-800 font-medium mb-2">
+                          📄 Document Attached
+                        </div>
                       )}
 
-                      {component.format === 'IMAGE' &&
-                        component.example?.header_handle?.[0] && (
-                          <img
-                            src={component.example.header_handle[0]}
-                            alt="Header"
-                            className="rounded-lg w-full"
-                          />
-                        )}
+                    {/* ✅ Body */}
+                    {bodyComp && (
+                      <div className="text-gray-800 whitespace-pre-wrap break-words">
+                        {bodyComp.text}
+                      </div>
+                    )}
 
-                      {component.format === 'VIDEO' &&
-                        component.example?.header_handle?.[0] && (
-                          <video
-                            controls
-                            className="rounded-lg w-full"
-                            src={component.example.header_handle[0]}
-                          />
-                        )}
+                    {/* ✅ Footer */}
+                    {footerComp && (
+                      <div className="text-gray-600 text-xs mt-2 break-words">
+                        {footerComp.text}
+                      </div>
+                    )}
 
-                      {component.format === 'DOCUMENT' &&
-                        component.example?.header_handle?.[0] && (
-                          <a
-                            href={component.example.header_handle[0]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 underline"
-                          >
-                            View Document
-                          </a>
-                        )}
-                    </div>
-                  );
-
-                case 'BODY':
-                  return (
-                    <div key={idx} className="my-2">
-                      <p className="text-gray-800">{component.text}</p>
-
-                      {component.example?.body_text && (
-                        <div className="mt-2 space-y-1">
-                          <p className="font-medium text-sm text-gray-600">
-                            Examples:
-                          </p>
-                          {component.example.body_text.map(
-                            (exampleSet, eIdx) => (
-                              <p key={eIdx} className="text-gray-700 text-sm">
-                                {exampleSet.join(' | ')}
-                              </p>
+                    {/* ✅ Buttons */}
+                    {buttonsComp?.buttons && buttonsComp.buttons.length > 0 && (
+                      <>
+                        <hr className="border-t border-gray-300 mt-3 mb-2" />
+                        <div className="flex flex-col items-center gap-2">
+                          {buttonsComp.buttons.map((btn, idx) =>
+                            btn.type === 'URL' ? (
+                              <a
+                                key={idx}
+                                href={btn.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-[#25D366] text-sm font-medium"
+                              >
+                                <span className="border border-[#25D366] rounded p-1">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="#25D366"
+                                    className="w-4 h-4"
+                                  >
+                                    <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3Z" />
+                                  </svg>
+                                </span>
+                                {btn.text}
+                              </a>
+                            ) : (
+                              <button
+                                key={idx}
+                                className="w-full border border-[#25D366] text-[#25D366] text-sm font-medium py-1 rounded"
+                              >
+                                {btn.text}
+                              </button>
                             )
                           )}
                         </div>
-                      )}
-                    </div>
-                  );
-
-                case 'FOOTER':
-                  return (
-                    <div key={idx} className="text-sm text-gray-500 mt-2">
-                      {component.text}
-                    </div>
-                  );
-
-                case 'BUTTONS':
-                  return (
-                    <div key={idx} className="flex gap-2 mt-3">
-                      {component.buttons?.map((btn, bIdx) =>
-                        btn.type === 'URL' ? (
-                          <a
-                            key={bIdx}
-                            href={btn.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-4 py-2 rounded-lg bg-blue-500 text-white"
-                          >
-                            {btn.text}
-                          </a>
-                        ) : (
-                          <button
-                            key={bIdx}
-                            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800"
-                          >
-                            {btn.text}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  );
-
-                default:
-                  return null;
-              }
-            })}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <span>Message preview will appear here</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

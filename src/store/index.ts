@@ -5,6 +5,7 @@ import contactReducer from './slices/contactSlice';
 import groupReducer from './slices/groupSlice';
 import userReducer from './slices/userSlice';
 import templateReducer from './slices/templateSlice';
+import campiagnReducer from './slices/campiagnSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     group: groupReducer,
     user: userReducer,
     template: templateReducer,
+    campaign: campiagnReducer,
   },
 });
 
