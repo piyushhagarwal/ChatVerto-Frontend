@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Link } from 'react-router-dom';
 import {
   TrendingUp,
   MailCheck,
@@ -15,8 +16,19 @@ import {
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useEffect } from 'react';
-import { fetchAllCampaignsThunk } from '@/store/slices/campiagnSlice';
+import {
+  fetchAllCampaignsThunk,
+  deleteCampaignThunk,
+} from '@/store/slices/campiagnSlice';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { type Campaign } from '@/types/campaign';
+import { Pencil, Trash2 } from 'lucide-react';
 
 export default function BroadcastPage() {
   const dispatch = useAppDispatch();
@@ -25,6 +37,16 @@ export default function BroadcastPage() {
   useEffect(() => {
     dispatch(fetchAllCampaignsThunk());
   }, [dispatch]);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  const confirmDelete = async () => {
+    if (confirmDeleteId) {
+      await dispatch(deleteCampaignThunk(confirmDeleteId));
+      dispatch(fetchAllCampaignsThunk()); // refresh list
+      setConfirmDeleteId(null); // close dialog
+    }
+  };
 
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,9 +93,9 @@ export default function BroadcastPage() {
                   <th className="px-4 py-2 text-left">Campaign Name</th>
                   <th className="px-4 py-2 text-left">Group</th>
                   <th className="px-4 py-2 text-left">Template</th>
-                  <th className="px-4 py-2 text-left">Created At</th>
+
                   <th className="px-4 py-2 text-left">Status</th>
-                  <th className="px-4 py-2 text-left">Actions</th>
+                  <th className="px-4 py-2 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -82,11 +104,11 @@ export default function BroadcastPage() {
                     <td className="px-4 py-2 font-medium">{campaign.name}</td>
                     <td className="px-4 py-2">{campaign.groupName}</td>
                     <td className="px-4 py-2">{campaign.templateName}</td>
-                    <td className="px-4 py-2">
+                    {/* <td className="px-4 py-2">
                       {campaign.createdAt instanceof Date
                         ? campaign.createdAt.toLocaleString()
                         : campaign.createdAt}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-2">
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold 
@@ -102,15 +124,29 @@ export default function BroadcastPage() {
                       </span>
                     </td>
                     <td className="px-4 py-2 space-x-2">
-                      <Button size="sm" variant="outline">
-                        Preview
+                      <Link to={`${campaign.id}/preview`}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="hover:bg-muted hover:text-primary"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="hover:bg-muted hover:text-primary"
+                      >
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
-                        size="sm"
-                        variant="secondary"
-                        className="mt-2 hover:bg-muted hover:text-primary transition-colors duration-200"
+                        size="icon"
+                        variant="ghost"
+                        className="hover:bg-red-100 hover:text-red-600"
+                        onClick={() => setConfirmDeleteId(campaign.id)}
                       >
-                        Edit
+                        <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
                     </td>
                   </tr>
@@ -129,6 +165,33 @@ export default function BroadcastPage() {
       </div>
 
       <BroadcastDialog open={open} setOpen={setOpen} />
+      <Dialog
+        open={!!confirmDeleteId}
+        onOpenChange={() => setConfirmDeleteId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+
+          <p>
+            Are you sure you want to permanently delete{' '}
+            <strong>
+              {campaigns.find(c => c.id === confirmDeleteId)?.name}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+
+          <DialogFooter className="pt-4">
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+            <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

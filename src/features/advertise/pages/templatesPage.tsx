@@ -4,13 +4,24 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchAllTemplatesThunk } from '@/store/slices/templateSlice';
+import {
+  fetchAllTemplatesThunk,
+  deleteTemplateThunk,
+} from '@/store/slices/templateSlice';
 import { TemplateCard } from '../components/TemplateCard';
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { type Template } from '@/types/template';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 
 export default function TemplatesPage() {
   const dispatch = useAppDispatch();
@@ -19,6 +30,16 @@ export default function TemplatesPage() {
   useEffect(() => {
     dispatch(fetchAllTemplatesThunk());
   }, [dispatch]);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  const confirmDelete = async () => {
+    if (confirmDeleteId) {
+      await dispatch(deleteTemplateThunk(confirmDeleteId));
+      dispatch(fetchAllTemplatesThunk()); // refresh list
+      setConfirmDeleteId(null); // close dialog
+    }
+  };
 
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,7 +98,7 @@ export default function TemplatesPage() {
                 <th className="px-4 py-2 text-left">Category</th>
                 <th className="px-4 py-2 text-left">Status</th>
                 <th className="px-4 py-2 text-left">Rejected Reason</th>
-                <th className="px-4 py-2 text-left">Actions</th>
+                <th className="px-4 py-2 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -102,12 +123,28 @@ export default function TemplatesPage() {
                   <td className="px-4 py-2">{template.rejected_reason}</td>
                   <td className="px-4 py-2 space-x-2">
                     <Link to={`${template.id}/preview`}>
-                      <Button size="sm" variant="outline">
-                        Preview
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="hover:bg-muted hover:text-primary"
+                      >
+                        <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button size="sm" variant="secondary">
-                      Edit
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="hover:bg-muted hover:text-primary"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="hover:bg-red-100 hover:text-red-600"
+                      onClick={() => setConfirmDeleteId(template.name)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
                   </td>
                 </tr>
@@ -124,6 +161,33 @@ export default function TemplatesPage() {
           </div>
         )}
       </div>
+      <Dialog
+        open={!!confirmDeleteId}
+        onOpenChange={() => setConfirmDeleteId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+
+          <p>
+            Are you sure you want to permanently delete{' '}
+            <strong>
+              {templates.find(c => c.name === confirmDeleteId)?.name}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+
+          <DialogFooter className="pt-4">
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+            <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

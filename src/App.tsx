@@ -29,6 +29,7 @@ import TemplatesPage from './features/advertise/pages/templatesPage.tsx';
 import CreateTemplatePage from './features/advertise/pages/createTemplates.tsx';
 import TemplatePreviewPage from './features/advertise/pages/templatePreviewPage.tsx';
 import ProfilePage from './features/user/pages/profile.tsx';
+import BroadcastPreviewPage from './features/advertise/pages/broadcastPreviewPage.tsx';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -63,7 +64,13 @@ function App() {
               {/* 🔻 Advertise main page with nested tabs */}
               <Route path="advertise" element={<AdvertisePage />}>
                 <Route index element={<Navigate to="broadcast" replace />} />
-                <Route path="broadcast" element={<BroadcastPage />} />
+                <Route path="broadcast">
+                  <Route index element={<BroadcastPage />} />
+                  <Route
+                    path=":id/preview"
+                    element={<BroadcastPreviewPage />}
+                  />
+                </Route>
                 <Route path="templates">
                   {/* Templates list page */}
                   <Route index element={<TemplatesPage />} />
