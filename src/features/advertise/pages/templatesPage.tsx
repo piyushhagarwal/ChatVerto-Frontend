@@ -59,9 +59,7 @@ export default function TemplatesPage() {
           <FileText className="text-primary w-5 h-5" />
           <h2 className="text-2xl font-semibold text-gray-800">My Templates</h2>
         </div>
-        <Button
-          onClick={() => navigate('/dashboard/advertise/create-template')}
-        >
+        <Button onClick={() => navigate('create-template')}>
           Create New Template
         </Button>
       </div>

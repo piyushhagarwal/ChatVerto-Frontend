@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dialog';
 import { type Campaign } from '@/types/campaign';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function BroadcastPage() {
   const dispatch = useAppDispatch();
@@ -47,7 +48,7 @@ export default function BroadcastPage() {
       setConfirmDeleteId(null); // close dialog
     }
   };
-
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -61,7 +62,9 @@ export default function BroadcastPage() {
           </h2>
         </div>
 
-        <Button onClick={() => setOpen(true)}>Create New Campaign</Button>
+        <Button onClick={() => navigate('create-campaign')}>
+          Create New Campaign
+        </Button>
       </div>
 
       {/* Search and Campaign Table */}
