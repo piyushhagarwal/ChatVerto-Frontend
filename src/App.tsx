@@ -30,7 +30,7 @@ import CreateTemplatePage from './features/advertise/pages/createTemplates.tsx';
 import TemplatePreviewPage from './features/advertise/pages/templatePreviewPage.tsx';
 import ProfilePage from './features/user/pages/profile.tsx';
 import BroadcastPreviewPage from './features/advertise/pages/broadcastPreviewPage.tsx';
-import CreateBroadcast from './features/advertise/pages/createBroadcast.tsx';
+import CreateCampaign from './features/advertise/pages/createCampaign.tsx';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -71,7 +71,7 @@ function App() {
                     path=":id/preview"
                     element={<BroadcastPreviewPage />}
                   />
-                  <Route path="create-campaign" element={<CreateBroadcast />} />
+                  <Route path="create-campaign" element={<CreateCampaign />} />
                 </Route>
 
                 <Route path="templates">

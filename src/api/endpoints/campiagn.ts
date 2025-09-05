@@ -22,6 +22,13 @@ export const getCampaignById = async (
   return response.data;
 };
 
+export const createCampaign = async (
+  payload: CreateCampaignPayload
+): Promise<Campaign> => {
+  const response = await axios.post<Campaign>('/campaigns', payload);
+  return response.data;
+};
+
 export const deleteCampaign = async (
   campaignId: string
 ): Promise<DeleteCampaignResponse> => {

@@ -35,6 +35,12 @@ interface DateTimeParameter {
   };
 }
 
+export interface CTAButton {
+  label: string;
+  url: string;
+  type: ButtonType;
+}
+
 type ComponentParameter = TextParameter | CurrencyParameter | DateTimeParameter;
 
 export interface Template {

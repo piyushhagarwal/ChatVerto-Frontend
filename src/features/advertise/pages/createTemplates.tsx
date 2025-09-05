@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useDropzone } from 'react-dropzone';
 import { Trash2, Loader2, Info, AlertCircle } from 'lucide-react';
 import {
   Dialog,
@@ -20,31 +20,31 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { createTemplateThunk } from '@/store/slices/templateSlice';
-import type { RootState, AppDispatch } from '@/store';
 import type {
   ButtonType,
   Component,
   CreateTemplatePayload,
   HeaderFormat,
   Button as TemplateButton,
+  CTAButton,
 } from '@/types/template';
-import { useState } from 'react';
-
-interface CTAButton {
-  label: string;
-  url: string;
-  type: ButtonType;
-}
+import {
+  countPositionalArgs,
+  renderTextWithArgs,
+} from '../helpers/templateHelpers';
+import { validateField } from '../helpers/templateValidations';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function CreateTemplatePage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.template);
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector(state => state.template);
 
   const [templateName, setTemplateName] = useState('');
   const [templateCategory, setTemplateCategory] = useState<
     'AUTHENTICATION' | 'MARKETING' | 'UTILITY' | ''
   >('');
   const [language, setLanguage] = useState('');
+  const [headerType, setHeaderType] = useState<HeaderFormat | ''>('');
   const [header, setHeader] = useState('');
   const [body, setBody] = useState('');
   const [footer, setFooter] = useState('');
@@ -64,351 +64,21 @@ export default function CreateTemplatePage() {
   const [bodyExamples, setBodyExamples] = useState<string[]>(['']);
 
   const [showLimitDialog, setShowLimitDialog] = useState(false);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp'],
-      'application/pdf': ['.pdf'],
-      'video/*': ['.mp4', '.3gpp'],
-    },
-    maxFiles: 1,
-    maxSize: 16 * 1024 * 1024, // 16MB limit for WhatsApp media
-    onDrop: (acceptedFiles: File[]) => {
-      setUploadedFile(acceptedFiles[0]);
-      // Clear header text if media is uploaded
-      if (header.trim()) {
-        setHeader('');
-      }
-      validateField('headerMedia', '', {
-        uploadedFile: acceptedFiles[0],
-        header,
-      });
-    },
-  });
-
-  // Helper function to count positional arguments in text
-  const countPositionalArgs = (text: string): number => {
-    const matches = text.match(/\{\{\d+\}\}/g);
-    return matches ? matches.length : 0;
-  };
-
-  // Helper function to get positional arguments from text
-  const getPositionalArgs = (text: string): number[] => {
-    const matches = text.match(/\{\{\d+\}\}/g) || [];
-    return matches
-      .map(match => parseInt(match.replace(/[{}]/g, '')))
-      .sort((a, b) => a - b);
-  };
-
-  // Helper function to render text with positional arguments
-  const renderTextWithArgs = (text: string, examples: string[]): string => {
-    let result = text;
-    const args = getPositionalArgs(text);
-
-    args.forEach((argNum, index) => {
-      const exampleValue = examples[index] || `Example ${argNum}`;
-      result = result.replace(`{{${argNum}}}`, exampleValue);
-    });
-
-    return result;
-  };
-
-  // Real-time validation function for individual fields
-  // Real-time validation function for individual fields
-  const validateField = (
-    fieldName: string,
-    value: any,
-    additionalContext: any = {}
-  ) => {
-    const errors = { ...validationErrors };
-
-    switch (fieldName) {
-      case 'templateName': {
-        if (!value.trim()) {
-          errors.templateName = 'Template name is required';
-        } else if (value.length < 1 || value.length > 512) {
-          errors.templateName =
-            'Template name must be between 1-512 characters';
-        } else if (!/^[a-z0-9_]+$/.test(value)) {
-          errors.templateName =
-            'Template name must contain only lowercase letters, numbers, and underscores';
-        } else {
-          delete errors.templateName;
-        }
-        break;
-      }
-
-      case 'templateCategory': {
-        if (!value) {
-          errors.templateCategory = 'Category is required';
-        } else {
-          delete errors.templateCategory;
-        }
-        break;
-      }
-
-      case 'language': {
-        if (!value) {
-          errors.language = 'Language is required';
-        } else {
-          delete errors.language;
-        }
-        break;
-      }
-
-      case 'body': {
-        if (!value.trim()) {
-          errors.body = 'Body message is required';
-        } else if (value.length > 1024) {
-          errors.body = 'Body message cannot exceed 1024 characters';
-        } else {
-          delete errors.body;
-        }
-
-        // Validate body positional arguments
-        const bodyArgCount = countPositionalArgs(value);
-        if (bodyArgCount > 0) {
-          const bodyArgs = getPositionalArgs(value);
-          const expectedArgs = Array.from(
-            { length: bodyArgCount },
-            (_, i) => i + 1
-          );
-
-          if (!bodyArgs.every((arg, index) => arg === expectedArgs[index])) {
-            errors.bodyArgs =
-              'Body positional arguments must be sequential starting from {{1}}';
-          } else {
-            delete errors.bodyArgs;
-          }
-
-          const validBodyExamples = (
-            additionalContext.bodyExamples || bodyExamples
-          ).filter(ex => ex.trim());
-          if (validBodyExamples.length < bodyArgCount) {
-            errors.bodyExamples = `Body requires ${bodyArgCount} example value(s) for positional arguments`;
-          } else {
-            delete errors.bodyExamples;
-          }
-        } else {
-          delete errors.bodyArgs;
-          delete errors.bodyExamples;
-        }
-        break;
-      }
-
-      case 'header': {
-        if (value && value.length > 60) {
-          errors.header = 'Header cannot exceed 60 characters';
-        } else {
-          delete errors.header;
-        }
-
-        // Validate header positional arguments
-        const headerArgCount = countPositionalArgs(value);
-        if (headerArgCount > 0) {
-          if (headerArgCount > 1) {
-            errors.headerArgs = 'Header can only have one variable {{1}}';
-          } else {
-            const headerArgs = getPositionalArgs(value);
-            if (headerArgs[0] !== 1) {
-              errors.headerArgs = 'Header variable must be {{1}}';
-            } else {
-              delete errors.headerArgs;
-            }
-
-            const validHeaderExamples = (
-              additionalContext.headerExamples || headerExamples
-            ).filter(ex => ex.trim());
-            if (validHeaderExamples.length < 1) {
-              errors.headerExamples =
-                'Header requires 1 example value for {{1}}';
-            } else {
-              delete errors.headerExamples;
-            }
-          }
-        } else {
-          delete errors.headerArgs;
-          delete errors.headerExamples;
-        }
-        break;
-      }
-
-      case 'headerMedia': {
-        // Header and media mutual exclusion
-        const currentHeader =
-          additionalContext.header !== undefined
-            ? additionalContext.header
-            : header;
-        const currentFile =
-          additionalContext.uploadedFile !== undefined
-            ? additionalContext.uploadedFile
-            : uploadedFile;
-
-        if (currentHeader.trim() && currentFile) {
-          errors.headerMedia =
-            'Cannot use both header text and uploaded media. Choose one.';
-        } else {
-          delete errors.headerMedia;
-        }
-        break;
-      }
-
-      case 'footer': {
-        if (value && value.length > 60) {
-          errors.footer = 'Footer cannot exceed 60 characters';
-        } else {
-          delete errors.footer;
-        }
-        break;
-      }
-
-      case 'urlButton': {
-        // Validate URL buttons
-        const validURLButtons = ctaButtons.filter(
-          btn => btn.label.trim() && btn.url.trim()
-        );
-        if (validURLButtons.length > 2) {
-          errors.urlButtons = 'Maximum 2 URL buttons allowed';
-        } else {
-          delete errors.urlButtons;
-        }
-
-        // Validate individual URL buttons
-        for (let i = 0; i < ctaButtons.length; i++) {
-          const btn = ctaButtons[i];
-          if (btn.label && btn.label.length > 25) {
-            errors[`url_btn_${i}_label`] =
-              `URL button ${i + 1} label cannot exceed 25 characters`;
-          } else {
-            delete errors[`url_btn_${i}_label`];
-          }
-
-          if (btn.url && btn.url.trim() && !isValidUrl(btn.url)) {
-            errors[`url_btn_${i}_url`] =
-              `URL button ${i + 1} has invalid URL format`;
-          } else if (btn.url && btn.url.length > 2000) {
-            errors[`url_btn_${i}_url`] =
-              `URL button ${i + 1} URL cannot exceed 2000 characters`;
-          } else {
-            delete errors[`url_btn_${i}_url`];
-          }
-        }
-        break;
-      }
-
-      case 'quickReply': {
-        const validQuickReplyButtons = quickReplyButtons.filter(btn =>
-          btn.trim()
-        );
-        const hasOtherButtons =
-          ctaButtons.filter(btn => btn.label.trim() && btn.url.trim()).length >
-            0 || usePhoneButton;
-
-        if (hasOtherButtons && validQuickReplyButtons.length > 3) {
-          errors.quickReplyButtons =
-            'Maximum 3 quick reply buttons allowed when combined with other button types';
-        } else if (!hasOtherButtons && validQuickReplyButtons.length > 10) {
-          errors.quickReplyButtons =
-            'Maximum 10 quick reply buttons allowed when used alone';
-        } else {
-          delete errors.quickReplyButtons;
-        }
-
-        for (let i = 0; i < quickReplyButtons.length; i++) {
-          const btn = quickReplyButtons[i];
-          if (btn && btn.length > 25) {
-            errors[`quick_reply_${i}`] =
-              `Quick reply button ${i + 1} cannot exceed 25 characters`;
-          } else {
-            delete errors[`quick_reply_${i}`];
-          }
-        }
-        break;
-      }
-
-      case 'phoneButton': {
-        if (usePhoneButton) {
-          if (!phoneButton.label.trim()) {
-            errors.phoneButtonLabel = 'Phone button label is required';
-          } else if (phoneButton.label.length > 25) {
-            errors.phoneButtonLabel =
-              'Phone button label cannot exceed 25 characters';
-          } else {
-            delete errors.phoneButtonLabel;
-          }
-
-          if (!phoneButton.phone_number.trim()) {
-            errors.phoneButtonNumber = 'Phone number is required';
-          } else if (phoneButton.phone_number.length > 20) {
-            errors.phoneButtonNumber =
-              'Phone number cannot exceed 20 characters';
-          } else {
-            delete errors.phoneButtonNumber;
-          }
-        } else {
-          delete errors.phoneButtonLabel;
-          delete errors.phoneButtonNumber;
-        }
-        break;
-      }
-
-      default:
-        break;
-    }
-
-    // Always validate total buttons when any button-related field changes
-    if (['urlButton', 'quickReply', 'phoneButton'].includes(fieldName)) {
-      const validURLButtons = ctaButtons.filter(
-        btn => btn.label.trim() && btn.url.trim()
-      );
-      const validQuickReplyButtons = quickReplyButtons.filter(btn =>
-        btn.trim()
-      );
-      const totalButtons =
-        validURLButtons.length +
-        validQuickReplyButtons.length +
-        (usePhoneButton && phoneButton.label.trim() ? 1 : 0);
-
-      if (totalButtons > 10) {
-        errors.totalButtons =
-          'Maximum 10 buttons total allowed across all types';
-      } else {
-        delete errors.totalButtons;
-      }
-    }
-
-    setValidationErrors(errors);
-  };
-
-  const getMediaFormat = (file: File): HeaderFormat => {
-    if (file.type.startsWith('image/')) return 'IMAGE';
-    if (file.type.startsWith('video/')) return 'VIDEO';
-    if (file.type === 'application/pdf') return 'DOCUMENT';
-    return 'DOCUMENT';
-  };
 
   const buildComponents = (): Component[] => {
     const components: Component[] = [];
 
     // Header component
-    if (uploadedFile || header.trim()) {
+    if (headerType) {
       const headerComponent: Component = {
         type: 'HEADER',
+        format: headerType,
       };
 
-      if (uploadedFile) {
-        headerComponent.format = getMediaFormat(uploadedFile);
-        headerComponent.example = {
-          header_handle: [uploadedFile.name], // This should be the actual media handle from upload API
-        };
-      } else if (header.trim()) {
-        headerComponent.format = 'TEXT';
+      if (headerType === 'TEXT' && header.trim()) {
         headerComponent.text = header;
 
         // Add example for positional arguments in header
@@ -423,6 +93,11 @@ export default function CreateTemplatePage() {
             };
           }
         }
+      } else if (headerType !== 'TEXT') {
+        // For media types, add example handle
+        headerComponent.example = {
+          header_handle: [`example_${headerType.toLowerCase()}_file`],
+        };
       }
 
       components.push(headerComponent);
@@ -492,7 +167,7 @@ export default function CreateTemplatePage() {
       });
     }
 
-    // Add quick reply buttons (can now be mixed with other button types)
+    // Add quick reply buttons
     if (useQuickReply) {
       const validQuickReplies = quickReplyButtons.filter(btn => btn.trim());
       validQuickReplies.forEach(btn => {
@@ -515,7 +190,7 @@ export default function CreateTemplatePage() {
 
   const handleSubmit = async () => {
     const templateData: CreateTemplatePayload = {
-      name: templateName.toLowerCase().replace(/[^a-z0-9_]/g, '_'), // Ensure valid name format
+      name: templateName.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
       category: templateCategory as 'AUTHENTICATION' | 'MARKETING' | 'UTILITY',
       language,
       components: buildComponents(),
@@ -523,11 +198,9 @@ export default function CreateTemplatePage() {
 
     try {
       await dispatch(createTemplateThunk(templateData)).unwrap();
-      setShowSuccessDialog(true);
       resetForm();
     } catch (err) {
       console.error('Failed to create template:', err);
-      setShowErrorDialog(true);
     }
   };
 
@@ -535,6 +208,7 @@ export default function CreateTemplatePage() {
     setTemplateName('');
     setTemplateCategory('');
     setLanguage('');
+    setHeaderType('');
     setHeader('');
     setBody('');
     setFooter('');
@@ -543,20 +217,78 @@ export default function CreateTemplatePage() {
     setPhoneButton({ label: '', phone_number: '' });
     setUseQuickReply(false);
     setUsePhoneButton(false);
-    setUploadedFile(null);
     setHeaderExamples(['']);
     setBodyExamples(['']);
     setValidationErrors({});
   };
 
+  const getGenericMediaPreview = () => {
+    switch (headerType) {
+      case 'IMAGE':
+        return (
+          <div className="rounded-md mb-2 max-h-32 w-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+            🖼️ Sample Image
+          </div>
+        );
+      case 'VIDEO':
+        return (
+          <div className="rounded-md mb-2 max-h-32 w-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+            🎥 Sample Video
+          </div>
+        );
+      case 'DOCUMENT':
+        return (
+          <div className="text-sm text-gray-800 font-medium mb-2 p-2 bg-gray-100 rounded">
+            📄 sample_document.pdf
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const updateValidationErrors = (
+    fieldName: string,
+    value: any,
+    additionalContext = {}
+  ) => {
+    const newErrors = validateField(fieldName, value, additionalContext);
+
+    setValidationErrors(prev => {
+      // Remove old errors for this field and related fields
+      const updatedErrors = { ...prev };
+
+      // Remove field-specific errors
+      Object.keys(updatedErrors).forEach(key => {
+        if (
+          key.startsWith(fieldName) ||
+          (fieldName === 'body' &&
+            (key === 'bodyArgs' || key === 'bodyExamples')) ||
+          (fieldName === 'header' &&
+            (key === 'headerArgs' || key === 'headerExamples')) ||
+          (fieldName === 'urlButton' && key.startsWith('url_btn_')) ||
+          (fieldName === 'quickReply' &&
+            (key.startsWith('quick_reply_') || key === 'quickReplyButtons')) ||
+          (fieldName === 'phoneButton' && key.startsWith('phoneButton')) ||
+          (['urlButton', 'quickReply', 'phoneButton'].includes(fieldName) &&
+            key === 'totalButtons')
+        ) {
+          delete updatedErrors[key];
+        }
+      });
+
+      // Add new errors
+      return { ...updatedErrors, ...newErrors };
+    });
+  };
+
   const hasPreviewContent =
-    !!header ||
+    !!headerType ||
     !!body ||
     !!footer ||
     ctaButtons.some(btn => btn.label && btn.url) ||
     quickReplyButtons.some(btn => btn.trim()) ||
-    (usePhoneButton && phoneButton.label) ||
-    !!uploadedFile;
+    (usePhoneButton && phoneButton.label);
 
   return (
     <div className="flex flex-col h-full w-full bg-white">
@@ -577,24 +309,20 @@ export default function CreateTemplatePage() {
         </Button>
       </div>
 
-      {/* Redux Error Display */}
       {error && (
-        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-          <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-            <p className="text-red-800 font-medium">Error creating template</p>
-          </div>
-          <p className="text-red-700 mt-1 text-sm">{error}</p>
-        </div>
+        <Alert
+          variant="destructive"
+          className="justify-items-start border-destructive"
+        >
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error creating template</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Section - Input Fields */}
         <div className="w-2/3 p-6 overflow-y-auto space-y-4 border-r">
-          <h2 className="text-2xl font-semibold mb-4">
-            {templateName || 'Template Name'}
-          </h2>
-
           <div className="space-y-4">
             {/* Template Name */}
             <div className="space-y-2">
@@ -607,7 +335,7 @@ export default function CreateTemplatePage() {
                 onChange={e => {
                   const value = e.target.value;
                   setTemplateName(value);
-                  validateField('templateName', value);
+                  updateValidationErrors('templateName', value);
                 }}
                 className={
                   validationErrors.templateName ? 'border-red-500' : ''
@@ -632,7 +360,7 @@ export default function CreateTemplatePage() {
                   value: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY'
                 ) => {
                   setTemplateCategory(value);
-                  validateField('templateCategory', value);
+                  updateValidationErrors('templateCategory', value);
                 }}
               >
                 <SelectTrigger
@@ -662,7 +390,7 @@ export default function CreateTemplatePage() {
                 value={language}
                 onValueChange={value => {
                   setLanguage(value);
-                  validateField('language', value);
+                  updateValidationErrors('language', value);
                 }}
               >
                 <SelectTrigger
@@ -672,11 +400,7 @@ export default function CreateTemplatePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en_US">English (US)</SelectItem>
-                  <SelectItem value="en_GB">English (UK)</SelectItem>
                   <SelectItem value="hi">Hindi</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
-                  <SelectItem value="de">German</SelectItem>
                 </SelectContent>
               </Select>
               {validationErrors.language && (
@@ -686,160 +410,117 @@ export default function CreateTemplatePage() {
               )}
             </div>
 
-            {/* Upload Media */}
+            {/* Header Type */}
             <div className="space-y-2">
               <label className="block text-sm font-medium">
-                Upload Media (Optional)
+                Header Type (Optional)
               </label>
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed p-4 rounded-md text-center cursor-pointer hover:bg-gray-50 relative ${
-                  header.trim()
-                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
-                    : 'border-gray-300'
-                }`}
+              <Select
+                value={headerType}
+                onValueChange={(value: HeaderFormat) => {
+                  setHeaderType(value);
+                  // Reset header text when changing type
+                  if (value !== 'TEXT') {
+                    setHeader('');
+                    setHeaderExamples(['']);
+                  }
+                  updateValidationErrors('headerType', value);
+                }}
               >
-                <input
-                  {...getInputProps()}
-                  disabled={header.trim().length > 0}
-                />
+                <SelectTrigger
+                  className={
+                    validationErrors.headerType ? 'border-red-500' : ''
+                  }
+                >
+                  <SelectValue placeholder="Select Header Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="TEXT">Text</SelectItem>
+                  <SelectItem value="IMAGE">Image</SelectItem>
+                  <SelectItem value="VIDEO">Video</SelectItem>
+                  <SelectItem value="DOCUMENT">Document</SelectItem>
+                </SelectContent>
+              </Select>
+              {validationErrors.headerType && (
+                <p className="text-red-500 text-sm">
+                  {validationErrors.headerType}
+                </p>
+              )}
+            </div>
 
-                {header.trim() ? (
-                  <div className="text-gray-400">
-                    <p>Media upload disabled when header text is used</p>
-                    <p className="text-xs mt-1">
-                      Clear header text to enable media upload
-                    </p>
-                  </div>
-                ) : isDragActive ? (
-                  <p>Drop the file here ...</p>
-                ) : uploadedFile ? (
-                  <div className="flex items-center justify-between">
-                    <p className="truncate max-w-[80%]">{uploadedFile.name}</p>
-                    <button
-                      type="button"
-                      onClick={e => {
-                        e.stopPropagation();
-                        setUploadedFile(null);
-                        validateField('headerMedia', '', {
-                          uploadedFile: null,
-                          header,
+            {/* Header Message - Only show for TEXT type */}
+            {headerType === 'TEXT' && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Header Message
+                </label>
+                <Input
+                  placeholder="Header Message (max 60 characters). Use only {{1}} for variable"
+                  value={header}
+                  onChange={e => {
+                    const value = e.target.value;
+                    setHeader(value);
+                    updateValidationErrors('header', value, { headerExamples });
+
+                    // Auto-adjust example fields based on positional args (max 1 for header)
+                    const argCount = countPositionalArgs(value);
+                    if (argCount > 0 && argCount <= 1) {
+                      setHeaderExamples(['']);
+                    } else if (argCount === 0) {
+                      setHeaderExamples([]);
+                    }
+                  }}
+                  maxLength={60}
+                  className={
+                    validationErrors.header || validationErrors.headerArgs
+                      ? 'border-red-500'
+                      : ''
+                  }
+                />
+                {validationErrors.header && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.header}
+                  </p>
+                )}
+                {validationErrors.headerArgs && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.headerArgs}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">
+                  {header.length}/60 characters
+                </p>
+
+                {/* Header Examples for Positional Arguments (only {{1}} allowed) */}
+                {countPositionalArgs(header) === 1 && (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-blue-600">
+                      <Info className="w-4 h-4 inline mr-1" />
+                      Header Example Value for {'{{1}}'}
+                    </label>
+                    <Input
+                      placeholder="Example value for {{1}}"
+                      value={headerExamples[0] || ''}
+                      onChange={e => {
+                        const newExamples = [e.target.value];
+                        setHeaderExamples(newExamples);
+                        updateValidationErrors('header', header, {
+                          headerExamples: newExamples,
                         });
                       }}
-                      className="ml-2 text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <p>Drag & drop media here, or click to select</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Supported: Images (JPEG, PNG, WebP), Videos (MP4, 3GPP),
-                      Documents (PDF)
-                      <br />
-                      Max size: 16MB
-                    </p>
+                      className={
+                        validationErrors.headerExamples ? 'border-red-500' : ''
+                      }
+                    />
+                    {validationErrors.headerExamples && (
+                      <p className="text-red-500 text-sm">
+                        {validationErrors.headerExamples}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
-              {validationErrors.headerMedia && (
-                <p className="text-red-500 text-sm">
-                  {validationErrors.headerMedia}
-                </p>
-              )}
-            </div>
-
-            {/* Header Message */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Header Message (Optional)
-              </label>
-              <Input
-                placeholder="Header Message (max 60 characters). Use only {{1}} for variable"
-                value={header}
-                onChange={e => {
-                  const value = e.target.value;
-                  setHeader(value);
-                  validateField('header', value, { headerExamples });
-                  validateField('headerMedia', '', {
-                    uploadedFile,
-                    header: value,
-                  });
-
-                  // Auto-adjust example fields based on positional args (max 1 for header)
-                  const argCount = countPositionalArgs(value);
-                  if (argCount > 0 && argCount <= 1) {
-                    setHeaderExamples(['']);
-                  } else if (argCount === 0) {
-                    setHeaderExamples([]);
-                  }
-                  // Clear uploaded file if header text is added
-                  if (value.trim() && uploadedFile) {
-                    setUploadedFile(null);
-                  }
-                }}
-                maxLength={60}
-                disabled={!!uploadedFile}
-                className={
-                  validationErrors.header || validationErrors.headerArgs
-                    ? 'border-red-500'
-                    : ''
-                }
-              />
-              {validationErrors.header && (
-                <p className="text-red-500 text-sm">
-                  {validationErrors.header}
-                </p>
-              )}
-              {validationErrors.headerArgs && (
-                <p className="text-red-500 text-sm">
-                  {validationErrors.headerArgs}
-                </p>
-              )}
-              {uploadedFile && (
-                <p className="text-xs text-amber-600">
-                  Header text disabled when media is uploaded
-                </p>
-              )}
-              {header.trim() && (
-                <p className="text-xs text-amber-600">
-                  Media upload disabled when header text is used
-                </p>
-              )}
-              <p className="text-xs text-gray-500">
-                {header.length}/60 characters
-              </p>
-
-              {/* Header Examples for Positional Arguments (only {{1}} allowed) */}
-              {countPositionalArgs(header) === 1 && !uploadedFile && (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-blue-600">
-                    <Info className="w-4 h-4 inline mr-1" />
-                    Header Example Value for {'{{1}}'}
-                  </label>
-                  <Input
-                    placeholder="Example value for {{1}}"
-                    value={headerExamples[0] || ''}
-                    onChange={e => {
-                      const newExamples = [e.target.value];
-                      setHeaderExamples(newExamples);
-                      validateField('header', header, {
-                        headerExamples: newExamples,
-                      });
-                    }}
-                    className={
-                      validationErrors.headerExamples ? 'border-red-500' : ''
-                    }
-                  />
-                  {validationErrors.headerExamples && (
-                    <p className="text-red-500 text-sm">
-                      {validationErrors.headerExamples}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Body Message */}
             <div className="space-y-2">
@@ -863,7 +544,7 @@ export default function CreateTemplatePage() {
                     setBodyExamples(newBodyExamples);
                   }
 
-                  validateField('body', value, {
+                  updateValidationErrors('body', value, {
                     bodyExamples: newBodyExamples,
                   });
                 }}
@@ -901,7 +582,7 @@ export default function CreateTemplatePage() {
                           const updated = [...bodyExamples];
                           updated[index] = e.target.value;
                           setBodyExamples(updated);
-                          validateField('body', body, {
+                          updateValidationErrors('body', body, {
                             bodyExamples: updated,
                           });
                         }}
@@ -931,7 +612,7 @@ export default function CreateTemplatePage() {
                 onChange={e => {
                   const value = e.target.value;
                   setFooter(value);
-                  validateField('footer', value);
+                  updateValidationErrors('footer', value);
                 }}
                 maxLength={60}
                 className={validationErrors.footer ? 'border-red-500' : ''}
@@ -959,7 +640,7 @@ export default function CreateTemplatePage() {
                     checked={useQuickReply}
                     onChange={e => {
                       setUseQuickReply(e.target.checked);
-                      validateField('quickReply', e.target.checked);
+                      updateValidationErrors('quickReply', e.target.checked);
                     }}
                   />
                   Quick Reply Buttons
@@ -970,7 +651,7 @@ export default function CreateTemplatePage() {
                     checked={usePhoneButton}
                     onChange={e => {
                       setUsePhoneButton(e.target.checked);
-                      validateField('phoneButton', e.target.checked);
+                      updateValidationErrors('phoneButton', e.target.checked);
                     }}
                   />
                   Phone Button
@@ -1000,7 +681,7 @@ export default function CreateTemplatePage() {
                           const updated = [...ctaButtons];
                           updated[index].label = e.target.value;
                           setCtaButtons(updated);
-                          validateField('urlButton', updated);
+                          updateValidationErrors('urlButton', updated);
                         }}
                         maxLength={25}
                         className={
@@ -1024,7 +705,7 @@ export default function CreateTemplatePage() {
                           const updated = [...ctaButtons];
                           updated[index].url = e.target.value;
                           setCtaButtons(updated);
-                          validateField('urlButton', updated);
+                          updateValidationErrors('urlButton', updated);
                         }}
                         className={
                           validationErrors[`url_btn_${index}_url`]
@@ -1057,7 +738,7 @@ export default function CreateTemplatePage() {
                                 },
                               ];
                               setCtaButtons(updated);
-                              validateField('urlButton', updated);
+                              updateValidationErrors('urlButton', updated);
                             }
                           }}
                           disabled={ctaButtons.length >= 2}
@@ -1073,7 +754,7 @@ export default function CreateTemplatePage() {
                               (_, i) => i !== index
                             );
                             setCtaButtons(updated);
-                            validateField('urlButton', updated);
+                            updateValidationErrors('urlButton', updated);
                           }}
                         >
                           <Trash2 className="w-5 h-5 text-red-500" />
@@ -1108,7 +789,7 @@ export default function CreateTemplatePage() {
                           const updated = [...quickReplyButtons];
                           updated[index] = e.target.value;
                           setQuickReplyButtons(updated);
-                          validateField('quickReply', updated);
+                          updateValidationErrors('quickReply', updated);
                         }}
                         maxLength={25}
                         className={
@@ -1138,7 +819,7 @@ export default function CreateTemplatePage() {
                               } else {
                                 const updated = [...quickReplyButtons, ''];
                                 setQuickReplyButtons(updated);
-                                validateField('quickReply', updated);
+                                updateValidationErrors('quickReply', updated);
                               }
                             }}
                             disabled={
@@ -1159,7 +840,7 @@ export default function CreateTemplatePage() {
                                 (_, i) => i !== index
                               );
                               setQuickReplyButtons(updated);
-                              validateField('quickReply', updated);
+                              updateValidationErrors('quickReply', updated);
                             }}
                           >
                             <Trash2 className="w-5 h-5 text-red-500" />
@@ -1190,7 +871,7 @@ export default function CreateTemplatePage() {
                             ...prev,
                             label: e.target.value,
                           }));
-                          validateField('phoneButton', true);
+                          updateValidationErrors('phoneButton', true);
                         }}
                         maxLength={25}
                         className={
@@ -1214,7 +895,7 @@ export default function CreateTemplatePage() {
                             ...prev,
                             phone_number: e.target.value,
                           }));
-                          validateField('phoneButton', true);
+                          updateValidationErrors('phoneButton', true);
                         }}
                         maxLength={20}
                         className={
@@ -1260,37 +941,13 @@ export default function CreateTemplatePage() {
               >
                 {hasPreviewContent ? (
                   <>
-                    {/* Media Preview */}
-                    {uploadedFile && uploadedFile.type.startsWith('image/') && (
-                      <img
-                        src={URL.createObjectURL(uploadedFile)}
-                        alt="Uploaded preview"
-                        className="rounded-md mb-2 max-h-32 object-cover w-full"
-                      />
-                    )}
-
-                    {uploadedFile && uploadedFile.type.startsWith('video/') && (
-                      <video
-                        controls
-                        className="rounded-md mb-2 max-h-32 w-full object-cover"
-                      >
-                        <source
-                          src={URL.createObjectURL(uploadedFile)}
-                          type={uploadedFile.type}
-                        />
-                        Your browser does not support this video format.
-                      </video>
-                    )}
-
-                    {uploadedFile &&
-                      uploadedFile.type === 'application/pdf' && (
-                        <div className="text-sm text-gray-800 font-medium mb-2 p-2 bg-gray-100 rounded">
-                          📄 {uploadedFile.name}
-                        </div>
-                      )}
+                    {/* Media Preview - Show generic media based on header type */}
+                    {headerType &&
+                      headerType !== 'TEXT' &&
+                      getGenericMediaPreview()}
 
                     {/* Header Text with Variables Rendered */}
-                    {header && !uploadedFile && (
+                    {headerType === 'TEXT' && header && (
                       <div className="font-semibold text-sm mb-2 break-words">
                         {countPositionalArgs(header) > 0
                           ? renderTextWithArgs(
@@ -1402,36 +1059,6 @@ export default function CreateTemplatePage() {
           </p>
           <DialogFooter>
             <Button onClick={() => setShowLimitDialog(false)}>Okay</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Template Created Successfully</DialogTitle>
-          </DialogHeader>
-          <p>
-            Your template has been submitted for WhatsApp approval. You will be
-            notified once it's reviewed and approved.
-          </p>
-          <DialogFooter>
-            <Button onClick={() => setShowSuccessDialog(false)}>Great!</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Error Creating Template</DialogTitle>
-          </DialogHeader>
-          <p>
-            {error ||
-              'Failed to create template. Please check your inputs and try again.'}
-          </p>
-          <DialogFooter>
-            <Button onClick={() => setShowErrorDialog(false)}>Okay</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
