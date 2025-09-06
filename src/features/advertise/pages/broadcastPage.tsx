@@ -63,7 +63,7 @@ export default function BroadcastPage() {
         </div>
 
         <Button
-          onClick={() => navigate('/dashboard/advertise/create-broadcast')}
+          onClick={() => navigate('/dashboard/advertise/create-campaign')}
         >
           Create New Campaign
         </Button>
