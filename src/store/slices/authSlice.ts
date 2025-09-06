@@ -41,8 +41,8 @@ export const registerUser = createAsyncThunk(
   async (credentials: RegisterCredentials, { rejectWithValue }) => {
     try {
       const response = await register(credentials);
-      const token = response.data.token;
-      localStorage.setItem('token', token);
+      const token = response.data?.token;
+      localStorage.setItem('token', token || '');
 
       return token;
     } catch (error: any) {

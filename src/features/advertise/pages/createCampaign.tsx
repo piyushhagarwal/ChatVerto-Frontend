@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, type JSX } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle, Info, Users, MessageSquare } from 'lucide-react';
 import type {
   CreateCampaignPayload,
-  ComponentObject,
   TextParameter,
   TemplateObject,
   MessageParameter,
@@ -27,6 +27,7 @@ import type {
 import {
   fetchAllTemplatesThunk,
   fetchTemplateByIdThunk,
+  clearSelectedTemplate,
 } from '@/store/slices/templateSlice';
 import { fetchAllGroupsThunk } from '@/store/slices/groupSlice';
 import { createCampaignThunk } from '@/store/slices/campiagnSlice';
@@ -58,6 +59,7 @@ export default function CreateCampaign() {
   useEffect(() => {
     dispatch(fetchAllTemplatesThunk());
     dispatch(fetchAllGroupsThunk());
+    dispatch(clearSelectedTemplate());
   }, [dispatch]);
 
   // Handle form field changes
@@ -245,8 +247,7 @@ export default function CreateCampaign() {
     if (!component.buttons) return null;
 
     const urlButtons = component.buttons.filter(
-      (button, buttonIndex) =>
-        button.type === 'URL' && button.url && button.url.includes('{{')
+      button => button.type === 'URL' && button.url && button.url.includes('{{')
     );
 
     if (urlButtons.length === 0) return null;
@@ -318,7 +319,7 @@ export default function CreateCampaign() {
   const createTemplateObject = (): TemplateObject | null => {
     if (!selectedTemplate || !templateParams) return null;
 
-    const components: ComponentObject[] = [];
+    const components: any[] = [];
 
     // Process each component in the template
     selectedTemplate?.components?.forEach(component => {

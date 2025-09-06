@@ -2,10 +2,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import type {
-  CreateTemplateResponse,
   GetAllTemplateResponse,
   GetTemplateResponseById,
-  DeleteTemplateResponse,
   CreateTemplatePayload,
   Template,
 } from '@/types/template';
@@ -88,7 +86,11 @@ export const deleteTemplateThunk = createAsyncThunk(
 const templateSlice = createSlice({
   name: 'template',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSelectedTemplate(state) {
+      state.selectedTemplate = null;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchAllTemplatesThunk.pending, state => {
@@ -150,4 +152,5 @@ const templateSlice = createSlice({
   },
 });
 
+export const { clearSelectedTemplate } = templateSlice.actions;
 export default templateSlice.reducer;
