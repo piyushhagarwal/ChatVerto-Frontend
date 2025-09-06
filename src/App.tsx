@@ -71,7 +71,6 @@ function App() {
                     path=":id/preview"
                     element={<BroadcastPreviewPage />}
                   />
-                  <Route path="create-campaign" element={<CreateBroadcast />} />
                 </Route>
 
                 <Route path="templates">
@@ -80,13 +79,17 @@ function App() {
 
                   {/* Template preview page */}
                   <Route path=":id/preview" element={<TemplatePreviewPage />} />
-                  <Route
-                    path="create-template"
-                    element={<CreateTemplatePage />}
-                  />
                 </Route>
               </Route>
               {/* ✅ Standalone Create Template Page (outside Advertise tab layout) */}
+              <Route
+                path="advertise/create-template"
+                element={<CreateTemplatePage />}
+              />
+              <Route
+                path="advertise/create-broadcast"
+                element={<CreateBroadcast />}
+              />
             </Route>
 
             <Route path="/flows/:flowId" element={<SingleFlowPage />} />

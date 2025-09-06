@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { Trash2, Loader2, Info, AlertCircle } from 'lucide-react';
 import {
@@ -39,7 +40,7 @@ interface CTAButton {
 export default function CreateTemplatePage() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.template);
-
+  const navigate = useNavigate();
   const [templateName, setTemplateName] = useState('');
   const [templateCategory, setTemplateCategory] = useState<
     'AUTHENTICATION' | 'MARKETING' | 'UTILITY' | ''
@@ -559,21 +560,14 @@ export default function CreateTemplatePage() {
     !!uploadedFile;
 
   return (
-    <div className="flex flex-col h-full w-full bg-white">
+    <div className="flex flex-col h-full w-full ">
       <div className="flex justify-end p-4 border-b">
         <Button
-          className="bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
-          onClick={handleSubmit}
-          disabled={loading}
+          variant="outline"
+          className="text-black-700 border-black-600 "
+          onClick={() => navigate('/dashboard/advertise/templates')}
         >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            'Send to Review'
-          )}
+          Back to Templates
         </Button>
       </div>
 
@@ -591,9 +585,25 @@ export default function CreateTemplatePage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Section - Input Fields */}
         <div className="w-2/3 p-6 overflow-y-auto space-y-4 border-r">
-          <h2 className="text-2xl font-semibold mb-4">
-            {templateName || 'Template Name'}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold">
+              {templateName || 'Template Name'}
+            </h2>
+            <Button
+              className="bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Send to Review'
+              )}
+            </Button>
+          </div>
 
           <div className="space-y-4">
             {/* Template Name */}
@@ -1244,7 +1254,7 @@ export default function CreateTemplatePage() {
         </div>
 
         {/* Right Section - WhatsApp Preview */}
-        <div className="flex-1 border-l p-4 bg-white flex items-center justify-center">
+        <div className="flex-1 border-l p-4  flex items-center justify-center">
           <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-5 border-black">
             {/* Top bar */}
             <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">

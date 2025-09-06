@@ -59,7 +59,9 @@ export default function TemplatesPage() {
           <FileText className="text-primary w-5 h-5" />
           <h2 className="text-2xl font-semibold text-gray-800">My Templates</h2>
         </div>
-        <Button onClick={() => navigate('create-template')}>
+        <Button
+          onClick={() => navigate('/dashboard/advertise/create-template')}
+        >
           Create New Template
         </Button>
       </div>
@@ -92,16 +94,19 @@ export default function TemplatesPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left">Template Name</th>
-                <th className="px-4 py-2 text-left">Category</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Rejected Reason</th>
+                <th className="px-4 py-2 text-center">Template Name</th>
+                <th className="px-4 py-2 text-center">Category</th>
+                <th className="px-4 py-2 text-center">Status</th>
+                <th className="px-4 py-2 text-centert">Rejected Reason</th>
                 <th className="px-4 py-2 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {templates.map(template => (
-                <tr key={template.id} className="border-t">
+                <tr
+                  key={template.id}
+                  className="border-t text-center align-middle"
+                >
                   <td className="px-4 py-2 font-medium">{template.name}</td>
                   <td className="px-4 py-2">{template.category}</td>
 

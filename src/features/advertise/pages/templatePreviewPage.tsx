@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchTemplateByIdThunk } from '@/store/slices/templateSlice';
 import type { Component } from '@/types/template';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function TemplatePreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +51,7 @@ export default function TemplatePreviewPage() {
       </div>
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Left Section - Template Details (unchanged) */}
+
         <div className="pb-6">
           <p className="text-s text-black-500 uppercase tracking-wide">
             Template Name
@@ -60,7 +62,12 @@ export default function TemplatePreviewPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Category */}
-            <div className="rounded-2xl border bg-[#CDDF7D] p-4 shadow-sm">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>All Contacts</CardTitle>
+              </CardHeader>
+            </Card>
+            <div className="rounded-2xl border-0   p-4 shadow-sm">
               <p className="text-xs text-black-500 uppercase tracking-wide">
                 Category
               </p>
@@ -70,7 +77,7 @@ export default function TemplatePreviewPage() {
             </div>
 
             {/* Language */}
-            <div className="rounded-2xl border bg-[#CDDF7D] p-4 shadow-sm">
+            <div className="rounded-2xl border-0  p-4 shadow-sm">
               <p className="text-xs text-black-500 uppercase tracking-wide">
                 Language
               </p>
@@ -80,7 +87,7 @@ export default function TemplatePreviewPage() {
             </div>
 
             {/* Status */}
-            <div className="rounded-2xl border bg-[#CDDF7D] p-4 shadow-sm">
+            <div className="rounded-2xl border-0  p-4 shadow-sm">
               <p className="text-xs text-black-500 uppercase tracking-wide">
                 Status
               </p>
