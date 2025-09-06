@@ -1,18 +1,18 @@
 import type { ApiResponse } from './api';
 
-interface TextParameter {
+export interface TextParameter {
   type: 'text';
   text: string;
 }
 
-interface ImageParameter {
+export interface ImageParameter {
   type: 'image';
   image: {
     id: string;
   };
 }
 
-interface DocumentParameter {
+export interface DocumentParameter {
   type: 'document';
   document: {
     id: string;
@@ -20,24 +20,24 @@ interface DocumentParameter {
   };
 }
 
-interface VideoParameter {
+export interface VideoParameter {
   type: 'video';
   video: {
     id: string;
   };
 }
 
-interface QuickReplyButtonParameter {
+export interface QuickReplyButtonParameter {
   type: 'payload';
   payload: string;
 }
 
-interface UrlButtonParameter {
+export interface UrlButtonParameter {
   type: 'text';
   text: string;
 }
 
-type MessageParameter =
+export type MessageParameter =
   | TextParameter
   | ImageParameter
   | DocumentParameter
@@ -52,7 +52,7 @@ interface ComponentObject {
   index?: number; // Required only if the type is "button"
 }
 
-interface TemplateObject {
+export interface TemplateObject {
   name: string;
   language: {
     code: string;

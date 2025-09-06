@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import type {
@@ -5,13 +6,13 @@ import type {
   CreateCampaignPayload,
   GetAllCampaignsResponse,
   GetCampaignResponseById,
-  DeleteCampaignResponse,
 } from '@/types/campaign';
 
 import {
   getAllCampaigns,
   getCampaignById,
   deleteCampaign,
+  createCampaign,
 } from '@/api/endpoints/campiagn';
 
 interface CampaignState {
@@ -52,6 +53,19 @@ export const fetchCampaignByIdThunk = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch campaign'
+      );
+    }
+  }
+);
+
+export const createCampaignThunk = createAsyncThunk(
+  'campaigns/createCampaign',
+  async (payload: CreateCampaignPayload, { rejectWithValue }) => {
+    try {
+      await createCampaign(payload);
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to create campaign'
       );
     }
   }
@@ -100,18 +114,23 @@ const campaignSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(createCampaignThunk.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createCampaignThunk.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(createCampaignThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(deleteCampaignThunk.pending, state => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteCampaignThunk.fulfilled, (state, action) => {
+      .addCase(deleteCampaignThunk.fulfilled, state => {
         state.loading = false;
-        // // Optionally, remove the deleted campaign from the campaigns array
-        // if (action.meta.arg) {
-        //   state.campaigns = state.campaigns.filter(
-        //     (campaign) => campaign.id !== action.meta.arg
-        //   );
-        // }
       })
       .addCase(deleteCampaignThunk.rejected, (state, action) => {
         state.loading = false;
