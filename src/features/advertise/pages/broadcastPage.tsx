@@ -62,7 +62,9 @@ export default function BroadcastPage() {
           </h2>
         </div>
 
-        <Button onClick={() => navigate('create-campaign')}>
+        <Button
+          onClick={() => navigate('/dashboard/advertise/create-broadcast')}
+        >
           Create New Campaign
         </Button>
       </div>
@@ -93,26 +95,32 @@ export default function BroadcastPage() {
             <table className="min-w-full text-sm">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left">Campaign Name</th>
-                  <th className="px-4 py-2 text-left">Group</th>
-                  <th className="px-4 py-2 text-left">Template</th>
+                  <th className="px-4 py-2 text-center">Campaign Name</th>
+                  <th className="px-4 py-2 text-center">Group</th>
+                  <th className="px-4 py-2 text-center">Template</th>
 
-                  <th className="px-4 py-2 text-left">Status</th>
+                  <th className="px-4 py-2 text-center">Status</th>
                   <th className="px-4 py-2 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {campaigns.map(campaign => (
                   <tr key={campaign.id} className="border-t">
-                    <td className="px-4 py-2 font-medium">{campaign.name}</td>
-                    <td className="px-4 py-2">{campaign.groupName}</td>
-                    <td className="px-4 py-2">{campaign.templateName}</td>
+                    <td className="px-4 py-2 font-medium text-center align-middle">
+                      {campaign.name}
+                    </td>
+                    <td className="px-4 py-2 text-center align-middle">
+                      {campaign.groupName}
+                    </td>
+                    <td className="px-4 py-2 text-center align-middle">
+                      {campaign.templateName}
+                    </td>
                     {/* <td className="px-4 py-2">
                       {campaign.createdAt instanceof Date
                         ? campaign.createdAt.toLocaleString()
                         : campaign.createdAt}
                     </td> */}
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 text-center align-middle">
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold 
                       ${
@@ -126,31 +134,33 @@ export default function BroadcastPage() {
                         {campaign.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2 space-x-2">
-                      <Link to={`${campaign.id}/preview`}>
+                    <td className="px-4 py-2 space-x-2 text-center">
+                      <div className="flex justify-center items-center space-x-2">
+                        <Link to={`${campaign.id}/preview`}>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="hover:bg-muted hover:text-primary"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Button
                           size="icon"
                           variant="ghost"
                           className="hover:bg-muted hover:text-primary"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      </Link>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="hover:bg-muted hover:text-primary"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="hover:bg-red-100 hover:text-red-600"
-                        onClick={() => setConfirmDeleteId(campaign.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="hover:bg-red-100 hover:text-red-600"
+                          onClick={() => setConfirmDeleteId(campaign.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

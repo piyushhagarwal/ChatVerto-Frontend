@@ -30,7 +30,7 @@ import CreateTemplatePage from './features/advertise/pages/createTemplates.tsx';
 import TemplatePreviewPage from './features/advertise/pages/templatePreviewPage.tsx';
 import ProfilePage from './features/user/pages/profile.tsx';
 import BroadcastPreviewPage from './features/advertise/pages/broadcastPreviewPage.tsx';
-import CreateCampaign from './features/advertise/pages/createCampaign.tsx';
+import CreateBroadcast from './features/advertise/pages/createBroadcast.tsx';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -71,7 +71,6 @@ function App() {
                     path=":id/preview"
                     element={<BroadcastPreviewPage />}
                   />
-                  <Route path="create-campaign" element={<CreateCampaign />} />
                 </Route>
 
                 <Route path="templates">
@@ -80,13 +79,17 @@ function App() {
 
                   {/* Template preview page */}
                   <Route path=":id/preview" element={<TemplatePreviewPage />} />
-                  <Route
-                    path="create-template"
-                    element={<CreateTemplatePage />}
-                  />
                 </Route>
               </Route>
               {/* ✅ Standalone Create Template Page (outside Advertise tab layout) */}
+              <Route
+                path="advertise/create-template"
+                element={<CreateTemplatePage />}
+              />
+              <Route
+                path="advertise/create-broadcast"
+                element={<CreateBroadcast />}
+              />
             </Route>
 
             <Route path="/flows/:flowId" element={<SingleFlowPage />} />
@@ -98,3 +101,5 @@ function App() {
 }
 
 export default App;
+
+

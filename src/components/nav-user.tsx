@@ -6,13 +6,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { IconUser } from '@tabler/icons-react';
 
 export function NavUser({
   user,
 }: {
   user: {
     name: string;
-    email: string;
+
     avatar: string;
   };
 }) {
@@ -26,15 +27,14 @@ export function NavUser({
           onClick={() => navigate('/dashboard/profile')}
           className="cursor-pointer hover:bg-muted"
         >
-          <Avatar className="h-8 w-8 rounded-lg grayscale">
+          <Avatar className="h-8 w-8 rounded-lg">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+            <AvatarFallback className="rounded-lg flex items-center justify-center ">
+              <IconUser className="h-4 w-4 text-[#CDDF7D]" />
+            </AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{user.name}</span>
-            <span className="text-muted-foreground truncate text-xs">
-              {user.email}
-            </span>
+          <div className="flex flex-1 items-start justify-start text-sm leading-tight">
+            <span className="truncate font-bold">{user.name}</span>
           </div>
         </SidebarMenuButton>
       </SidebarMenuItem>

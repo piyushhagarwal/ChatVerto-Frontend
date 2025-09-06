@@ -33,8 +33,7 @@ import {
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Profile',
     avatar: '/avatars/shadcn.jpg',
   },
   navMain: [
@@ -113,23 +112,23 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: 'Settings',
-      url: '#',
-      icon: IconSettings,
-    },
-    {
-      title: 'Get Help',
-      url: '#',
-      icon: IconHelp,
-    },
-    {
-      title: 'Search',
-      url: '#',
-      icon: IconSearch,
-    },
-  ],
+  // navSecondary: [
+  //   {
+  //     title: 'Settings',
+  //     url: '#',
+  //     icon: IconSettings,
+  //   },
+  //   {
+  //     title: 'Get Help',
+  //     url: '#',
+  //     icon: IconHelp,
+  //   },
+  //   {
+  //     title: 'Search',
+  //     url: '#',
+  //     icon: IconSearch,
+  //   },
+  // ],
   documents: [
     {
       name: 'Data Library',
@@ -168,10 +167,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="relative bottom-[35px]">
         <NavMain items={data.navMain} />
 
-        <NavSecondary
+        {/* <NavSecondary
           items={data.navSecondary}
           className="relative top-[15rem]"
-        />
+        /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
