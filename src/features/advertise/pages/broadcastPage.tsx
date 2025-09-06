@@ -3,17 +3,10 @@ import { Input } from '@/components/ui/input';
 import { BroadcastDialog } from '../components/BroadcastDialog';
 import { useState } from 'react';
 import { BarChart3 } from 'lucide-react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Link } from 'react-router-dom';
-import {
-  TrendingUp,
-  MailCheck,
-  Eye,
-  MessageSquareReply,
-  AlertTriangle,
-  CreditCard,
-} from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useEffect } from 'react';
 import {
@@ -27,7 +20,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { type Campaign } from '@/types/campaign';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

@@ -6,6 +6,7 @@ import groupReducer from './slices/groupSlice';
 import userReducer from './slices/userSlice';
 import templateReducer from './slices/templateSlice';
 import campiagnReducer from './slices/campiagnSlice';
+import mediaReducer from './slices/mediaSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     user: userReducer,
     template: templateReducer,
     campaign: campiagnReducer,
+    media: mediaReducer,
   },
 });
 

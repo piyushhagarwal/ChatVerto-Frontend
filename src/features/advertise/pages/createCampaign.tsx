@@ -13,7 +13,16 @@ import {
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, AlertCircle, Info, Users, MessageSquare } from 'lucide-react';
+import {
+  Loader2,
+  AlertCircle,
+  Info,
+  Users,
+  MessageSquare,
+  Upload,
+  X,
+  Check,
+} from 'lucide-react';
 import type {
   CreateCampaignPayload,
   TextParameter,
@@ -31,6 +40,7 @@ import {
 } from '@/store/slices/templateSlice';
 import { fetchAllGroupsThunk } from '@/store/slices/groupSlice';
 import { createCampaignThunk } from '@/store/slices/campiagnSlice';
+import { uploadMediaThunk, clearMediaState } from '@/store/slices/mediaSlice';
 import type { Component } from '@/types/template';
 
 // Interface for template parameters collected from user
@@ -40,6 +50,17 @@ interface TemplateParams {
   buttons?: { [key: string]: string };
 }
 
+// Interface for media upload states
+interface MediaUploadState {
+  [key: string]: {
+    file: File | null;
+    uploading: boolean;
+    uploaded: boolean;
+    mediaId: string | null;
+    error: string | null;
+  };
+}
+
 export default function CreateCampaign() {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector(state => state.campaign);
@@ -47,6 +68,9 @@ export default function CreateCampaign() {
     state => state.template
   );
   const { groups } = useAppSelector(state => state.group);
+  const { mediaId, loading: mediaLoading } = useAppSelector(
+    state => state.media
+  );
 
   const [formData, setFormData] = useState({
     name: '',
@@ -55,6 +79,7 @@ export default function CreateCampaign() {
   });
 
   const [templateParams, setTemplateParams] = useState<TemplateParams>({});
+  const [mediaUploads, setMediaUploads] = useState<MediaUploadState>({});
 
   useEffect(() => {
     dispatch(fetchAllTemplatesThunk());
@@ -80,6 +105,8 @@ export default function CreateCampaign() {
       templateId,
     }));
     setTemplateParams({});
+    setMediaUploads({});
+    dispatch(clearMediaState());
 
     if (templateId) {
       dispatch(fetchTemplateByIdThunk(templateId));
@@ -101,25 +128,224 @@ export default function CreateCampaign() {
     }));
   };
 
+  // Handle file selection and auto-upload
+  const handleFileSelect = async (
+    uploadKey: string,
+    file: File,
+    mediaType: 'image' | 'video' | 'document'
+  ) => {
+    // Set the file and start uploading immediately
+    setMediaUploads(prev => ({
+      ...prev,
+      [uploadKey]: {
+        file,
+        uploading: true,
+        uploaded: false,
+        mediaId: null,
+        error: null,
+      },
+    }));
+
+    // Auto-upload the file
+    try {
+      const resultAction = await dispatch(uploadMediaThunk(file));
+
+      if (uploadMediaThunk.fulfilled.match(resultAction)) {
+        const uploadedMediaId = resultAction.payload;
+
+        // Update upload state to success
+        setMediaUploads(prev => ({
+          ...prev,
+          [uploadKey]: {
+            ...prev[uploadKey],
+            uploading: false,
+            uploaded: true,
+            mediaId: uploadedMediaId ?? null,
+            error: null,
+          },
+        }));
+
+        // Set the media ID in template parameters
+        const paramKey =
+          mediaType === 'image'
+            ? 'image_id'
+            : mediaType === 'video'
+              ? 'video_id'
+              : 'document_id';
+        updateTemplateParam('header', paramKey, uploadedMediaId ?? '');
+      } else {
+        // Handle upload error
+        const errorMessage =
+          (resultAction.payload as string) || 'Upload failed';
+        setMediaUploads(prev => ({
+          ...prev,
+          [uploadKey]: {
+            ...prev[uploadKey],
+            uploading: false,
+            uploaded: false,
+            error: errorMessage,
+          },
+        }));
+      }
+    } catch (error) {
+      setMediaUploads(prev => ({
+        ...prev,
+        [uploadKey]: {
+          ...prev[uploadKey],
+          uploading: false,
+          uploaded: false,
+          error: 'Upload failed',
+        },
+      }));
+    }
+  };
+
+  // Remove uploaded file
+  const removeUploadedFile = (
+    uploadKey: string,
+    mediaType: 'image' | 'video' | 'document'
+  ) => {
+    setMediaUploads(prev => {
+      const newState = { ...prev };
+      delete newState[uploadKey];
+      return newState;
+    });
+
+    // Clear the media ID from template parameters
+    const paramKey =
+      mediaType === 'image'
+        ? 'image_id'
+        : mediaType === 'video'
+          ? 'video_id'
+          : 'document_id';
+    updateTemplateParam('header', paramKey, '');
+  };
+
+  // Get accepted file types based on media type
+  const getAcceptedFileTypes = (mediaType: 'image' | 'video' | 'document') => {
+    switch (mediaType) {
+      case 'image':
+        return 'image/*';
+      case 'video':
+        return 'video/*';
+      case 'document':
+        return '.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx';
+      default:
+        return '*/*';
+    }
+  };
+
+  // Render media upload component
+  const renderMediaUpload = (
+    uploadKey: string,
+    mediaType: 'image' | 'video' | 'document',
+    label: string
+  ): JSX.Element => {
+    const uploadState = mediaUploads[uploadKey];
+    const acceptedTypes = getAcceptedFileTypes(mediaType);
+
+    return (
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">{label} *</Label>
+
+        {!uploadState?.file ? (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <div className="text-center">
+              <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+              <div className="text-sm text-gray-600 mb-2">
+                Click to upload or drag and drop
+              </div>
+              <input
+                type="file"
+                accept={acceptedTypes}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleFileSelect(uploadKey, file, mediaType);
+                  }
+                }}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium">
+                  {uploadState.file.name}
+                </div>
+                <div className="text-xs text-gray-500">
+                  ({(uploadState.file.size / 1024 / 1024).toFixed(2)} MB)
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeUploadedFile(uploadKey, mediaType)}
+                className="h-8 w-8 p-0"
+                disabled={uploadState.uploading}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {uploadState.error && (
+              <div className="text-sm text-red-600 mb-2">
+                {uploadState.error}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              {uploadState.uploaded ? (
+                <div className="flex items-center gap-2 text-green-600 text-sm">
+                  <Check className="h-4 w-4" />
+                  Uploaded successfully
+                </div>
+              ) : uploadState.uploading ? (
+                <div className="flex items-center gap-2 text-blue-600 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Uploading...
+                </div>
+              ) : uploadState.error ? (
+                <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  Upload failed - {uploadState.error}
+                </div>
+              ) : null}
+            </div>
+
+            {uploadState.uploaded && uploadState.mediaId && (
+              <div className="mt-2 text-xs text-gray-500">
+                Media ID: {uploadState.mediaId}
+              </div>
+            )}
+          </div>
+        )}
+
+        <p className="text-xs text-gray-500">
+          Upload your {mediaType} file. The media ID will be automatically set
+          after upload.
+        </p>
+      </div>
+    );
+  };
+
   // Render header inputs
   const renderHeaderInputs = (
     component: Component,
     componentIndex: number
   ): JSX.Element | null => {
     if (component.format === 'IMAGE' && component.example?.header_handle) {
+      const uploadKey = `header-image-${componentIndex}`;
       return (
         <div key={`header-${componentIndex}`} className="space-y-2">
-          <Label className="text-sm font-medium">Header Image ID *</Label>
-          <Input
-            type="text"
-            placeholder="Enter WhatsApp media ID for image"
-            onChange={e =>
-              updateTemplateParam('header', 'image_id', e.target.value)
-            }
-          />
-          <p className="text-xs text-gray-500">
-            Provide the WhatsApp media ID for the header image
-          </p>
+          {renderMediaUpload(uploadKey, 'image', 'Header Image')}
         </div>
       );
     }
@@ -152,33 +378,19 @@ export default function CreateCampaign() {
     }
 
     if (component.format === 'VIDEO' && component.example?.header_handle) {
+      const uploadKey = `header-video-${componentIndex}`;
       return (
         <div key={`header-${componentIndex}`} className="space-y-2">
-          <Label className="text-sm font-medium">Header Video ID *</Label>
-          <Input
-            type="text"
-            placeholder="Enter WhatsApp media ID for video"
-            onChange={e =>
-              updateTemplateParam('header', 'video_id', e.target.value)
-            }
-          />
+          {renderMediaUpload(uploadKey, 'video', 'Header Video')}
         </div>
       );
     }
 
     if (component.format === 'DOCUMENT' && component.example?.header_handle) {
+      const uploadKey = `header-document-${componentIndex}`;
       return (
         <div key={`header-${componentIndex}`} className="space-y-3">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Header Document ID *</Label>
-            <Input
-              type="text"
-              placeholder="Enter WhatsApp media ID for document"
-              onChange={e =>
-                updateTemplateParam('header', 'document_id', e.target.value)
-              }
-            />
-          </div>
+          {renderMediaUpload(uploadKey, 'document', 'Header Document')}
           <div className="space-y-2">
             <Label className="text-sm font-medium">
               Document Filename (Optional)
@@ -449,6 +661,99 @@ export default function CreateCampaign() {
     };
   };
 
+  // Validation function to check if all required fields are filled
+  const isFormValid = (): boolean => {
+    // Check basic form fields
+    if (!formData.name.trim() || !formData.groupId || !formData.templateId) {
+      return false;
+    }
+
+    // If no template is selected, can't proceed
+    if (!selectedTemplate) return false;
+
+    // Check template parameters if they exist
+    if (templateHasParameters && selectedTemplate.components) {
+      for (const component of selectedTemplate.components) {
+        switch (component.type) {
+          case 'HEADER':
+            if (
+              component.format === 'IMAGE' &&
+              component.example?.header_handle
+            ) {
+              const uploadKey = 'header-image-0';
+              const uploadState = mediaUploads[uploadKey];
+              if (!uploadState?.uploaded || !uploadState.mediaId) {
+                return false;
+              }
+            } else if (
+              component.format === 'VIDEO' &&
+              component.example?.header_handle
+            ) {
+              const uploadKey = 'header-video-0';
+              const uploadState = mediaUploads[uploadKey];
+              if (!uploadState?.uploaded || !uploadState.mediaId) {
+                return false;
+              }
+            } else if (
+              component.format === 'DOCUMENT' &&
+              component.example?.header_handle
+            ) {
+              const uploadKey = 'header-document-0';
+              const uploadState = mediaUploads[uploadKey];
+              if (!uploadState?.uploaded || !uploadState.mediaId) {
+                return false;
+              }
+            } else if (
+              component.format === 'TEXT' &&
+              component.example?.header_text
+            ) {
+              const headerParams = component.example.header_text;
+              for (let i = 0; i < headerParams.length; i++) {
+                if (!templateParams.header?.[i.toString()]?.trim()) {
+                  return false;
+                }
+              }
+            }
+            break;
+
+          case 'BODY':
+            if (component.example?.body_text?.[0]) {
+              const bodyParams = component.example.body_text[0];
+              for (let i = 0; i < bodyParams.length; i++) {
+                if (!templateParams.body?.[i.toString()]?.trim()) {
+                  return false;
+                }
+              }
+            }
+            break;
+
+          case 'BUTTONS':
+            if (component.buttons) {
+              const urlButtons = component.buttons.filter(
+                button =>
+                  button.type === 'URL' &&
+                  button.url &&
+                  button.url.includes('{{')
+              );
+              for (let i = 0; i < urlButtons.length; i++) {
+                if (!templateParams.buttons?.[i.toString()]?.trim()) {
+                  return false;
+                }
+              }
+            }
+            break;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  // Check if any media is currently uploading
+  const isAnyMediaUploading = (): boolean => {
+    return Object.values(mediaUploads).some(upload => upload.uploading);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -470,6 +775,8 @@ export default function CreateCampaign() {
       // Reset form on success
       setFormData({ name: '', groupId: '', templateId: '' });
       setTemplateParams({});
+      setMediaUploads({});
+      dispatch(clearMediaState());
     } catch (error) {
       console.error('Error creating campaign:', error);
     }
@@ -501,12 +808,17 @@ export default function CreateCampaign() {
               .getElementById('campaign-form')
               ?.dispatchEvent(new Event('submit', { bubbles: true }))
           }
-          disabled={loading}
+          disabled={loading || !isFormValid() || isAnyMediaUploading()}
         >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Creating...
+            </>
+          ) : isAnyMediaUploading() ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Uploading media...
             </>
           ) : (
             'Create Campaign'
@@ -757,27 +1069,39 @@ export default function CreateCampaign() {
                             </div>
                           );
                         } else if (headerComponent.format === 'IMAGE') {
+                          const uploadKey = `header-image-0`;
+                          const uploadState = mediaUploads[uploadKey];
                           return (
                             <div className="bg-gray-200 rounded p-2 text-center text-xs text-gray-500 mb-2">
-                              {templateParams.header?.image_id
-                                ? `Image: ${templateParams.header.image_id}`
-                                : '📷 Header Image'}
+                              {uploadState?.uploaded && uploadState.mediaId
+                                ? `📷 Image: ${uploadState.file?.name}`
+                                : templateParams.header?.image_id
+                                  ? `📷 Image: ${templateParams.header.image_id}`
+                                  : '📷 Header Image'}
                             </div>
                           );
                         } else if (headerComponent.format === 'VIDEO') {
+                          const uploadKey = `header-video-0`;
+                          const uploadState = mediaUploads[uploadKey];
                           return (
                             <div className="bg-gray-200 rounded p-2 text-center text-xs text-gray-500 mb-2">
-                              {templateParams.header?.video_id
-                                ? `Video: ${templateParams.header.video_id}`
-                                : '🎥 Header Video'}
+                              {uploadState?.uploaded && uploadState.mediaId
+                                ? `🎥 Video: ${uploadState.file?.name}`
+                                : templateParams.header?.video_id
+                                  ? `🎥 Video: ${templateParams.header.video_id}`
+                                  : '🎥 Header Video'}
                             </div>
                           );
                         } else if (headerComponent.format === 'DOCUMENT') {
+                          const uploadKey = `header-document-0`;
+                          const uploadState = mediaUploads[uploadKey];
                           return (
                             <div className="bg-gray-200 rounded p-2 text-center text-xs text-gray-500 mb-2">
-                              {templateParams.header?.document_id
-                                ? `Document: ${templateParams.header.document_filename || templateParams.header.document_id}`
-                                : '📄 Header Document'}
+                              {uploadState?.uploaded && uploadState.mediaId
+                                ? `📄 Document: ${uploadState.file?.name}`
+                                : templateParams.header?.document_id
+                                  ? `📄 Document: ${templateParams.header.document_filename || templateParams.header.document_id}`
+                                  : '📄 Header Document'}
                             </div>
                           );
                         }
