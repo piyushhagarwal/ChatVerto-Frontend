@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Loader2, Info, AlertCircle } from 'lucide-react';
+import {
+  Trash2,
+  Loader2,
+  Info,
+  AlertCircle,
+  Upload,
+  X,
+  Check,
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +28,10 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { createTemplateThunk } from '@/store/slices/templateSlice';
+import {
+  uploadMediaByResumableApiThunk,
+  clearMediaState,
+} from '@/store/slices/mediaSlice';
 import type {
   ButtonType,
   Component,
@@ -34,6 +46,17 @@ import {
 } from '../helpers/templateHelpers';
 import { validateField } from '../helpers/templateValidations';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+// Interface for media upload states
+interface MediaUploadState {
+  [key: string]: {
+    file: File | null;
+    uploading: boolean;
+    uploaded: boolean;
+    mediaHandle: string | null;
+    error: string | null;
+  };
+}
 
 export default function CreateTemplatePage() {
   const dispatch = useAppDispatch();
@@ -58,6 +81,7 @@ export default function CreateTemplatePage() {
   });
   const [useQuickReply, setUseQuickReply] = useState(false);
   const [usePhoneButton, setUsePhoneButton] = useState(false);
+  const [mediaUploads, setMediaUploads] = useState<MediaUploadState>({});
 
   // New state for positional arguments
   const [headerExamples, setHeaderExamples] = useState<string[]>(['']);
@@ -67,6 +91,205 @@ export default function CreateTemplatePage() {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  // Cleanup object URLs when component unmounts or media uploads change
+  useEffect(() => {
+    return () => {
+      // Cleanup any remaining object URLs to prevent memory leaks
+      Object.values(mediaUploads).forEach(upload => {
+        if (upload.file && headerType && headerType !== 'TEXT') {
+          // The URLs are cleaned up by the onLoad/onLoadedData callbacks
+          // This is just an additional safety measure
+        }
+      });
+    };
+  }, [mediaUploads, headerType]);
+
+  // Get accepted file types based on media type
+  const getAcceptedFileTypes = (mediaType: 'image' | 'video' | 'document') => {
+    switch (mediaType) {
+      case 'image':
+        return 'image/*';
+      case 'video':
+        return 'video/*';
+      case 'document':
+        return '.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx';
+      default:
+        return '*/*';
+    }
+  };
+
+  // Handle file selection and auto-upload
+  const handleFileSelect = async (
+    uploadKey: string,
+    file: File,
+    mediaType: 'image' | 'video' | 'document'
+  ) => {
+    // Set the file and start uploading immediately
+    setMediaUploads(prev => ({
+      ...prev,
+      [uploadKey]: {
+        file,
+        uploading: true,
+        uploaded: false,
+        mediaHandle: null,
+        error: null,
+      },
+    }));
+
+    // Auto-upload the file using resumable API
+    try {
+      const resultAction = await dispatch(uploadMediaByResumableApiThunk(file));
+
+      if (uploadMediaByResumableApiThunk.fulfilled.match(resultAction)) {
+        const uploadedMediaHandle = resultAction.payload;
+
+        // Update upload state to success
+        setMediaUploads(prev => ({
+          ...prev,
+          [uploadKey]: {
+            ...prev[uploadKey],
+            uploading: false,
+            uploaded: true,
+            mediaHandle: uploadedMediaHandle ?? null,
+            error: null,
+          },
+        }));
+      } else {
+        // Handle upload error
+        const errorMessage =
+          (resultAction.payload as string) || 'Upload failed';
+        setMediaUploads(prev => ({
+          ...prev,
+          [uploadKey]: {
+            ...prev[uploadKey],
+            uploading: false,
+            uploaded: false,
+            error: errorMessage,
+          },
+        }));
+      }
+    } catch (error) {
+      setMediaUploads(prev => ({
+        ...prev,
+        [uploadKey]: {
+          ...prev[uploadKey],
+          uploading: false,
+          uploaded: false,
+          error: 'Upload failed',
+        },
+      }));
+    }
+  };
+
+  // Remove uploaded file
+  const removeUploadedFile = (uploadKey: string) => {
+    setMediaUploads(prev => {
+      const newState = { ...prev };
+      delete newState[uploadKey];
+      return newState;
+    });
+  };
+
+  // Render media upload component
+  const renderMediaUpload = (
+    uploadKey: string,
+    mediaType: 'image' | 'video' | 'document',
+    label: string
+  ) => {
+    const uploadState = mediaUploads[uploadKey];
+    const acceptedTypes = getAcceptedFileTypes(mediaType);
+
+    return (
+      <div className="space-y-3">
+        <label className="block text-sm font-medium">{label}</label>
+
+        {!uploadState?.file ? (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <div className="text-center">
+              <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+              <div className="text-sm text-gray-600 mb-2">
+                Click to upload or drag and drop
+              </div>
+              <input
+                type="file"
+                accept={acceptedTypes}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleFileSelect(uploadKey, file, mediaType);
+                  }
+                }}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium">
+                  {uploadState.file.name}
+                </div>
+                <div className="text-xs text-gray-500">
+                  ({(uploadState.file.size / 1024 / 1024).toFixed(2)} MB)
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeUploadedFile(uploadKey)}
+                className="h-8 w-8 p-0"
+                disabled={uploadState.uploading}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {uploadState.error && (
+              <div className="text-sm text-red-600 mb-2">
+                {uploadState.error}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              {uploadState.uploaded ? (
+                <div className="flex items-center gap-2 text-green-600 text-sm">
+                  <Check className="h-4 w-4" />
+                  Uploaded successfully
+                </div>
+              ) : uploadState.uploading ? (
+                <div className="flex items-center gap-2 text-blue-600 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Uploading...
+                </div>
+              ) : uploadState.error ? (
+                <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  Upload failed - {uploadState.error}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )}
+
+        <p className="text-xs text-gray-500">
+          Upload your {mediaType} file. The file will be used as example media
+          for the template.
+        </p>
+      </div>
+    );
+  };
+
+  // Check if any media is currently uploading
+  const isAnyMediaUploading = (): boolean => {
+    return Object.values(mediaUploads).some(upload => upload.uploading);
+  };
 
   const buildComponents = (): Component[] => {
     const components: Component[] = [];
@@ -94,10 +317,20 @@ export default function CreateTemplatePage() {
           }
         }
       } else if (headerType !== 'TEXT') {
-        // For media types, add example handle
-        headerComponent.example = {
-          header_handle: [`example_${headerType.toLowerCase()}_file`],
-        };
+        // For media types, check if media is uploaded
+        const uploadKey = `header-${headerType.toLowerCase()}`;
+        const uploadState = mediaUploads[uploadKey];
+
+        if (uploadState?.uploaded && uploadState.mediaHandle) {
+          headerComponent.example = {
+            header_handle: [uploadState.mediaHandle],
+          };
+        } else {
+          // Use generic example handle if no media uploaded
+          headerComponent.example = {
+            header_handle: [`example_${headerType.toLowerCase()}_file`],
+          };
+        }
       }
 
       components.push(headerComponent);
@@ -220,28 +453,89 @@ export default function CreateTemplatePage() {
     setHeaderExamples(['']);
     setBodyExamples(['']);
     setValidationErrors({});
+    setMediaUploads({});
   };
 
   const getGenericMediaPreview = () => {
+    const uploadKey = `header-${headerType?.toLowerCase()}`;
+    const uploadState = mediaUploads[uploadKey];
+
+    // If no file is uploaded, show placeholder
+    if (!uploadState?.file) {
+      switch (headerType) {
+        case 'IMAGE':
+          return (
+            <div className="rounded-md mb-2 h-32 w-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+              🖼️ Sample Image
+            </div>
+          );
+        case 'VIDEO':
+          return (
+            <div className="rounded-md mb-2 h-32 w-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+              🎥 Sample Video
+            </div>
+          );
+        case 'DOCUMENT':
+          return (
+            <div className="text-sm text-gray-800 font-medium mb-2 p-2 bg-gray-100 rounded">
+              📄 sample_document.pdf
+            </div>
+          );
+        default:
+          return null;
+      }
+    }
+
+    // Show actual uploaded media
     switch (headerType) {
       case 'IMAGE':
+        const imageUrl = URL.createObjectURL(uploadState.file);
         return (
-          <div className="rounded-md mb-2 max-h-32 w-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-            🖼️ Sample Image
+          <div className="rounded-md mb-2 max-h-32 w-full overflow-hidden">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="w-full h-full object-cover rounded-md"
+              onLoad={() => {
+                // Clean up the object URL after image loads to prevent memory leaks
+                setTimeout(() => URL.revokeObjectURL(imageUrl), 1000);
+              }}
+            />
           </div>
         );
+
       case 'VIDEO':
+        const videoUrl = URL.createObjectURL(uploadState.file);
         return (
-          <div className="rounded-md mb-2 max-h-32 w-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-            🎥 Sample Video
+          <div className="rounded-md mb-2 max-h-32 w-full overflow-hidden">
+            <video
+              src={videoUrl}
+              className="w-full h-full object-cover rounded-md"
+              controls
+              muted
+              onLoadedData={() => {
+                // Clean up the object URL after video loads
+                setTimeout(() => URL.revokeObjectURL(videoUrl), 1000);
+              }}
+            >
+              Your browser does not support the video tag.
+            </video>
           </div>
         );
+
       case 'DOCUMENT':
         return (
-          <div className="text-sm text-gray-800 font-medium mb-2 p-2 bg-gray-100 rounded">
-            📄 sample_document.pdf
+          <div className="text-sm text-gray-800 font-medium mb-2 p-2 bg-gray-100 rounded flex items-center gap-2">
+            <span className="text-lg">📄</span>
+            <div className="flex-1 min-w-0">
+              <div className="truncate">{uploadState.file.name}</div>
+              <div className="text-xs text-gray-500">
+                {(uploadState.file.size / 1024 / 1024).toFixed(2)} MB
+              </div>
+            </div>
           </div>
         );
+
       default:
         return null;
     }
@@ -296,12 +590,17 @@ export default function CreateTemplatePage() {
         <Button
           className="bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={loading || isAnyMediaUploading()}
         >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Creating...
+            </>
+          ) : isAnyMediaUploading() ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Uploading media...
             </>
           ) : (
             'Send to Review'
@@ -424,6 +723,8 @@ export default function CreateTemplatePage() {
                     setHeader('');
                     setHeaderExamples(['']);
                   }
+                  // Clear media uploads when changing type
+                  setMediaUploads({});
                   updateValidationErrors('headerType', value);
                 }}
               >
@@ -519,6 +820,22 @@ export default function CreateTemplatePage() {
                     )}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Media Upload Section for non-TEXT header types */}
+            {headerType && headerType !== 'TEXT' && (
+              <div className="space-y-2">
+                {renderMediaUpload(
+                  `header-${headerType.toLowerCase()}`,
+                  headerType.toLowerCase() as 'image' | 'video' | 'document',
+                  `Header ${headerType.charAt(0) + headerType.slice(1).toLowerCase()} (Optional)`
+                )}
+                <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md">
+                  <Info className="w-4 h-4 inline mr-1" />
+                  Upload example media for your template. This will be used as a
+                  reference when creating campaigns with this template.
+                </div>
               </div>
             )}
 
@@ -941,7 +1258,7 @@ export default function CreateTemplatePage() {
               >
                 {hasPreviewContent ? (
                   <>
-                    {/* Media Preview - Show generic media based on header type */}
+                    {/* Media Preview - Show actual media based on header type */}
                     {headerType &&
                       headerType !== 'TEXT' &&
                       getGenericMediaPreview()}

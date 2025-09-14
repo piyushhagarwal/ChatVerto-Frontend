@@ -141,7 +141,7 @@ const templateSlice = createSlice({
         state.error = null;
       })
 
-      .addCase(deleteTemplateThunk.fulfilled, (state, action) => {
+      .addCase(deleteTemplateThunk.fulfilled, state => {
         state.loading = false;
       })
 

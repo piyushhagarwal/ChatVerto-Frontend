@@ -68,9 +68,6 @@ export default function CreateCampaign() {
     state => state.template
   );
   const { groups } = useAppSelector(state => state.group);
-  const { mediaId, loading: mediaLoading } = useAppSelector(
-    state => state.media
-  );
 
   const [formData, setFormData] = useState({
     name: '',
