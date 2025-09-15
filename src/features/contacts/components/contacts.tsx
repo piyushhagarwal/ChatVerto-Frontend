@@ -176,7 +176,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   };
 
   return (
-    <section className="space-y-2">
+    <section className="space-y-3">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">
           {selectedGroupId === null ? 'All Contacts' : selectedGroup?.name}
@@ -317,89 +317,98 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
               </Dialog>
             </div>
           )}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">
-                  <input
-                    type="checkbox"
-                    onChange={e => toggleSelectAll(e.target.checked)}
-                    checked={
-                      selectedContacts.length === contacts.length &&
-                      contacts.length > 0
-                    }
-                  />
-                </TableHead>
-                <TableHead className="text-left">Name</TableHead>
-                <TableHead className="text-left">Phone Number</TableHead>
-                <TableHead className="text-right">Delete</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {contacts.map((contact: Contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell className="w-10">
+
+          <div className="overflow-x-auto border rounded-lg">
+            <table className="min-w-full text-sm">
+              <thead className="bg-primary text-accent">
+                <tr>
+                  <th className="px-4 py-2 text-center w-10">
                     <input
                       type="checkbox"
-                      checked={selectedContacts.includes(contact.id)}
-                      onChange={() => toggleSelect(contact.id)}
+                      onChange={e => toggleSelectAll(e.target.checked)}
+                      checked={
+                        selectedContacts.length === contacts.length &&
+                        contacts.length > 0
+                      }
                     />
-                  </TableCell>
-                  <TableCell className="text-left">{contact.name}</TableCell>
-                  <TableCell className="text-left">{contact.phone}</TableCell>
-                  <TableCell className="text-right">
-                    <Dialog
-                      open={confirmDeleteId === contact.id}
-                      onOpenChange={open => !open && setConfirmDeleteId(null)}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500 hover:text-red-600"
-                          onClick={() => setConfirmDeleteId(contact.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Confirm Deletion</DialogTitle>
-                        </DialogHeader>
-
-                        {selectedGroupId ? (
-                          <p>
-                            Are you sure you want to remove{' '}
-                            <strong>{contact.name}</strong> from the group{' '}
-                            <strong>{selectedGroup?.name}</strong>. The contact
-                            will still remain in your contact list.
-                          </p>
-                        ) : (
-                          <p>
-                            Are you sure you want to permanently delete{' '}
-                            <strong>{contact.name}</strong>? This action cannot
-                            be undone.
-                          </p>
-                        )}
-
-                        <DialogFooter className="pt-4">
-                          <Button variant="destructive" onClick={confirmDelete}>
-                            Delete
-                          </Button>
+                  </th>
+                  <th className="px-4 py-2 text-center">Name</th>
+                  <th className="px-4 py-2 text-center">Phone Number</th>
+                  <th className="px-4 py-2 text-center">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contacts.map((contact: Contact) => (
+                  <tr
+                    key={contact.id}
+                    className="border-t  text-primary text-center align-middle"
+                  >
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedContacts.includes(contact.id)}
+                        onChange={() => toggleSelect(contact.id)}
+                      />
+                    </td>
+                    <td className="px-4 py-2 font-medium">{contact.name}</td>
+                    <td className="px-4 py-2">{contact.phone}</td>
+                    <td className="px-4 py-2">
+                      <Dialog
+                        open={confirmDeleteId === contact.id}
+                        onOpenChange={open => !open && setConfirmDeleteId(null)}
+                      >
+                        <DialogTrigger asChild>
                           <Button
-                            variant="outline"
-                            onClick={() => setConfirmDeleteId(null)}
+                            variant="ghost"
+                            size="icon"
+                            className="hover:bg-red-100 hover:text-red-600"
+                            onClick={() => setConfirmDeleteId(contact.id)}
                           >
-                            Cancel
+                            <Trash2 className="h-4 w-4 text-red-600" />
                           </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Confirm Deletion</DialogTitle>
+                          </DialogHeader>
+
+                          {selectedGroupId ? (
+                            <p>
+                              Are you sure you want to remove{' '}
+                              <strong>{contact.name}</strong> from the group{' '}
+                              <strong>{selectedGroup?.name}</strong>? The
+                              contact will still remain in your contact list.
+                            </p>
+                          ) : (
+                            <p>
+                              Are you sure you want to permanently delete{' '}
+                              <strong>{contact.name}</strong>? This action
+                              cannot be undone.
+                            </p>
+                          )}
+
+                          <DialogFooter className="pt-4">
+                            <Button
+                              variant="destructive"
+                              onClick={confirmDelete}
+                            >
+                              Delete
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => setConfirmDeleteId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </section>

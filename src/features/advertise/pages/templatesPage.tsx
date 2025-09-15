@@ -53,7 +53,7 @@ export default function TemplatesPage() {
   // );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 rounded-b-2xl shadow-xl bg-card/1 p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="text-primary w-5 h-5" />
@@ -92,7 +92,7 @@ export default function TemplatesPage() {
       {templates && (
         <div className="overflow-x-auto border rounded-lg">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-primary text-accent">
               <tr>
                 <th className="px-4 py-2 text-center">Template Name</th>
                 <th className="px-4 py-2 text-center">Category</th>

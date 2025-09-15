@@ -4,6 +4,7 @@ import { getUserProfileThunk } from '@/store/slices/userSlice';
 import TopCard from '@/features/user/components/topCard';
 import ProfileUpdateForm from '../components/profileUpdateform';
 import { ProfilePhotoUploader } from '../components/profilePhotoUploader';
+import { SiteHeader } from '@/components/site-header';
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
@@ -14,8 +15,8 @@ export default function ProfilePage() {
   }, [dispatch]);
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">My Profile</h1>
+    <div className="space-y-6">
+      <SiteHeader title="My Profile" />
 
       {loading && <p className="text-muted-foreground">Loading...</p>}
 
