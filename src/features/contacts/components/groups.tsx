@@ -129,7 +129,7 @@ export default function Groups({
         </Dialog>
       </div>
       {groups.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-6">
           {/* All Contacts Card */}
           <Card
             className={`cursor-pointer hover:shadow ${

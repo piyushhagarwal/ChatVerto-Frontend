@@ -53,11 +53,11 @@ const data = {
       url: '/dashboard/automation',
       icon: IconSettingsAutomation,
     },
-    {
-      title: 'Chats',
-      url: '/dashboard/chats',
-      icon: IconMessageDots,
-    },
+    // {
+    //   title: 'Chats',
+    //   url: '/dashboard/chats',
+    //   icon: IconMessageDots,
+    // },
     {
       title: 'Advertise',
       url: '/dashboard/advertise/broadcast',

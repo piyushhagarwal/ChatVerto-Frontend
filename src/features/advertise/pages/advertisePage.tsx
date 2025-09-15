@@ -15,7 +15,8 @@ export default function Advertise() {
       <SiteHeader title="Advertise" />
       <div className="flex h-full w-full ">
         {/* Sidebar */}
-        <aside className="w-64 h-[calc(100vh-64px)] border-r border-t  flex flex-col items-start justify-start">
+
+        <aside className="w-64 h-[calc(116vh-64px)] ml-[5px] bg-card/1 rounded-b-2xl shadow-xl flex flex-col items-start justify-start">
           <div className="w-full px-4 py-4 pr-4 space-y-2">
             <Button
               variant={pathname.includes('broadcast') ? 'default' : 'ghost'}
@@ -35,7 +36,7 @@ export default function Advertise() {
         </aside>
 
         {/* Content */}
-        <div className="flex-1 h-full border-t p-5 pt-3">
+        <div className="flex-1 h-full pl-2 pr-[5px] pb-3">
           <Outlet />
         </div>
       </div>

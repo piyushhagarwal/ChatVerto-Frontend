@@ -148,15 +148,6 @@ export default function SingleFlowPage() {
     }
   }, [flowId, dispatch]);
 
-  useEffect(() => {
-    if (
-      currentFlow?.saved &&
-      currentFlow.id !== flowId // URL param id
-    ) {
-      navigate(`/flows/${currentFlow.id}`, { replace: true });
-    }
-  }, [currentFlow, flowId, navigate]);
-
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Header */}

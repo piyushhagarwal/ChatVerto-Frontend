@@ -30,7 +30,7 @@ export function ProfilePhotoUploader() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-[5px]">
       <Label htmlFor="profile-photo">Profile Picture</Label>
       <Input
         type="file"

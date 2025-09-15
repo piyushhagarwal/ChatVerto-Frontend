@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Trash2, Plus, UploadCloud } from 'lucide-react';
 
 export function CreateFlowDialog() {
   const dispatch = useAppDispatch();
@@ -52,8 +53,8 @@ export function CreateFlowDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="rounded-half bg-primary px-6 py-3  mt-6 ">
-          Create Flows <span className="ml-2  font-bold">+</span>
+        <Button size="sm" className="bg-primary mt-4">
+          <Plus className="w-4 h-4 mr-1" /> Create Flows
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

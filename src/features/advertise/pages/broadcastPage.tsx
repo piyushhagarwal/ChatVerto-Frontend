@@ -45,7 +45,7 @@ export default function BroadcastPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-card/1  rounded-b-2xl shadow-xl p-6 ">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 className="text-primary w-5 h-5" />
@@ -85,12 +85,11 @@ export default function BroadcastPage() {
         {campaigns && (
           <div className="overflow-x-auto border rounded-lg">
             <table className="min-w-full text-sm">
-              <thead className="bg-gray-100">
+              <thead className="bg-primary text-accent">
                 <tr>
                   <th className="px-4 py-2 text-center">Campaign Name</th>
                   <th className="px-4 py-2 text-center">Group</th>
                   <th className="px-4 py-2 text-center">Template</th>
-
                   <th className="px-4 py-2 text-center">Status</th>
                   <th className="px-4 py-2 text-center">Actions</th>
                 </tr>
@@ -107,11 +106,6 @@ export default function BroadcastPage() {
                     <td className="px-4 py-2 text-center align-middle">
                       {campaign.templateName}
                     </td>
-                    {/* <td className="px-4 py-2">
-                      {campaign.createdAt instanceof Date
-                        ? campaign.createdAt.toLocaleString()
-                        : campaign.createdAt}
-                    </td> */}
                     <td className="px-4 py-2 text-center align-middle">
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold 
@@ -137,13 +131,14 @@ export default function BroadcastPage() {
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Button
+                        {/* <Button
                           size="icon"
                           variant="ghost"
                           className="hover:bg-muted hover:text-primary"
                         >
                           <Pencil className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
+
                         <Button
                           size="icon"
                           variant="ghost"
