@@ -20,16 +20,36 @@ export default function TriggerSidebar({
 }: TriggerSidebarProps) {
   const dispatch = useAppDispatch();
   const [keyword, setKeyword] = useState('');
+  const [warning, setWarning] = useState('');
   const [keywords, setKeywords] = useState<string[]>(
     initialData.keywords || []
   );
 
   const handleAddKeyword = () => {
     const trimmed = keyword.trim();
-    if (trimmed && !keywords.includes(trimmed)) {
-      setKeywords(prev => [...prev, trimmed]);
-      setKeyword('');
+
+    // Check for empty input
+    if (!trimmed) {
+      setWarning('Keyword cannot be empty');
+      return;
     }
+
+    // Check for any spaces (leading, trailing, or middle)
+    if (/\s/.test(keyword)) {
+      setWarning('Only a single word without spaces is allowed');
+      return;
+    }
+
+    // Check for duplicates
+    if (keywords.includes(trimmed)) {
+      setWarning('Keyword already added');
+      return;
+    }
+
+    // Add keyword if valid
+    setKeywords(prev => [...prev, trimmed]);
+    setKeyword('');
+    setWarning('');
   };
 
   const handleSubmit = () => {
@@ -45,6 +65,19 @@ export default function TriggerSidebar({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleAddKeyword();
+    }
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setKeyword(value);
+
+    // Optional: live warning while typing
+    if (/^\s|\s$/.test(value)) {
+      setWarning('Leading or trailing spaces are not allowed');
+    } else if (/\s/.test(value)) {
+      setWarning('Only a single word is allowed');
+    } else {
+      setWarning('');
     }
   };
 
@@ -71,18 +104,19 @@ export default function TriggerSidebar({
             </Button>
           </div>
 
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-1">
             <Input
               placeholder="Enter a keyword"
               value={keyword}
-              onChange={e => setKeyword(e.target.value)}
+              onChange={handleInputChange}
               onKeyPress={handleKeyPress}
             />
             <Button onClick={handleAddKeyword}>Add</Button>
           </div>
+          {warning && <p className="text-red-500 text-sm ">{warning}</p>}
 
           {keywords.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-6 mt-2">
               {keywords.map((word, idx) => (
                 <span
                   key={idx}
