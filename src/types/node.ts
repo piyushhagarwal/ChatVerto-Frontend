@@ -4,6 +4,7 @@ import TextMessageWithButton from '@/features/automations/components/nodes/textM
 import TextMessageWithList from '@/features/automations/components/nodes/textMessageWithList';
 import ContactCard from '@/features/automations/components/nodes/contactMessage';
 import ShareLocation from '@/features/automations/components/nodes/shareLocation';
+import MediaMessageNode from '@/features/automations/components/nodes/mediaMessage';
 
 export const nodeTypes = {
   trigger: TriggerNode,
@@ -12,4 +13,5 @@ export const nodeTypes = {
   textMessageWithList: TextMessageWithList,
   contactCard: ContactCard,
   shareLocation: ShareLocation,
+  mediaMessage: MediaMessageNode,
 };

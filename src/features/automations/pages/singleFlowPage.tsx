@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useCallback, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ReactFlow, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -32,6 +32,7 @@ import {
   MessageSquare,
   List,
   MessageCircleMore,
+  Image,
 } from 'lucide-react';
 
 // Simplified node types with initial data
@@ -65,12 +66,23 @@ const NODES = [
       buttons: [],
     },
   },
+  {
+    type: 'mediaMessage',
+    label: 'Media Message',
+    description: 'Send images, videos, or documents',
+    icon: Image,
+    initialData: {
+      mediaType: undefined,
+      mediaId: undefined,
+      caption: undefined,
+      fileName: undefined,
+    },
+  },
 ];
 
 export default function SingleFlowPage() {
   const { flowId } = useParams<{ flowId: string }>();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { currentFlow, loading, error } = useAppSelector(state => state.flow);
 
   const [isEditingName, setIsEditingName] = useState(false);
