@@ -350,8 +350,12 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                         onChange={() => toggleSelect(contact.id)}
                       />
                     </td>
-                    <td className="px-4 py-2 font-medium">{contact.name}</td>
-                    <td className="px-4 py-2">{contact.phone}</td>
+                    <td className="px-4 py-2 font-semibold text-gray-700 tracking-wide">
+                      {contact.name}
+                    </td>
+                    <td className="px-4 py-2 font-semibold text-gray-700 tracking-wide">
+                      {contact.phone}
+                    </td>
                     <td className="px-4 py-2">
                       <Dialog
                         open={confirmDeleteId === contact.id}

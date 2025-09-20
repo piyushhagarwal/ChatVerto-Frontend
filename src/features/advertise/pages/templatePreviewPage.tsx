@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchTemplateByIdThunk } from '@/store/slices/templateSlice';
 import type { Component } from '@/types/template';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function TemplatePreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,63 +42,64 @@ export default function TemplatePreviewPage() {
   const hasPreviewContent = headerComp || bodyComp || footerComp || buttonsComp;
 
   return (
-    <div className="flex flex-col h-full w-full ">
+    <div className="flex flex-col h-full w-full  bg-[#FAFFF4] shadow-[0_0_5px_rgba(0,0,0,0.15)] rounded-b-xl">
       {/* Top Bar */}
-      <div className="flex justify-between items-center p-4 border-b">
-        <h1 className="text-xl font-semibold">Template Preview</h1>
-        <Link to="/dashboard/advertise/templates">
-          <Button variant="outline">Back to Templates</Button>
-        </Link>
+      <div className="flex h-20 shrink-0 items-center bg-primary gap-2 border-t-5 border-l-5 border-r-5 border-[#fafff4ff] text-accent transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20">
+        <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+          <Separator
+            orientation="vertical"
+            className=" data-[orientation=vertical]:h-4"
+          />
+          <h1 className="text-base font-medium">{selectedTemplate.name}</h1>
+          <div className="ml-auto flex items-center gap-2">
+            {/* Right side empty for now */}
+          </div>
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* Left Section - Template Details (unchanged) */}
 
         <div className="pb-6">
-          <p className="text-s text-black-500 uppercase tracking-wide">
-            Template Name
-          </p>
-          <h2 className="text-2xl font-semibold mb-8">
-            {selectedTemplate.name}
-          </h2>
+          <div className="mb-6 flex items-center justify-between">
+            <div></div>
+            <Link to="/dashboard/advertise/templates">
+              <Button>Back to Templates</Button>
+            </Link>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* Category */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>All Contacts</CardTitle>
-              </CardHeader>
-            </Card>
-            <div className="rounded-2xl border-0   p-4 shadow-sm">
-              <p className="text-xs text-black-500 uppercase tracking-wide">
+            <div className="rounded-sm bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Category
               </p>
-              <p className="text-base font-medium text-gray-800">
+              <p className="text-lg font-semibold text-gray-800">
                 {selectedTemplate.category}
               </p>
             </div>
 
             {/* Language */}
-            <div className="rounded-2xl border-0  p-4 shadow-sm">
-              <p className="text-xs text-black-500 uppercase tracking-wide">
+            <div className="rounded-sm bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Language
               </p>
-              <p className="text-base font-medium text-gray-800">
+              <p className="text-lg font-semibold text-gray-800">
                 {selectedTemplate.language}
               </p>
             </div>
 
             {/* Status */}
-            <div className="rounded-2xl border-0  p-4 shadow-sm">
-              <p className="text-xs text-black-500 uppercase tracking-wide">
+            <div className="rounded-sm bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Status
               </p>
               <p
-                className={`text-base font-medium ${
+                className={`text-lg font-semibold ${
                   selectedTemplate.status === 'APPROVED'
-                    ? 'text-black-600'
+                    ? ' text-green-800'
                     : selectedTemplate.status === 'REJECTED'
-                      ? 'text-red-600'
-                      : 'text-yellow-600'
+                      ? ' text-red-700'
+                      : ' text-yellow-800'
                 }`}
               >
                 {selectedTemplate.status}
@@ -107,111 +109,121 @@ export default function TemplatePreviewPage() {
         </div>
 
         {/* ✅ Right Section - WhatsApp Preview */}
-        <div className="flex-1 p-4  flex items-center justify-center">
-          <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-5 border-black">
-            {/* Top bar */}
-            <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">
-              WhatsApp Preview
-            </div>
+        <div
+          className="bg-[##FAFFF4] shadow-[0_0_8px_rgba(0,0,0,0.15)] rounded-sm p-5"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
+        >
+          <div className="flex-1 p-4  flex items-center justify-center">
+            <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-5 border-black">
+              {/* Top bar */}
+              <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">
+                WhatsApp Preview
+              </div>
 
-            {/* Message preview */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div
-                className={`bg-white rounded-lg text-sm max-w-xs ml-2 shadow-md transition-all duration-300 m-6 flex flex-col ${
-                  hasPreviewContent ? 'px-4 py-3' : 'px-2 py-1 text-gray-400'
-                }`}
-              >
-                {hasPreviewContent ? (
-                  <>
-                    {/* ✅ Header */}
-                    {headerComp?.format === 'TEXT' && (
-                      <div className="font-semibold text-sm mb-1 break-words">
-                        {headerComp.text}
-                      </div>
-                    )}
-                    {headerComp?.format === 'IMAGE' &&
-                      headerComp.example?.header_handle?.[0] && (
-                        <img
-                          src={headerComp.example.header_handle[0]}
-                          alt="Header"
-                          className="rounded-md mb-2 max-h-32 object-cover"
-                        />
+              {/* Message preview */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <div
+                  className={`bg-white rounded-lg text-sm max-w-xs ml-2 shadow-md transition-all duration-300 m-6 flex flex-col ${
+                    hasPreviewContent ? 'px-4 py-3' : 'px-2 py-1 text-gray-400'
+                  }`}
+                >
+                  {hasPreviewContent ? (
+                    <>
+                      {/* ✅ Header */}
+                      {headerComp?.format === 'TEXT' && (
+                        <div className="font-semibold text-sm mb-1 break-words">
+                          {headerComp.text}
+                        </div>
                       )}
-                    {headerComp?.format === 'VIDEO' &&
-                      headerComp.example?.header_handle?.[0] && (
-                        <video
-                          controls
-                          className="rounded-md mb-2 max-h-32 w-full object-cover"
-                        >
-                          <source
+                      {headerComp?.format === 'IMAGE' &&
+                        headerComp.example?.header_handle?.[0] && (
+                          <img
                             src={headerComp.example.header_handle[0]}
-                            type="video/mp4"
+                            alt="Header"
+                            className="rounded-md mb-2 max-h-32 object-cover"
                           />
-                        </video>
-                      )}
-                    {headerComp?.format === 'DOCUMENT' &&
-                      headerComp.example?.header_handle?.[0] && (
-                        <div className="text-sm text-gray-800 font-medium mb-2">
-                          📄 Document Attached
+                        )}
+                      {headerComp?.format === 'VIDEO' &&
+                        headerComp.example?.header_handle?.[0] && (
+                          <video
+                            controls
+                            className="rounded-md mb-2 max-h-32 w-full object-cover"
+                          >
+                            <source
+                              src={headerComp.example.header_handle[0]}
+                              type="video/mp4"
+                            />
+                          </video>
+                        )}
+                      {headerComp?.format === 'DOCUMENT' &&
+                        headerComp.example?.header_handle?.[0] && (
+                          <div className="text-sm text-gray-800 font-medium mb-2">
+                            📄 Document Attached
+                          </div>
+                        )}
+
+                      {/* ✅ Body */}
+                      {bodyComp && (
+                        <div className="text-gray-800 whitespace-pre-wrap break-words">
+                          {bodyComp.text}
                         </div>
                       )}
 
-                    {/* ✅ Body */}
-                    {bodyComp && (
-                      <div className="text-gray-800 whitespace-pre-wrap break-words">
-                        {bodyComp.text}
-                      </div>
-                    )}
+                      {/* ✅ Footer */}
+                      {footerComp && (
+                        <div className="text-gray-600 text-xs mt-2 break-words">
+                          {footerComp.text}
+                        </div>
+                      )}
 
-                    {/* ✅ Footer */}
-                    {footerComp && (
-                      <div className="text-gray-600 text-xs mt-2 break-words">
-                        {footerComp.text}
-                      </div>
-                    )}
-
-                    {/* ✅ Buttons */}
-                    {buttonsComp?.buttons && buttonsComp.buttons.length > 0 && (
-                      <>
-                        <hr className="border-t border-gray-300 mt-3 mb-2" />
-                        <div className="flex flex-col items-center gap-2">
-                          {buttonsComp.buttons.map((btn, idx) =>
-                            btn.type === 'URL' ? (
-                              <a
-                                key={idx}
-                                href={btn.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-[#25D366] text-sm font-medium"
-                              >
-                                <span className="border border-[#25D366] rounded p-1">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="#25D366"
-                                    className="w-4 h-4"
+                      {/* ✅ Buttons */}
+                      {buttonsComp?.buttons &&
+                        buttonsComp.buttons.length > 0 && (
+                          <>
+                            <hr className="border-t border-gray-300 mt-3 mb-2" />
+                            <div className="flex flex-col items-center gap-2">
+                              {buttonsComp.buttons.map((btn, idx) =>
+                                btn.type === 'URL' ? (
+                                  <a
+                                    key={idx}
+                                    href={btn.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-[#25D366] text-sm font-medium"
                                   >
-                                    <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3Z" />
-                                  </svg>
-                                </span>
-                                {btn.text}
-                              </a>
-                            ) : (
-                              <button
-                                key={idx}
-                                className="w-full border border-[#25D366] text-[#25D366] text-sm font-medium py-1 rounded"
-                              >
-                                {btn.text}
-                              </button>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <span>Message preview will appear here</span>
-                )}
+                                    <span className="border border-[#25D366] rounded p-1">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="#25D366"
+                                        className="w-4 h-4"
+                                      >
+                                        <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3Z" />
+                                      </svg>
+                                    </span>
+                                    {btn.text}
+                                  </a>
+                                ) : (
+                                  <button
+                                    key={idx}
+                                    className="w-full border border-[#25D366] text-[#25D366] text-sm font-medium py-1 rounded"
+                                  >
+                                    {btn.text}
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          </>
+                        )}
+                    </>
+                  ) : (
+                    <span>Message preview will appear here</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

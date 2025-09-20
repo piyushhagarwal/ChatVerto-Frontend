@@ -16,14 +16,14 @@ export default function Advertise() {
       <div className="flex h-full w-full ">
         {/* Sidebar */}
 
-        <aside className="w-64 h-[calc(116vh-64px)] ml-[5px] bg-card/1 rounded-b-2xl shadow-xl flex flex-col items-start justify-start">
+        <aside className="w-64 h-[calc(116vh-64px)] ml-[5px] bg-card/1 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] flex flex-col items-start justify-start">
           <div className="w-full px-4 py-4 pr-4 space-y-2">
             <Button
               variant={pathname.includes('broadcast') ? 'default' : 'ghost'}
               className="w-full justify-start"
               onClick={() => handleNavigate('/dashboard/advertise/broadcast')}
             >
-              Broadcast
+              Campaigns
             </Button>
             <Button
               variant={pathname.includes('templates') ? 'default' : 'ghost'}

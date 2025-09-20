@@ -29,7 +29,6 @@ export default function ProfilePage() {
       {user && (
         <>
           <TopCard user={user} />
-          <ProfilePhotoUploader />
           <ProfileUpdateForm />
 
           {/* Add more cards like <BusinessInfoCard user={user} /> later here */}

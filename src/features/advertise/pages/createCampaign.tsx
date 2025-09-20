@@ -3,6 +3,7 @@ import { useState, useEffect, type JSX } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useParams, Link } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ import {
   X,
   Check,
 } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 import type {
   CreateCampaignPayload,
   TextParameter,
@@ -243,7 +245,9 @@ export default function CreateCampaign() {
 
     return (
       <div className="space-y-3">
-        <Label className="text-sm font-medium">{label} *</Label>
+        <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+          {label} *
+        </Label>
 
         {!uploadState?.file ? (
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -265,8 +269,8 @@ export default function CreateCampaign() {
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-full file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
+                  file:bg-primary file:text-accent
+                  hover:file:bg-yellow-100"
               />
             </div>
           </div>
@@ -305,7 +309,7 @@ export default function CreateCampaign() {
                   Uploaded successfully
                 </div>
               ) : uploadState.uploading ? (
-                <div className="flex items-center gap-2 text-blue-600 text-sm">
+                <div className="flex items-center gap-2 text-yellow-600 text-sm">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Uploading...
                 </div>
@@ -351,10 +355,12 @@ export default function CreateCampaign() {
       const headerParams = component.example.header_text || [];
       return (
         <div key={`header-${componentIndex}`} className="space-y-3">
-          <Label className="text-sm font-medium">Header Parameters</Label>
+          <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+            Header Parameters
+          </Label>
           {headerParams.map((example, index) => (
             <div key={`header-param-${index}`} className="space-y-2">
-              <Label className="text-sm font-medium">
+              <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
                 Header Parameter {index + 1} *
               </Label>
               <Input
@@ -389,7 +395,7 @@ export default function CreateCampaign() {
         <div key={`header-${componentIndex}`} className="space-y-3">
           {renderMediaUpload(uploadKey, 'document', 'Header Document')}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
               Document Filename (Optional)
             </Label>
             <Input
@@ -513,8 +519,10 @@ export default function CreateCampaign() {
       case 'FOOTER':
         return (
           <div key={`footer-${componentIndex}`} className="space-y-2">
-            <Label className="text-sm font-medium">Footer</Label>
-            <div className="p-2 bg-gray-50 rounded text-sm text-gray-600">
+            <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2m">
+              Footer
+            </Label>
+            <div className="p-2  rounded text-sm text-primary">
               {component.text}
             </div>
           </div>
@@ -795,32 +803,26 @@ export default function CreateCampaign() {
   );
 
   return (
-    <div className="flex flex-col h-full w-full bg-white">
+    <div className="flex flex-col h-full w-full ">
       {/* Header */}
-      <div className="flex justify-end p-4 border-b">
-        <Button
-          className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-          onClick={() =>
-            document
-              .getElementById('campaign-form')
-              ?.dispatchEvent(new Event('submit', { bubbles: true }))
-          }
-          disabled={loading || !isFormValid() || isAnyMediaUploading()}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating...
-            </>
-          ) : isAnyMediaUploading() ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Uploading media...
-            </>
-          ) : (
-            'Create Campaign'
-          )}
-        </Button>
+      <div className="flex h-20 shrink-0 bg-primary gap-2 border-t-5 border-l-5 border-r-5 border-[#fafff4ff] text-accent transition-[width,height] ease-linear">
+        <div className="flex w-full items-center justify-between px-4 lg:gap-2 lg:px-6">
+          {/* Left Section with Title */}
+          <div className="flex items-center gap-2">
+            <Separator
+              orientation="vertical"
+              className="data-[orientation=vertical]:h-4"
+            />
+            <h1 className="text-xl font-medium">Create Campaign</h1>
+          </div>
+
+          {/* Right Section with Button */}
+          <Link to="/dashboard/advertise/broadcast">
+            <Button className="bg-accent text-primary hover:bg-accent/90">
+              Back to Campaigns
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {error && (
@@ -833,11 +835,7 @@ export default function CreateCampaign() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Section - Input Fields */}
-        <div className="w-2/3 p-6 overflow-y-auto space-y-4 border-r">
-          <h2 className="text-2xl font-semibold mb-4">
-            {formData.name || 'Campaign Name'}
-          </h2>
-
+        <div className="w-2/3 p-6 overflow-y-auto space-y-4  rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] mt-3 mb-3 ml-[5px]">
           <form
             id="campaign-form"
             onSubmit={handleSubmit}
@@ -845,9 +843,34 @@ export default function CreateCampaign() {
           >
             {/* Campaign Name */}
             <div className="space-y-2">
-              <Label className="block text-sm font-medium">
-                Campaign Name *
-              </Label>
+              <div className="flex justify-between items-center">
+                <Label className="block text-sm font-semibold text-gray-700 tracking-wide ">
+                  Campaign Name
+                </Label>
+                <Button
+                  className="s disabled:opacity-100"
+                  onClick={() =>
+                    document
+                      .getElementById('campaign-form')
+                      ?.dispatchEvent(new Event('submit', { bubbles: true }))
+                  }
+                  disabled={loading || !isFormValid() || isAnyMediaUploading()}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : isAnyMediaUploading() ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Uploading media...
+                    </>
+                  ) : (
+                    'Create Campaign'
+                  )}
+                </Button>
+              </div>
               <Input
                 type="text"
                 value={formData.name}
@@ -861,8 +884,8 @@ export default function CreateCampaign() {
 
             {/* Group Selection */}
             <div className="space-y-2">
-              <Label className="block text-sm font-medium">
-                Select Group *
+              <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+                Select Group
               </Label>
               <Select
                 value={formData.groupId}
@@ -889,8 +912,8 @@ export default function CreateCampaign() {
 
             {/* Template Selection */}
             <div className="space-y-2">
-              <Label className="block text-sm font-medium">
-                Select Template *
+              <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+                Select Template
               </Label>
               <Select
                 value={formData.templateId}
@@ -930,10 +953,10 @@ export default function CreateCampaign() {
 
             {/* Template Preview */}
             {selectedTemplate && (
-              <div className="p-4 bg-blue-50 rounded-md border border-blue-200">
+              <div className="p-4 bg-yellow-50 rounded-md border border-yellow-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <Info className="w-4 h-4 text-blue-600" />
-                  <span className="font-semibold text-blue-900">
+                  <Info className="w-4 h-4 text-yellow-600" />
+                  <span className="font-semibold text-yellow-900">
                     Selected Template: {selectedTemplate.name}
                   </span>
                 </div>
@@ -957,10 +980,12 @@ export default function CreateCampaign() {
             {selectedTemplate && templateHasParameters && (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold">Template Parameters</h3>
-                  <Info className="w-4 h-4 text-blue-600" />
+                  <h3 className="block text-lg font-semibold text-gray-700 tracking-wide mb-2 mt-2">
+                    Template Parameters
+                  </h3>
+                  <Info className="w-4 h-4 text-yellow-600 mt-[2px]" />
                 </div>
-                <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md">
+                <div className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
                   Fill in the required parameters to personalize your campaign
                   messages. All marked fields are required.
                 </div>
@@ -998,7 +1023,7 @@ export default function CreateCampaign() {
 
             {/* No Parameters Message */}
             {selectedTemplate && !templateHasParameters && (
-              <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
+              <div className="p-4 bg-yellow-50 rounded-md border border-yellow-200">
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 text-gray-600" />
                   <span className="text-gray-700">
@@ -1012,8 +1037,15 @@ export default function CreateCampaign() {
         </div>
 
         {/* Right Section - Preview */}
-        <div className="flex-1 border-l p-4 bg-white flex items-center justify-center">
-          <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-4 border-gray-800">
+        <div
+          className="flex-1  flex  justify-center rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] mt-3 mb-3 mr-[5px] ml-[7px]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
+        >
+          <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl mt-20 mb-20 shadow-lg border overflow-hidden relative flex flex-col border-4 border-gray-800">
             {/* Top bar */}
             <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">
               Campaign Preview
@@ -1093,7 +1125,7 @@ export default function CreateCampaign() {
                           const uploadKey = `header-document-0`;
                           const uploadState = mediaUploads[uploadKey];
                           return (
-                            <div className="bg-gray-200 rounded p-2 text-center text-xs text-gray-500 mb-2">
+                            <div className="bg-gray-200 rounded p-2 text-center text-xs block text-gray-700 tracking-wide font-semibold mb-2">
                               {uploadState?.uploaded && uploadState.mediaId
                                 ? `📄 Document: ${uploadState.file?.name}`
                                 : templateParams.header?.document_id

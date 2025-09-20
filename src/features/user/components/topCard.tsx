@@ -2,6 +2,15 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { type UserProfile } from '@/types/user'; // adjust based on your actual type path
+import { ProfilePhotoUploader } from './profilePhotoUploader';
+import { Pencil } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 type Props = {
   user: UserProfile;
@@ -10,23 +19,57 @@ type Props = {
 export default function TopCard({ user }: Props) {
   return (
     <div className="p-[5px]">
-      <div className="w-full  shadow-sm   bg-card/95 ">
+      <div className="w-full shadow-[0_0_10px_rgba(0,0,0,0.2)] bg-card">
         <div className="p-6 space-y-6">
           {/* Row 1 */}
           <div className="grid md:grid-cols-4 gap-4 border-b pb-4 ml-2 mr-2">
-            <div className="flex items-center gap-3 border-r pr-4">
+            <div className="flex items-center gap-3 border-r pr-4 relative">
               {/* Profile Picture */}
               {user.whatsAppDetails?.profilePictureUrl ? (
-                <img
-                  src={user.whatsAppDetails.profilePictureUrl}
-                  alt="Profile"
-                  className="h-15 w-15 rounded-full object-cover border"
-                />
+                <div className="relative">
+                  <img
+                    src={user.whatsAppDetails.profilePictureUrl}
+                    alt="Profile"
+                    className="h-16 w-16 rounded-full object-cover border"
+                  />
+
+                  {/* Pencil icon button */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow 
+             transition-all duration-200 
+             hover:bg-gray-100 hover:scale-110 hover:shadow-md"
+                        title="Edit profile picture"
+                      >
+                        <Pencil className="h-4 w-4 text-primary" />
+                      </button>
+                    </DialogTrigger>
+
+                    {/* Dialog Content */}
+                    <DialogContent className="sm:max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-center">
+                          Edit Profile Picture
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex justify-center">
+                        <img
+                          src={user.whatsAppDetails.profilePictureUrl}
+                          alt="Preview"
+                          className="w-40 h-40 rounded-full object-cover border"
+                        />
+                      </div>
+                      <ProfilePhotoUploader />
+                    </DialogContent>
+                  </Dialog>
+                </div>
               ) : (
-                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
                   ?
                 </div>
               )}
+
               {/* Name Info */}
               <div>
                 <p className="text-muted-foreground text-sm">Display Name</p>

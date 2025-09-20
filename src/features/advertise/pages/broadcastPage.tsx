@@ -45,7 +45,7 @@ export default function BroadcastPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="space-y-6 bg-card/1  rounded-b-2xl shadow-xl p-6 ">
+    <div className="space-y-6 bg-card/1  rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6 ">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 className="text-primary w-5 h-5" />
@@ -97,18 +97,18 @@ export default function BroadcastPage() {
               <tbody>
                 {campaigns.map(campaign => (
                   <tr key={campaign.id} className="border-t">
-                    <td className="px-4 py-2 font-medium text-center align-middle">
+                    <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
                       {campaign.name}
                     </td>
-                    <td className="px-4 py-2 text-center align-middle">
+                    <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
                       {campaign.groupName}
                     </td>
-                    <td className="px-4 py-2 text-center align-middle">
+                    <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
                       {campaign.templateName}
                     </td>
                     <td className="px-4 py-2 text-center align-middle">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-semibold 
+                        className={`px-2 py-1 rounded text-xs font-semibold text-gray-700 tracking-wided 
                       ${
                         campaign.status === 'Completed'
                           ? 'bg-green-100 text-green-700'
