@@ -15,6 +15,7 @@ import { Trash2 } from 'lucide-react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import ToggleButton from '../components/toggleButton';
 
 export default function AutomationPage() {
   const dispatch = useAppDispatch();
@@ -58,19 +59,23 @@ export default function AutomationPage() {
             {flows.map(flow => (
               <Card
                 key={flow.id}
-                className="shadow-md  hover:shadow-lg bg-[rgb(250, 255, 244)] text-primary transition-shadow duration-300 cursor-pointer relative"
+                className="shadow-[0_0_5px_rgba(0,0,0,0.15)] rounded-sm bg-[#FAFFF4] hover:shadow-lg  text-primary 
+             transition-shadow duration-300 cursor-pointer relative 
+              w-90 h-36  border-0 hover:scale-[1.02] hover:z-10 "
                 onClick={() => navigate(`/flows/${flow.id}`)}
               >
                 <CardHeader>
-                  <CardTitle>{flow.name}</CardTitle>
-                  <CardDescription></CardDescription>
+                  <CardTitle className="border-b-2 pb-2 border-primary/40 block text-lg font-semibold text-black-500 tracking-wide">
+                    {flow.name}
+                  </CardTitle>
                 </CardHeader>
 
-                <CardFooter className="flex justify-end">
+                <CardFooter className="flex justify-between items-center pt-2">
+                  <ToggleButton />
                   <button
                     className="text-red-600 hover:text-red-800"
                     onClick={e => {
-                      e.stopPropagation(); // 🛑 Prevents card click from triggering
+                      e.stopPropagation(); // prevent card click from triggering
                       handleDelete(flow.id);
                     }}
                   >

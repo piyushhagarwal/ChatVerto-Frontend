@@ -53,8 +53,8 @@ export default function TemplatesPage() {
   // );
 
   return (
-    <div className="space-y-4 rounded-b-2xl shadow-xl bg-card/1 p-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] bg-card/1 p-6">
+      <div className="flex items-center justify-between mb-12">
         <div className="flex items-center gap-2">
           <FileText className="text-primary w-5 h-5" />
           <h2 className="text-2xl font-semibold text-gray-800">My Templates</h2>
@@ -94,7 +94,7 @@ export default function TemplatesPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-primary text-accent">
               <tr>
-                <th className="px-4 py-2 text-center">Template Name</th>
+                <th className="px-4 py-2 text-center ">Template Name</th>
                 <th className="px-4 py-2 text-center">Category</th>
                 <th className="px-4 py-2 text-center">Status</th>
                 <th className="px-4 py-2 text-centert">Rejected Reason</th>
@@ -107,12 +107,16 @@ export default function TemplatesPage() {
                   key={template.id}
                   className="border-t text-center align-middle"
                 >
-                  <td className="px-4 py-2 font-medium">{template.name}</td>
-                  <td className="px-4 py-2">{template.category}</td>
+                  <td className="px-4 py-2  text-sm font-semibold text-gray-700 tracking-wide ">
+                    {template.name}
+                  </td>
+                  <td className="px-4 py-2 text-sm font-semibold text-gray-700 tracking-wide ">
+                    {template.category}
+                  </td>
 
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-sm font-semibold  tracking-wide ">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
+                      className={`px-2 py-1 rounded text-xs font-semibold tracking-wide ${
                         template.status === 'APPROVED'
                           ? 'bg-green-100 text-green-800'
                           : template.status === 'REJECTED'
@@ -123,7 +127,9 @@ export default function TemplatesPage() {
                       {template.status}
                     </span>
                   </td>
-                  <td className="px-4 py-2">{template.rejected_reason}</td>
+                  <td className="px-4 py-2 text-sm font-semibold text-gray-700 tracking-wide ">
+                    {template.rejected_reason}
+                  </td>
                   <td className="px-4 py-2 space-x-2">
                     <Link to={`${template.id}/preview`}>
                       <Button

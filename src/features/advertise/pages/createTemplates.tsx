@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -224,8 +226,8 @@ export default function CreateTemplatePage() {
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-full file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
+                  file:bg-primary file:text-accent
+                  "
               />
             </div>
           </div>
@@ -264,7 +266,7 @@ export default function CreateTemplatePage() {
                   Uploaded successfully
                 </div>
               ) : uploadState.uploading ? (
-                <div className="flex items-center gap-2 text-blue-600 text-sm">
+                <div className="flex items-center gap-2 text-yellow-600 text-sm">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Uploading...
                 </div>
@@ -585,27 +587,24 @@ export default function CreateTemplatePage() {
     (usePhoneButton && phoneButton.label);
 
   return (
-    <div className="flex flex-col h-full w-full bg-white">
-      <div className="flex justify-end p-4 border-b">
-        <Button
-          className="bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
-          onClick={handleSubmit}
-          disabled={loading || isAnyMediaUploading()}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating...
-            </>
-          ) : isAnyMediaUploading() ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Uploading media...
-            </>
-          ) : (
-            'Send to Review'
-          )}
-        </Button>
+    <div className="flex flex-col h-full w-full ">
+      <div className="flex h-20 shrink-0 items-center bg-primary gap-2 border-t-5 border-l-5 border-r-5 border-[#fafff4ff] text-accent transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20">
+        <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+          <Separator
+            orientation="vertical"
+            className="data-[orientation=vertical]:h-4"
+          />
+          <h1 className="text-xl font-medium">Create Template</h1>
+
+          {/* Right section with button */}
+          <div className="ml-auto flex items-center gap-2 ">
+            <Link to="/dashboard/advertise/templates">
+              <Button className="bg-accent text-primary hover:bg-accent/90">
+                Back to Templates
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -621,13 +620,34 @@ export default function CreateTemplatePage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Section - Input Fields */}
-        <div className="w-2/3 p-6 overflow-y-auto space-y-4 border-r">
+        <div className="w-2/3 p-6 rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] ml-[5px] mt-4 mb-4 overflow-y-auto space-y-4">
           <div className="space-y-4">
             {/* Template Name */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Template Name *
-              </label>
+            <div className="space-y-2 ">
+              <div className="flex w-full items-center justify-between mb-2">
+                <label className="block text-sm font-semibold text-gray-700 tracking-wide">
+                  Template Name
+                </label>
+                <Button
+                  className="bg-primary text-accent hover:bg-primary/80 disabled:opacity-50"
+                  onClick={handleSubmit}
+                  disabled={loading || isAnyMediaUploading()}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : isAnyMediaUploading() ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Uploading media...
+                    </>
+                  ) : (
+                    'Send to Review'
+                  )}
+                </Button>
+              </div>
               <Input
                 placeholder="my_template_name (lowercase, numbers, underscores only)"
                 value={templateName}
@@ -651,102 +671,128 @@ export default function CreateTemplatePage() {
             </div>
 
             {/* Category */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Category *</label>
-              <Select
-                value={templateCategory}
-                onValueChange={(
-                  value: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY'
-                ) => {
-                  setTemplateCategory(value);
-                  updateValidationErrors('templateCategory', value);
-                }}
-              >
-                <SelectTrigger
-                  className={
-                    validationErrors.templateCategory ? 'border-red-500' : ''
-                  }
+            <div className="space-x-8 flex flex-1 mt-8 mb-14">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+                  Category{' '}
+                </label>
+                <Select
+                  value={templateCategory}
+                  onValueChange={(
+                    value: 'AUTHENTICATION' | 'MARKETING' | 'UTILITY'
+                  ) => {
+                    setTemplateCategory(value);
+                    updateValidationErrors('templateCategory', value);
+                  }}
                 >
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MARKETING">Marketing</SelectItem>
-                  <SelectItem value="UTILITY">Utility</SelectItem>
-                  <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
-                </SelectContent>
-              </Select>
-              {validationErrors.templateCategory && (
-                <p className="text-red-500 text-sm">
-                  {validationErrors.templateCategory}
-                </p>
-              )}
-            </div>
+                  <SelectTrigger
+                    className={`h-11 w-full rounded-lg border  px-3 text-sm 
+    text-gray-700 shadow-sm transition-all focus:ring-2 focus:ring-primary 
+    focus:border-primary/70 hover:border-primary/40 
+    ${validationErrors.templateCategory ? 'border-red-500' : 'border-gray-100'}`}
+                  >
+                    <SelectValue
+                      placeholder="Select Category"
+                      className="text-gray-400"
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MARKETING">Marketing</SelectItem>
+                    <SelectItem value="UTILITY">Utility</SelectItem>
+                    <SelectItem value="AUTHENTICATION">
+                      Authentication
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {validationErrors.templateCategory && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.templateCategory}
+                  </p>
+                )}
+              </div>
 
-            {/* Language */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Language *</label>
-              <Select
-                value={language}
-                onValueChange={value => {
-                  setLanguage(value);
-                  updateValidationErrors('language', value);
-                }}
-              >
-                <SelectTrigger
-                  className={validationErrors.language ? 'border-red-500' : ''}
+              {/* Language */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+                  Language{' '}
+                </label>
+                <Select
+                  value={language}
+                  onValueChange={value => {
+                    setLanguage(value);
+                    updateValidationErrors('language', value);
+                  }}
                 >
-                  <SelectValue placeholder="Select Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en_US">English (US)</SelectItem>
-                  <SelectItem value="hi">Hindi</SelectItem>
-                </SelectContent>
-              </Select>
-              {validationErrors.language && (
-                <p className="text-red-500 text-sm">
-                  {validationErrors.language}
-                </p>
-              )}
-            </div>
+                  <SelectTrigger
+                    className={`h-11 w-full rounded-lg border  px-3 text-sm 
+      text-gray-700 shadow-sm transition-all focus:ring-2 focus:ring-primary 
+      focus:border-primary/70 hover:border-primary/40
+      ${validationErrors.language ? 'border-red-500' : 'border-gray-200'}`}
+                  >
+                    <SelectValue
+                      placeholder="Select Language"
+                      className="text-gray-400"
+                    />
+                  </SelectTrigger>
 
-            {/* Header Type */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Header Type (Optional)
-              </label>
-              <Select
-                value={headerType}
-                onValueChange={(value: HeaderFormat) => {
-                  setHeaderType(value);
-                  // Reset header text when changing type
-                  if (value !== 'TEXT') {
-                    setHeader('');
-                    setHeaderExamples(['']);
-                  }
-                  // Clear media uploads when changing type
-                  setMediaUploads({});
-                  updateValidationErrors('headerType', value);
-                }}
-              >
-                <SelectTrigger
-                  className={
-                    validationErrors.headerType ? 'border-red-500' : ''
-                  }
+                  <SelectContent>
+                    {' '}
+                    <SelectItem value="en_US">English (US)</SelectItem>{' '}
+                    <SelectItem value="hi">Hindi</SelectItem>{' '}
+                  </SelectContent>
+                </Select>
+                {validationErrors.language && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.language}
+                  </p>
+                )}
+              </div>
+
+              {/* Header Type */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+                  Header Type (Optional)
+                </label>
+                <Select
+                  value={headerType}
+                  onValueChange={(value: HeaderFormat) => {
+                    setHeaderType(value);
+                    // Reset header text when changing type
+                    if (value !== 'TEXT') {
+                      setHeader('');
+                      setHeaderExamples(['']);
+                    }
+                    // Clear media uploads when changing type
+                    setMediaUploads({});
+                    updateValidationErrors('headerType', value);
+                  }}
                 >
-                  <SelectValue placeholder="Select Header Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TEXT">Text</SelectItem>
-                  <SelectItem value="IMAGE">Image</SelectItem>
-                  <SelectItem value="VIDEO">Video</SelectItem>
-                  <SelectItem value="DOCUMENT">Document</SelectItem>
-                </SelectContent>
-              </Select>
-              {validationErrors.headerType && (
-                <p className="text-red-500 text-sm">
-                  {validationErrors.headerType}
-                </p>
-              )}
+                  <SelectTrigger
+                    className={`h-11 w-full rounded-lg   px-3 text-sm 
+      text-gray-700 shadow-sm transition-all focus:ring-2 focus:ring-primary 
+      focus:border-primary/70 hover:border-primary/40
+      ${validationErrors.headerType ? 'border-red-500' : 'border-gray-200'}`}
+                  >
+                    <SelectValue
+                      placeholder="Select Header Type"
+                      className="text-gray-400"
+                    />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {' '}
+                    <SelectItem value="TEXT">Text</SelectItem>{' '}
+                    <SelectItem value="IMAGE">Image</SelectItem>{' '}
+                    <SelectItem value="VIDEO">Video</SelectItem>{' '}
+                    <SelectItem value="DOCUMENT">Document</SelectItem>{' '}
+                  </SelectContent>
+                </Select>
+                {validationErrors.headerType && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.headerType}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Header Message - Only show for TEXT type */}
@@ -795,7 +841,7 @@ export default function CreateTemplatePage() {
                 {/* Header Examples for Positional Arguments (only {{1}} allowed) */}
                 {countPositionalArgs(header) === 1 && (
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-blue-600">
+                    <label className="block text-sm font-medium text-yellow-600">
                       <Info className="w-4 h-4 inline mr-1" />
                       Header Example Value for {'{{1}}'}
                     </label>
@@ -825,13 +871,13 @@ export default function CreateTemplatePage() {
 
             {/* Media Upload Section for non-TEXT header types */}
             {headerType && headerType !== 'TEXT' && (
-              <div className="space-y-2">
+              <div className="space-y-2 block text-sm font-semibold text-gray-700 tracking-wide mb-2">
                 {renderMediaUpload(
                   `header-${headerType.toLowerCase()}`,
                   headerType.toLowerCase() as 'image' | 'video' | 'document',
                   `Header ${headerType.charAt(0) + headerType.slice(1).toLowerCase()} (Optional)`
                 )}
-                <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md">
+                <div className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
                   <Info className="w-4 h-4 inline mr-1" />
                   Upload example media for your template. This will be used as a
                   reference when creating campaigns with this template.
@@ -841,8 +887,8 @@ export default function CreateTemplatePage() {
 
             {/* Body Message */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Body Message *
+              <label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+                Body Message
               </label>
               <Textarea
                 placeholder="Body Message (max 1024 characters). Use {{1}}, {{2}} for variables"
@@ -884,7 +930,7 @@ export default function CreateTemplatePage() {
               {/* Body Examples for Positional Arguments */}
               {countPositionalArgs(body) > 0 && (
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-blue-600">
+                  <label className="block text-sm font-medium text-yellow-600">
                     <Info className="w-4 h-4 inline mr-1" />
                     Body Example Values ({countPositionalArgs(body)} required)
                   </label>
@@ -920,7 +966,7 @@ export default function CreateTemplatePage() {
 
             {/* Footer Message */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
                 Footer Message (Optional)
               </label>
               <Input
@@ -946,12 +992,12 @@ export default function CreateTemplatePage() {
 
             {/* Button Types Selection */}
             <div className="space-y-4">
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
                 Buttons (Optional)
               </label>
 
               <div className="flex gap-4">
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 block font-semibold text-gray-700 tracking-wide ">
                   <input
                     type="checkbox"
                     checked={useQuickReply}
@@ -962,7 +1008,7 @@ export default function CreateTemplatePage() {
                   />
                   Quick Reply Buttons
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 block font-semibold text-gray-700 tracking-wide">
                   <input
                     type="checkbox"
                     checked={usePhoneButton}
@@ -975,7 +1021,7 @@ export default function CreateTemplatePage() {
                 </label>
               </div>
 
-              <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md">
+              <div className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
                 <Info className="w-4 h-4 inline mr-1" />
                 You can now combine URL buttons with quick reply buttons and
                 phone buttons. Max 2 URL buttons, max 3 quick reply when
@@ -984,7 +1030,9 @@ export default function CreateTemplatePage() {
 
               {/* URL Buttons */}
               <div className="space-y-3">
-                <h4 className="font-medium">URL Buttons (Max 2)</h4>
+                <h4 className="block text-md font-semibold text-gray-700 tracking-wide mb-2">
+                  URL Buttons (Max 2)
+                </h4>
                 {ctaButtons.map((cta, index) => (
                   <div
                     key={index}
@@ -1037,10 +1085,9 @@ export default function CreateTemplatePage() {
                       )}
                     </div>
 
-                    <div className="flex items-start justify-center pt-2">
+                    <div className="flex items-start justify-center mt-[3px]">
                       {index === 0 ? (
                         <Button
-                          variant="outline"
                           size="sm"
                           onClick={() => {
                             if (ctaButtons.length >= 2) {
@@ -1090,12 +1137,12 @@ export default function CreateTemplatePage() {
               {/* Quick Reply Buttons */}
               {useQuickReply && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">
+                  <h4 className="block text-md font-semibold text-gray-700 tracking-wide mb-2">
                     Quick Reply Buttons
                     {ctaButtons.filter(btn => btn.label && btn.url).length >
                       0 || usePhoneButton
-                      ? '(Max 3 when combined)'
-                      : '(Max 10 when standalone)'}
+                      ? ' (Max 3 when combined)'
+                      : ' (Max 10 when standalone)'}
                   </h4>
                   {quickReplyButtons.map((btn, index) => (
                     <div key={index} className="flex gap-4 items-start">
@@ -1120,10 +1167,9 @@ export default function CreateTemplatePage() {
                           {validationErrors[`quick_reply_${index}`]}
                         </p>
                       )}
-                      <div className="flex gap-2">
+                      <div className="flex mt-[3px] gap-2">
                         {index === 0 ? (
                           <Button
-                            variant="outline"
                             size="sm"
                             onClick={() => {
                               const hasOtherButtons =
@@ -1177,7 +1223,9 @@ export default function CreateTemplatePage() {
               {/* Phone Button */}
               {usePhoneButton && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">Phone Button</h4>
+                  <h4 className="block text-md font-semibold text-gray-700 tracking-wide mb-2">
+                    Phone Button
+                  </h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Input
@@ -1242,8 +1290,15 @@ export default function CreateTemplatePage() {
         </div>
 
         {/* Right Section - WhatsApp Preview */}
-        <div className="flex-1 border-l p-4 bg-white flex items-center justify-center">
-          <div className="bg-[#ece5dd] w-[260px] h-[500px] rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-5 border-black">
+        <div
+          className="flex-1 rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)]   p-4 ml-2 mb-4 mt-4 mr-[5px]  flex  justify-center"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
+        >
+          <div className="bg-[#ece5dd] w-[260px] h-[500px] mt-10 rounded-2xl shadow-lg border overflow-hidden relative flex flex-col border-5 border-black">
             {/* Top bar */}
             <div className="bg-[#075e54] text-white px-4 py-2 text-sm font-medium">
               WhatsApp Preview

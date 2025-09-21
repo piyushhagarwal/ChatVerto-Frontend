@@ -107,7 +107,7 @@ export default function ProfileUpdateForm() {
 
   return (
     <div className="p-[5px] pb-2">
-      <div className="p-2 shadow-sm border-0 bg-white overflow-hidden rounded-b-2xl ">
+      <div className="p-2 shadow-[0_0_5px_rgba(0,0,0,0.2)] border-0 bg-card overflow-hidden rounded-b-2xl ">
         <div className="flex justify-end px-1 py-1">
           <Button onClick={handleSubmit}>Save Changes</Button>
         </div>

@@ -25,12 +25,12 @@ export function NavUser({
         <SidebarMenuButton
           size="lg"
           onClick={() => navigate('/dashboard/profile')}
-          className="cursor-pointer hover:bg-muted"
+          className="cursor-pointer hover:bg-secondary text-primary bg-accent"
         >
           <Avatar className="h-8 w-8 rounded-lg">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="rounded-lg flex items-center justify-center ">
-              <IconUser className="h-4 w-4 text-[#CDDF7D]" />
+              <IconUser className="h-4 w-4 text-primary" />
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-1 items-start justify-start text-sm leading-tight">
