@@ -5,6 +5,7 @@ import type { ApiResponse } from './api';
 export interface FlowMeta {
   id: string;
   name: string;
+  isLive: boolean;
 }
 
 export interface FlowNode {
@@ -28,6 +29,7 @@ export interface FlowEdge {
 export interface Flow {
   id: string;
   name: string;
+  isLive: boolean;
   nodes: FlowNode[];
   edges: FlowEdge[];
 }
@@ -42,6 +44,7 @@ export interface UpdateFlowPayload {
   name?: string;
   nodes?: FlowNode[];
   edges?: FlowEdge[];
+  isLive?: boolean;
 }
 
 export type FlowResponse = ApiResponse<{

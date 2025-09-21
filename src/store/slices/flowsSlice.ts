@@ -29,6 +29,7 @@ interface CurrentFlow {
   nodes: FlowNode[];
   edges: FlowEdge[];
   saved: boolean;
+  isLive: boolean;
 }
 
 interface FlowState {
@@ -36,6 +37,7 @@ interface FlowState {
   currentFlow: CurrentFlow | null;
   loading: boolean;
   error: string | null;
+  toggleLoading: { [key: string]: boolean }; // Track loading state for individual toggles
 }
 
 const initialState: FlowState = {
@@ -43,6 +45,7 @@ const initialState: FlowState = {
   currentFlow: null,
   loading: false,
   error: null,
+  toggleLoading: {},
 };
 
 // ──────────────────────────────
@@ -55,7 +58,7 @@ export const fetchAllFlowsThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res: FlowListResponse = await getAllFlows();
-      return res.data.flows;
+      return res.data?.flows;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch flows'
@@ -71,12 +74,37 @@ export const fetchFlowByIdThunk = createAsyncThunk(
     try {
       const res: FlowResponse = await getSingleFlow(id);
       return {
-        ...res.data.flow,
+        ...res.data?.flow,
         saved: true,
       };
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch flow'
+      );
+    }
+  }
+);
+
+// Toggle flow live status
+export const toggleFlowLiveStatusThunk = createAsyncThunk(
+  'flow/toggleLiveStatus',
+  async (
+    { flowId, isLive }: { flowId: string; isLive: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const payload: UpdateFlowPayload = {
+        isLive: !isLive, // Toggle the current status
+      };
+      const res = await updateFlow(flowId, payload);
+      return {
+        flowId,
+        isLive: !isLive,
+        flow: res.data?.flow,
+      };
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to toggle flow status'
       );
     }
   }
@@ -94,19 +122,20 @@ export const saveFlowThunk = createAsyncThunk(
       name: flow.name,
       nodes: flow.nodes,
       edges: flow.edges,
+      isLive: flow.isLive,
     };
 
     try {
       if (flow.id.startsWith('temp-')) {
         const res = await createFlow(payload as CreateFlowPayload);
         return {
-          ...res.data.flow,
+          ...res.data?.flow,
           saved: true,
         };
       } else {
         const res = await updateFlow(flow.id, payload as UpdateFlowPayload);
         return {
-          ...res.data.flow,
+          ...res.data?.flow,
           saved: true,
         };
       }
@@ -178,6 +207,7 @@ const flowSlice = createSlice({
         ],
         edges: [],
         saved: false,
+        isLive: true,
       };
     },
 
@@ -265,6 +295,11 @@ const flowSlice = createSlice({
         }
       }
     },
+
+    // Clear toggle loading state
+    clearToggleLoading: (state, action: PayloadAction<string>) => {
+      delete state.toggleLoading[action.payload];
+    },
   },
   extraReducers: builder => {
     builder
@@ -274,7 +309,7 @@ const flowSlice = createSlice({
       })
       .addCase(fetchAllFlowsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.flows = action.payload;
+        state.flows = action.payload ?? [];
       })
       .addCase(fetchAllFlowsThunk.rejected, (state, action) => {
         state.loading = false;
@@ -291,6 +326,31 @@ const flowSlice = createSlice({
       })
       .addCase(fetchFlowByIdThunk.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(toggleFlowLiveStatusThunk.pending, (state, action) => {
+        const { flowId } = action.meta.arg;
+        state.toggleLoading[flowId] = true;
+        state.error = null;
+      })
+      .addCase(toggleFlowLiveStatusThunk.fulfilled, (state, action) => {
+        const { flowId, isLive } = action.payload;
+        // Update the flow in the flows array
+        const flowIndex = state.flows.findIndex(flow => flow.id === flowId);
+        if (flowIndex !== -1) {
+          state.flows[flowIndex].isLive = isLive;
+        }
+        // Update current flow if it's the same
+        if (state.currentFlow?.id === flowId) {
+          state.currentFlow.isLive = isLive;
+        }
+        // Clear loading state
+        delete state.toggleLoading[flowId];
+      })
+      .addCase(toggleFlowLiveStatusThunk.rejected, (state, action) => {
+        const { flowId } = action.meta.arg;
+        delete state.toggleLoading[flowId];
         state.error = action.payload as string;
       })
 
@@ -344,6 +404,7 @@ export const {
   addEdgeToFlow,
   addNodeToFlow,
   updateNodeData,
+  clearToggleLoading,
 } = flowSlice.actions;
 
 export default flowSlice.reducer;
