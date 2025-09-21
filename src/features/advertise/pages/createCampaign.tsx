@@ -428,14 +428,18 @@ export default function CreateCampaign() {
 
     return (
       <div key={`body-${componentIndex}`} className="space-y-3">
-        <Label className="text-sm font-medium">Body Parameters</Label>
-        <div className="p-3 bg-gray-50 rounded-md">
-          <p className="text-sm font-medium">Template Preview:</p>
-          <p className="text-sm text-gray-600 mt-1">{component.text}</p>
+        <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+          Body Parameters
+        </Label>
+        <div className="p-3 bg-yellow-50 rounded-md">
+          <p className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
+            Template Preview:
+          </p>
+          <p className="text-sm text-yellow-600 mt-1">{component.text}</p>
         </div>
         {exampleValues.map((example, index) => (
           <div key={`body-param-${index}`} className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
               Parameter {index + 1} *
             </Label>
             <Input
@@ -1025,8 +1029,8 @@ export default function CreateCampaign() {
             {selectedTemplate && !templateHasParameters && (
               <div className="p-4 bg-yellow-50 rounded-md border border-yellow-200">
                 <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-gray-600" />
-                  <span className="text-gray-700">
+                  <Info className="w-4 h-4 text-yellow-600" />
+                  <span className="text-yellow-700">
                     This template doesn't require any parameters. You can create
                     the campaign directly.
                   </span>
