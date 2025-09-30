@@ -33,6 +33,7 @@ import {
   List,
   MessageCircleMore,
   Image,
+  Clock,
 } from 'lucide-react';
 
 // Simplified node types with initial data
@@ -76,6 +77,15 @@ const NODES = [
       mediaId: undefined,
       caption: undefined,
       fileName: undefined,
+    },
+  },
+  {
+    type: 'delay',
+    label: 'Delay',
+    description: 'Pause the flow for a set time (up to 2 hours)',
+    icon: Clock,
+    initialData: {
+      delayMinutes: 0,
     },
   },
 ];
