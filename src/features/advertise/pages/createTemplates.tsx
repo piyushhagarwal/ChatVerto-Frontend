@@ -620,7 +620,7 @@ export default function CreateTemplatePage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Section - Input Fields */}
-        <div className="w-2/3 p-6 rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] ml-[5px] mt-4 mb-4 overflow-y-auto space-y-4">
+        <div className="w-2/3 p-6 rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] ml-[5px] mt-4 mb-3 overflow-y-auto space-y-4">
           <div className="space-y-4">
             {/* Template Name */}
             <div className="space-y-2 ">
@@ -1291,7 +1291,7 @@ export default function CreateTemplatePage() {
 
         {/* Right Section - WhatsApp Preview */}
         <div
-          className="flex-1 rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)]   p-4 ml-2 mb-4 mt-4 mr-[5px]  flex  justify-center"
+          className="flex-1 rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)]   p-4 ml-2 mb-3 mt-4 mr-[5px]  flex  justify-center"
           style={{
             backgroundImage:
               'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',

@@ -44,7 +44,7 @@ export default function TemplatePreviewPage() {
   return (
     <div className="flex flex-col h-full w-full  bg-[#FAFFF4] shadow-[0_0_5px_rgba(0,0,0,0.15)] rounded-b-xl">
       {/* Top Bar */}
-      <div className="flex h-20 shrink-0 items-center bg-primary gap-2 border-t-5 border-l-5 border-r-5 border-[#fafff4ff] text-accent transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20">
+      <div className="flex h-20 shrink-0 items-center bg-primary gap-2 border-t-5 border-l-5 border-r-5 border-[#fafff4] text-accent transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20">
         <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
           <Separator
             orientation="vertical"
