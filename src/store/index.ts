@@ -7,6 +7,7 @@ import userReducer from './slices/userSlice';
 import templateReducer from './slices/templateSlice';
 import campiagnReducer from './slices/campiagnSlice';
 import mediaReducer from './slices/mediaSlice';
+import analyticsReducer from './slices/analyticsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     template: templateReducer,
     campaign: campiagnReducer,
     media: mediaReducer,
+    analytics: analyticsReducer,
   },
 });
 

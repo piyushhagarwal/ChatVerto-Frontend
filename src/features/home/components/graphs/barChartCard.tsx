@@ -1,18 +1,18 @@
 'use client';
+import type { ChartDataPoint } from '@/types/analytics';
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
-const barData = [
-  { visits: '1', count: 50 },
-  { visits: '2-3', count: 30 },
-  { visits: '4+', count: 20 },
-];
+interface StatCardProps {
+  title: string;
+  value: ChartDataPoint[];
+}
 
-export function BarChartCard() {
+export function BarChartCard({ title, value }: StatCardProps) {
   return (
-    <BarChart width={400} height={250} data={barData}>
+    <BarChart width={800} height={250} data={value}>
       <CartesianGrid vertical={false} />
-      <XAxis dataKey="visits" />
+      <XAxis interval={0} dataKey="label" />
       <YAxis />
       <Tooltip />
       <Bar dataKey="count" fill="var(--primary)" />

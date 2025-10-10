@@ -8,21 +8,32 @@ import {
   CardContent,
   CardAction,
 } from '@/components/ui/card';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
+import { Users, Activity, RefreshCw, ChevronDown } from 'lucide-react';
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
-import { PieChartCard } from './graphs/pieChartCard';
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@/components/ui/dropdown-menu';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { BarChartCard } from './graphs/barChartCard';
-import { HeatmapCard } from './graphs/heatMapCard';
+import { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchChartDataThunk } from '@/store/slices/analyticsSlice';
 
 export function CustomerInsightsCard() {
-  const [metric, setMetric] = React.useState<'pie' | 'bar' | 'heatmap'>('pie');
-  const [timeRange, setTimeRange] = React.useState('90d');
+  const [period, setPeriod] = useState('today');
+  const [type, setType] = useState('totalCheckins');
+
+  const dispatch = useAppDispatch();
+
+  const { chart, loading, error } = useAppSelector(state => state.analytics);
+
+  useEffect(() => {
+    dispatch(fetchChartDataThunk({ period, type }));
+  }, [dispatch, period, type]);
 
   return (
     <Card className="w-full  mx-auto shadow-[0_0_4px_rgba(0,0,0,0.2)] border border-gray-200 rounded-2xl">
@@ -40,56 +51,82 @@ export function CustomerInsightsCard() {
           {/* Metric Toggle */}
           <ToggleGroup
             type="single"
-            value={metric}
-            onValueChange={val => val && setMetric(val as any)}
+            value={type}
+            onValueChange={val => val && setType(val)}
             variant="outline"
-            className="bg-[#fafff4] rounded-lg border-[1px] shadow-[0_0_10px_rgba(0,0,0,0.2)]  p-1"
+            className="bg-[#fafff4] rounded-lg border-[1px] shadow-[0_0_10px_rgba(0,0,0,0.2)] p-1"
           >
             <ToggleGroupItem
-              value="pie"
-              className="px-5 py-2 text-sm  font-medium  rounded-lg  border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent  transition-colors mr-2"
+              value="totalCheckins"
+              className="px-5 py-2 text-sm font-medium rounded-lg border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent transition-colors mr-2"
             >
-              New vs Returning
+              Total Check-ins
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="bar"
-              className="px-5 py-2 text-sm font-medium   rounded-lg border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent transition-colors mr-2"
+              value="uniqueCustomers"
+              className="px-5 py-2 text-sm font-medium rounded-lg border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent transition-colors mr-2"
             >
-              Visit Frequency
+              Unique Customers
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="heatmap"
-              className="px-5 py-2 text-sm font-medium  rounded-lg border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent transition-colors"
+              value="repeatedCustomers"
+              className="px-5 py-2 text-sm font-medium rounded-lg border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent transition-colors"
             >
-              Peak Hours
+              Repeated Customers
             </ToggleGroupItem>
           </ToggleGroup>
 
           {/* Time Range Select */}
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-40 sm:w-36 h-9 rounded-lg border border-gray-300 bg-white text-gray-700 shadow-sm">
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl shadow-md">
-              <SelectItem value="90d" className="rounded-lg hover:bg-gray-100">
-                Last 3 months
-              </SelectItem>
-              <SelectItem value="30d" className="rounded-lg hover:bg-gray-100">
-                Last 30 days
-              </SelectItem>
-              <SelectItem value="7d" className="rounded-lg hover:bg-gray-100">
-                Last 7 days
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 text-sm font-medium"
+              >
+                {
+                  {
+                    today: 'Today',
+                    thisWeek: 'This Week',
+                    thisMonth: 'This Month',
+                    sixMonths: 'Last 6 Months',
+                  }[period]
+                }
+                <ChevronDown className="h-4 w-4 opacity-70" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuRadioGroup value={period} onValueChange={setPeriod}>
+                <DropdownMenuRadioItem value="today">
+                  Today
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="thisWeek">
+                  This Week
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="thisMonth">
+                  This Month
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="sixMonths">
+                  Last 6 Months
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
-
-      <CardContent className="pt-6 flex justify-center items-center h-[300px]">
-        {metric === 'pie' && <PieChartCard />}
-        {metric === 'bar' && <BarChartCard />}
-        {metric === 'heatmap' && <HeatmapCard />}
-      </CardContent>
+      {chart && (
+        <CardContent className="pt-6 flex justify-center items-center h-[300px]">
+          {type === 'totalCheckins' && (
+            <BarChartCard title="Total Check-ins" value={chart.chartData} />
+          )}
+          {type === 'uniqueCustomers' && (
+            <BarChartCard title="Total Check-ins" value={chart.chartData} />
+          )}
+          {type === 'repeatedCustomers' && (
+            <BarChartCard title="Total Check-ins" value={chart.chartData} />
+          )}
+        </CardContent>
+      )}
     </Card>
   );
 }

@@ -11,18 +11,18 @@ import { getUserProfileThunk } from '@/store/slices/userSlice';
 export default function HomePage() {
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(getUserProfileThunk());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getUserProfileThunk());
+  // }, [dispatch]);
 
   const isWhatsAppConnected = useAppSelector(
-    state => state.user.user?.isWhatsappConnected
+    state => state.user.user?.isWhatsappConnected || true
   );
   const loading = useAppSelector(state => state.user.loading);
 
   return (
     <>
-      <SiteHeader title="Home" />
+      <SiteHeader title=" Home" />
       <div className="container mx-auto p-3">
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
@@ -47,12 +47,9 @@ export default function HomePage() {
                 <div className="mb-6">
                   <CustomerInsightsCard />
                 </div>
-                <div className="mb-6">
+                {/* <div className="mb-6">
                   <TrendsSection />
-                </div>
-                <div className="mb-6">
-                  <DailySnapshotCard />
-                </div>
+                </div> */}
               </>
             )}
           </div>
