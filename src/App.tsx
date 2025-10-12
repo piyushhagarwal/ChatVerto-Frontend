@@ -16,7 +16,7 @@ import { WhatsAppConnectionGuard } from './components/WhatsAppConnectionGuard.ts
 import Login from './features/auth/pages/loginPage';
 import Register from './features/auth/pages/registerPage';
 import DashboardLayout from './features/dashboard/dashboardLayout';
-import AnalyticsPage from './features/home/pages/homePage';
+import AnalyticsPage from './features/home/pages/analyticsPage.tsx';
 import ContactPage from './features/contacts/pages/contactPage';
 import AutomationPage from './features/automations/pages/allFlowsPage.tsx';
 import ChatsPage from './features/chats/pages/chatsPage.tsx';

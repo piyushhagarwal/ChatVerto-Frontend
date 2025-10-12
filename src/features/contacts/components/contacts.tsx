@@ -8,6 +8,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -249,93 +250,105 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
     }
   };
 
+  const isOptInGroup =
+    selectedGroupId && selectedGroup?.name === 'Opt-in Contacts';
+
   return (
     <section className="space-y-3">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">
           {selectedGroupId === null ? 'All Contacts' : selectedGroup?.name}
         </h2>
-        <div className="flex gap-2">
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button size="sm" className="bg-primary">
-                <Plus className="w-4 h-4 mr-1" /> Create Contact
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Contact</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Enter name"
-                  value={contactName}
-                  onChange={e => setContactName(e.target.value)}
-                />
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  placeholder="Enter phone number"
-                  value={contactPhone}
-                  onChange={e => setContactPhone(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleCreateContact()}
-                />
-              </div>
-              <DialogFooter className="pt-4">
-                <Button type="submit" onClick={handleCreateContact}>
-                  Save
+
+        {isOptInGroup ? (
+          <div className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
+            <Info className="w-4 h-4 inline mr-1" />
+            You cannot add contacts in the "Opt-in Contacts" group.
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Dialog
+              open={isCreateDialogOpen}
+              onOpenChange={setIsCreateDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button size="sm" className="bg-primary">
+                  <Plus className="w-4 h-4 mr-1" /> Create Contact
                 </Button>
-                <Button variant="outline" onClick={handleCancelCreate}>
-                  Cancel
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Contact</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Enter name"
+                    value={contactName}
+                    onChange={e => setContactName(e.target.value)}
+                  />
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    placeholder="Enter phone number"
+                    value={contactPhone}
+                    onChange={e => setContactPhone(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleCreateContact()}
+                  />
+                </div>
+                <DialogFooter className="pt-4">
+                  <Button type="submit" onClick={handleCreateContact}>
+                    Save
+                  </Button>
+                  <Button variant="outline" onClick={handleCancelCreate}>
+                    Cancel
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog
+              open={isImportDialogOpen}
+              onOpenChange={setIsImportDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button size="sm" className="bg-primary">
+                  <UploadCloud className="w-4 h-4 mr-1" /> Import from CSV
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={isImportDialogOpen}
-            onOpenChange={setIsImportDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button size="sm" className="bg-primary">
-                <UploadCloud className="w-4 h-4 mr-1" /> Import from CSV
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="!max-w-[60vw] w-[60vw] h-[50vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Import Contacts from CSV</DialogTitle>
-              </DialogHeader>
-              <div className="border-2 border-dashed rounded-md p-6 text-center text-muted-foreground">
-                Drag and drop your CSV file here or
-                <Input
-                  type="file"
-                  accept=".csv"
-                  className="mt-4"
-                  onChange={e => setCsvFile(e.target.files?.[0] || null)}
-                />
-              </div>
-              <DialogFooter className="pt-4">
-                <Button
-                  type="submit"
-                  onClick={handleImportCSV}
-                  disabled={!csvFile}
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsImportDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </DialogTrigger>
+              <DialogContent className="!max-w-[60vw] w-[60vw] h-[50vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Import Contacts from CSV</DialogTitle>
+                </DialogHeader>
+                <div className="border-2 border-dashed rounded-md p-6 text-center text-muted-foreground">
+                  Drag and drop your CSV file here or
+                  <Input
+                    type="file"
+                    accept=".csv"
+                    className="mt-4"
+                    onChange={e => setCsvFile(e.target.files?.[0] || null)}
+                  />
+                </div>
+                <DialogFooter className="pt-4">
+                  <Button
+                    type="submit"
+                    onClick={handleImportCSV}
+                    disabled={!csvFile}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsImportDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
       </div>
 
       {/* Search and Filters */}

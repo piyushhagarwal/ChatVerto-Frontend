@@ -1,100 +1,155 @@
 import React from 'react';
 import { SiteHeader } from '@/components/site-header';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import {
+  Workflow,
+  Megaphone,
+  FileText,
+  Users,
+  BarChart3,
+  PlusCircle,
+  Sparkles,
+  Lightbulb,
+} from 'lucide-react';
 
-function MainHomePage() {
-  // Dummy user data
-  const dummyUser = {
-    name: 'John Doe',
-  };
-
-  // Dummy features data
-  const features = [
+export default function MainHomePage() {
+  const modules = [
     {
-      title: 'Smart Business Chat',
+      title: 'Flows',
       description:
-        'Engage with customers through AI-powered chat solutions that understand context and deliver personalized responses.',
-      icon: '💬',
+        'Automate your WhatsApp interactions using visual flow builders.',
+      icon: Workflow,
+      action: 'Open Flows',
     },
     {
-      title: 'Multi-Channel Integration',
+      title: 'Campaigns',
       description:
-        'Connect with your customers across various platforms - Web, Mobile, and Social Media.',
-      icon: '🔄',
+        'Create and manage broadcast campaigns for WhatsApp messaging.',
+      icon: Megaphone,
+      action: 'Create Campaign',
     },
     {
-      title: 'Analytics Dashboard',
+      title: 'Templates',
       description:
-        'Get real-time insights into customer interactions and business performance metrics.',
-      icon: '📊',
+        'Manage pre-approved message templates for faster communication.',
+      icon: FileText,
+      action: 'View Templates',
     },
     {
-      title: 'Custom Chatbots',
+      title: 'Contacts',
       description:
-        'Build and deploy custom chatbots tailored to your business needs.',
-      icon: '🤖',
+        'Manage all your WhatsApp contacts and organize them into groups for targeting.',
+      icon: Users,
+      action: 'Open Contacts',
     },
     {
-      title: 'Seamless Integration',
+      title: 'Analytics',
       description:
-        'Easy integration with your existing business tools and workflows.',
-      icon: '🔗',
-    },
-    {
-      title: '24/7 Support',
-      description:
-        'Round-the-clock customer support to help you get the most out of ChatVerto.',
-      icon: '🌟',
+        'View campaign reports, message delivery, and engagement insights in one place.',
+      icon: BarChart3,
+      action: 'View Analytics',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/40">
       <SiteHeader title="Home" />
 
-      {/* Hero Section */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">
-            Welcome, {dummyUser.name} to ChatVerto
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Your All-in-One Business Communication Solution
-          </p>
-        </div>
+      {/* Welcome Section */}
+      <div className="px-6 pt-6">
+        <h2 className="text-2xl font-semibold">Welcome back, Aditya 👋</h2>
+        <p className="text-muted-foreground mt-1">
+          Manage your WhatsApp automation system from one unified dashboard.
+        </p>
+      </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-            />
-          ))}
-        </div>
+      {/* Quick Actions */}
+      <div className="px-6 mt-6">
+        <Card className="p-4">
+          <div className="flex flex-wrap gap-3 items-center">
+            <Button variant="default" className="flex items-center gap-2">
+              <PlusCircle className="h-4 w-4" /> New Campaign
+            </Button>
+            <Button variant="secondary" className="flex items-center gap-2">
+              <Workflow className="h-4 w-4" /> Create Flow
+            </Button>
+            <Button variant="secondary" className="flex items-center gap-2">
+              <Users className="h-4 w-4" /> Add Contact / Group
+            </Button>
+            <Button variant="secondary" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" /> View Analytics
+            </Button>
+          </div>
+        </Card>
+      </div>
 
-        {/* CTA Section */}
-        <div className="mt-16 text-center">
-          <h2 className="text-3xl font-semibold mb-6">
-            Ready to Transform Your Business Communication?
-          </h2>
-          <Button size="lg" className="bg-primary text-white">
-            Get Started Now
-          </Button>
-        </div>
-      </main>
+      <Separator className="my-8" />
+
+      {/* Main Feature Modules */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10">
+        {modules.map((mod, index) => (
+          <Card
+            key={index}
+            className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+          >
+            <CardHeader className="flex flex-row items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                <mod.icon className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle>{mod.title}</CardTitle>
+                <CardDescription>{mod.description}</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button className="mt-2 w-full">{mod.action}</Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Getting Started Section */}
+      <div className="px-6 pb-10">
+        <Card className="border-l-4 border-primary/80 bg-primary/5">
+          <CardHeader className="flex flex-row items-center gap-3">
+            <Lightbulb className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle className="text-lg">Getting Started</CardTitle>
+              <CardDescription>
+                💡 Not sure where to begin? Start by creating your first{' '}
+                <span className="font-medium text-primary">
+                  automation flow
+                </span>{' '}
+                or a new WhatsApp campaign to reach your audience instantly.
+              </CardDescription>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+
+      {/* Optional Announcement */}
+      <div className="px-6 pb-10">
+        <Card className="border-l-4 border-primary/80 bg-primary/5">
+          <CardHeader className="flex flex-row items-center gap-3">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle className="text-lg">What’s New</CardTitle>
+              <CardDescription>
+                🚀 You can now schedule campaigns to auto-send on specific
+                dates. Try it today!
+              </CardDescription>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
     </div>
   );
 }
-
-const FeatureCard = ({ title, description, icon }) => (
-  <div className="p-6 rounded-lg border bg-card hover:shadow-lg transition-shadow">
-    <div className="text-4xl mb-4">{icon}</div>
-    <h3 className="text-xl font-semibold mb-2">{title}</h3>
-    <p className="text-muted-foreground">{description}</p>
-  </div>
-);
-
-export default MainHomePage;
