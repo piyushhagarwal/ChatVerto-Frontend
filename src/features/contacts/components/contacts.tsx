@@ -379,7 +379,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
             <Search className="h-4 w-4" />
           </Button>
         </div>
-        <div className="ml-auto flex">
+        <div className="ml-auto flex gap-3">
           <Select value={sortOption} onValueChange={handleSortChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by" />
