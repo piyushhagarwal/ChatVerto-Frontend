@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, UploadCloud } from 'lucide-react';
+import {
+  Trash2,
+  Plus,
+  UploadCloud,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  X,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,13 +21,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchAllContactsThunk,
@@ -30,7 +37,7 @@ import {
   importContactsThunk,
 } from '@/store/slices/contactSlice';
 
-import type { Contact } from '@/types/contact';
+import type { Contact, ContactQueryParams } from '@/types/contact';
 
 interface ContactsProps {
   selectedGroupId: string | null;
@@ -48,7 +55,16 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   const [contactPhone, setContactPhone] = useState('');
   const [csvFile, setCsvFile] = useState<File | null>(null);
 
-  const { contacts } = useAppSelector(state => state.contact);
+  // Pagination, Search, and Sort State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState<string>('lastVisit-desc');
+
+  const { contacts, pagination, loading } = useAppSelector(
+    state => state.contact
+  );
   const { selectedGroup } = useAppSelector(state => state.group);
 
   useEffect(() => {
@@ -65,6 +81,80 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   useEffect(() => {
     localStorage.setItem('selectedContacts', JSON.stringify(selectedContacts));
   }, [selectedContacts]);
+
+  // Fetch contacts with current filters
+  useEffect(() => {
+    fetchContacts();
+  }, [currentPage, pageSize, searchQuery, sortOption, selectedGroupId]);
+
+  const fetchContacts = () => {
+    // Parse sort option (format: "field-order")
+    const [sortBy, sortOrder] = sortOption.split('-') as [
+      ContactQueryParams['sortBy'],
+      'asc' | 'desc',
+    ];
+
+    const params: ContactQueryParams = {
+      page: currentPage,
+      limit: pageSize,
+      sortBy,
+      sortOrder,
+      search: searchQuery || undefined,
+    };
+
+    if (selectedGroupId) {
+      dispatch(
+        fetchContactsByGroupIdThunk({ groupId: selectedGroupId, params })
+      );
+    } else {
+      dispatch(fetchAllContactsThunk(params));
+    }
+  };
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    setCurrentPage(1);
+  };
+
+  const clearSearch = () => {
+    setSearchInput('');
+    setSearchQuery('');
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortOption(value);
+    setCurrentPage(1);
+  };
+
+  const formatLastVisit = (lastVisit?: Date | string) => {
+    if (!lastVisit) return 'Never';
+
+    const date = new Date(lastVisit);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return 'Today';
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+    } else {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+  };
 
   const toggleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -89,13 +179,9 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
           contactId: confirmDeleteId,
           groupId: selectedGroupId,
         })
-      ).then(() => {
-        dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
-      });
+      ).then(() => fetchContacts());
     } else {
-      dispatch(deleteContactThunk(confirmDeleteId)).then(() => {
-        dispatch(fetchAllContactsThunk());
-      });
+      dispatch(deleteContactThunk(confirmDeleteId)).then(() => fetchContacts());
     }
 
     setConfirmDeleteId(null);
@@ -111,14 +197,13 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
           })
         );
       });
-      dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
     } else {
       selectedContacts.forEach(id => {
         dispatch(deleteContactThunk(id));
       });
-      dispatch(fetchAllContactsThunk());
     }
 
+    setTimeout(() => fetchContacts(), 500);
     setSelectedContacts([]);
     setConfirmBulkDelete(false);
   };
@@ -131,13 +216,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
           phone: contactPhone.trim(),
           groupsArray: selectedGroupId ? [selectedGroupId] : [],
         })
-      ).then(() => {
-        if (selectedGroupId) {
-          dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
-        } else {
-          dispatch(fetchAllContactsThunk());
-        }
-      });
+      ).then(() => fetchContacts());
       setContactName('');
       setContactPhone('');
       setIsCreateDialogOpen(false);
@@ -163,13 +242,8 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
     try {
       await dispatch(importContactsThunk(formData)).unwrap();
       setIsImportDialogOpen(false);
-      setCsvFile(null); // reset after import
-
-      if (selectedGroupId) {
-        dispatch(fetchContactsByGroupIdThunk(selectedGroupId));
-      } else {
-        dispatch(fetchAllContactsThunk());
-      }
+      setCsvFile(null);
+      fetchContacts();
     } catch (err) {
       console.error('Import failed:', err);
     }
@@ -264,7 +338,71 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
         </div>
       </div>
 
-      {contacts.length === 0 ? (
+      {/* Search and Filters */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1 max-w-md flex gap-2">
+          <div className="relative flex-1">
+            <Input
+              placeholder="Search by name or phone..."
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              className="pr-10"
+            />
+            {searchInput && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2"
+              >
+                <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+              </button>
+            )}
+          </div>
+          <Button
+            size="sm"
+            onClick={handleSearch}
+            disabled={!searchInput.trim()}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <Select value={sortOption} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="lastVisit-desc">Last Visit (Newest)</SelectItem>
+            <SelectItem value="lastVisit-asc">Last Visit (Oldest)</SelectItem>
+            <SelectItem value="visitCount-desc">Most Visits</SelectItem>
+            <SelectItem value="visitCount-asc">Least Visits</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={pageSize.toString()}
+          onValueChange={value => {
+            setPageSize(Number(value));
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10 per page</SelectItem>
+            <SelectItem value="25">25 per page</SelectItem>
+            <SelectItem value="50">50 per page</SelectItem>
+            <SelectItem value="100">100 per page</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-8 text-muted-foreground">
+          Loading contacts...
+        </div>
+      ) : contacts.length === 0 ? (
         <p className="text-muted-foreground mt-6">No contacts available.</p>
       ) : (
         <>
@@ -276,7 +414,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
               >
                 <DialogTrigger asChild>
                   <Button variant="destructive" size="sm">
-                    Delete Selected
+                    Delete Selected ({selectedContacts.length})
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -335,6 +473,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                   <th className="px-4 py-2 text-center">Name</th>
                   <th className="px-4 py-2 text-center">Phone Number</th>
                   <th className="px-4 py-2 text-center">Number of Visits</th>
+                  <th className="px-4 py-2 text-center">Last Visit</th>
                   <th className="px-4 py-2 text-center">Delete</th>
                 </tr>
               </thead>
@@ -342,7 +481,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                 {contacts.map((contact: Contact) => (
                   <tr
                     key={contact.id}
-                    className="border-t  text-primary text-center align-middle"
+                    className="border-t text-primary text-center align-middle hover:bg-gray-50"
                   >
                     <td className="px-4 py-2">
                       <input
@@ -359,6 +498,9 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                     </td>
                     <td className="px-4 py-2 font-semibold text-gray-700 tracking-wide">
                       {contact.visitCount}
+                    </td>
+                    <td className="px-4 py-2 font-semibold text-gray-600 tracking-wide">
+                      {formatLastVisit(contact.lastVisit)}
                     </td>
                     <td className="px-4 py-2">
                       <Dialog
@@ -417,6 +559,38 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {contacts.length} of {pagination.totalContacts} contacts
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={!pagination.hasPrevPage || loading}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="text-sm">
+                  Page {pagination.currentPage} of {pagination.totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  disabled={!pagination.hasNextPage || loading}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </section>

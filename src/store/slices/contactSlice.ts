@@ -7,6 +7,8 @@ import type {
   CreateSingleContactPayload,
   UpdateContactPayload,
   ImportContactsResponse,
+  PaginationInfo,
+  ContactQueryParams,
 } from '@/types/contact';
 import {
   createContact,
@@ -20,12 +22,14 @@ import {
 
 interface ContactState {
   contacts: Contact[];
+  pagination: PaginationInfo | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: ContactState = {
   contacts: [],
+  pagination: null,
   loading: false,
   error: null,
 };
@@ -36,10 +40,10 @@ const initialState: ContactState = {
 
 export const fetchAllContactsThunk = createAsyncThunk(
   'contact/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (params: ContactQueryParams = {}, { rejectWithValue }) => {
     try {
-      const res: ContactListResponse = await getAllContacts();
-      return res.data.contacts;
+      const res: ContactListResponse = await getAllContacts(params);
+      return res.data;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch contacts'
@@ -50,10 +54,16 @@ export const fetchAllContactsThunk = createAsyncThunk(
 
 export const fetchContactsByGroupIdThunk = createAsyncThunk(
   'contact/fetchByGroupId',
-  async (groupId: string, { rejectWithValue }) => {
+  async (
+    { groupId, params = {} }: { groupId: string; params?: ContactQueryParams },
+    { rejectWithValue }
+  ) => {
     try {
-      const res: ContactListResponse = await getContactsByGroupId(groupId);
-      return res.data.contacts;
+      const res: ContactListResponse = await getContactsByGroupId(
+        groupId,
+        params
+      );
+      return res.data;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch contacts'
@@ -157,44 +167,51 @@ const contactSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // Fetch All Contacts
       .addCase(fetchAllContactsThunk.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchAllContactsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload;
+        state.contacts = action.payload.contacts;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchAllContactsThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
+      // Fetch Contacts by Group ID
       .addCase(fetchContactsByGroupIdThunk.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchContactsByGroupIdThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload;
+        state.contacts = action.payload.contacts;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchContactsByGroupIdThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
+      // Create Contact
       .addCase(createContactThunk.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(createContactThunk.fulfilled, (state, action) => {
         state.contacts.push(action.payload);
+        state.loading = false;
       })
       .addCase(createContactThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
+      // Update Contact
       .addCase(updateContactThunk.pending, state => {
         state.loading = true;
         state.error = null;
@@ -202,36 +219,42 @@ const contactSlice = createSlice({
       .addCase(updateContactThunk.fulfilled, (state, action) => {
         const index = state.contacts.findIndex(c => c.id === action.payload.id);
         if (index !== -1) state.contacts[index] = action.payload;
+        state.loading = false;
       })
       .addCase(updateContactThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
+      // Remove Contact from Group
       .addCase(removeContactFromGroupThunk.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(removeContactFromGroupThunk.fulfilled, (state, action) => {
         state.contacts = state.contacts.filter(c => c.id !== action.payload.id);
+        state.loading = false;
       })
       .addCase(removeContactFromGroupThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
+      // Delete Contact
       .addCase(deleteContactThunk.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(deleteContactThunk.fulfilled, (state, action) => {
         state.contacts = state.contacts.filter(c => c.id !== action.payload.id);
+        state.loading = false;
       })
       .addCase(deleteContactThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
+      // Import Contacts
       .addCase(importContactsThunk.pending, state => {
         state.loading = true;
         state.error = null;

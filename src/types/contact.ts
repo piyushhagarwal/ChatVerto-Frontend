@@ -5,6 +5,8 @@ export interface Contact {
   name: string;
   phone: string;
   visitCount: number;
+  firstVisit?: Date;
+  lastVisit?: Date;
   groups?: GroupSummary[];
 }
 
@@ -13,16 +15,33 @@ export interface GroupSummary {
   name: string;
 }
 
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalContacts: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface ContactQueryParams {
+  page?: number;
+  limit?: number;
+  sortBy?: 'name' | 'phone' | 'visitCount' | 'firstVisit' | 'lastVisit';
+  sortOrder?: 'asc' | 'desc';
+  search?: string;
+}
+
 export interface CreateSingleContactPayload {
   name: string;
   phone: string;
-  groupsArray: string[]; // group IDs to associate
+  groupsArray: string[];
 }
 
 export interface UpdateContactPayload {
   name?: string;
   phone?: string;
-  groupsArray?: string[]; // group IDs to update
+  groupsArray?: string[];
 }
 
 export type ContactResponse = ApiResponse<{
@@ -31,6 +50,7 @@ export type ContactResponse = ApiResponse<{
 
 export type ContactListResponse = ApiResponse<{
   contacts: Contact[];
+  pagination: PaginationInfo;
 }>;
 
 export type ImportContactsResponse = ApiResponse<{
@@ -38,21 +58,17 @@ export type ImportContactsResponse = ApiResponse<{
   skipped: string;
 }>;
 
-// For parsing CSV file
 export interface ContactCSVRow {
   name: string;
   phone: string;
 }
 
-// For inserting into DB
 export interface ContactToSave {
   name: string;
   phone: string;
   user: string;
   groups: string[];
 }
-
-// For Groups of Contact
 
 export interface GroupContact {
   id: string;

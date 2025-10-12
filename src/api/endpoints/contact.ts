@@ -10,6 +10,7 @@ import type {
   GroupContactListResponse,
   UpdateGroupContactPayload,
   SingleGroupResponse,
+  ContactQueryParams,
 } from '@/types/contact';
 
 // 🟢 Create a new contact
@@ -23,17 +24,27 @@ export const createContact = async (
   return response.data;
 };
 
-// 🔵 Get all contacts
-export const getAllContacts = async (): Promise<ContactListResponse> => {
-  const response = await axios.get<ContactListResponse>('/contacts');
+// 🔵 Get all contacts with pagination, search, and sort
+export const getAllContacts = async (
+  params?: ContactQueryParams
+): Promise<ContactListResponse> => {
+  const response = await axios.get<ContactListResponse>('/contacts', {
+    params,
+  });
   return response.data;
 };
 
-// 🔵 Get contacts by Group ID
+// 🔵 Get contacts by Group ID with pagination, search, and sort
 export const getContactsByGroupId = async (
-  groupId: string
+  groupId: string,
+  params?: ContactQueryParams
 ): Promise<ContactListResponse> => {
-  const response = await axios.get<ContactListResponse>(`/contacts/${groupId}`);
+  const response = await axios.get<ContactListResponse>(
+    `/contacts/${groupId}`,
+    {
+      params,
+    }
+  );
   return response.data;
 };
 
@@ -86,6 +97,7 @@ export const importContactsFromCSV = async (
   return response.data;
 };
 
+// 🟢 Create a new group
 export const createGroup = async (
   payload: CreateGroupContactPayload
 ): Promise<GroupContactResponse> => {
