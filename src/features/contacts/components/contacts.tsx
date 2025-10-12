@@ -334,6 +334,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                   </th>
                   <th className="px-4 py-2 text-center">Name</th>
                   <th className="px-4 py-2 text-center">Phone Number</th>
+                  <th className="px-4 py-2 text-center">Number of Visits</th>
                   <th className="px-4 py-2 text-center">Delete</th>
                 </tr>
               </thead>
@@ -355,6 +356,9 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                     </td>
                     <td className="px-4 py-2 font-semibold text-gray-700 tracking-wide">
                       {contact.phone}
+                    </td>
+                    <td className="px-4 py-2 font-semibold text-gray-700 tracking-wide">
+                      {contact.visitCount}
                     </td>
                     <td className="px-4 py-2">
                       <Dialog

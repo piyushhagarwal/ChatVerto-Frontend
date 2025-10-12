@@ -16,12 +16,13 @@ import { WhatsAppConnectionGuard } from './components/WhatsAppConnectionGuard.ts
 import Login from './features/auth/pages/loginPage';
 import Register from './features/auth/pages/registerPage';
 import DashboardLayout from './features/dashboard/dashboardLayout';
-import HomePage from './features/home/pages/homePage';
+import AnalyticsPage from './features/home/pages/homePage';
 import ContactPage from './features/contacts/pages/contactPage';
 import AutomationPage from './features/automations/pages/allFlowsPage.tsx';
 import ChatsPage from './features/chats/pages/chatsPage.tsx';
 import AdvertisePage from './features/advertise/pages/advertisePage.tsx';
 import SingleFlowPage from './features/automations/pages/singleFlowPage.tsx';
+import MainHomePage from './features/home/pages/mainHomePage.tsx';
 import { useEffect } from 'react';
 
 import BroadcastPage from './features/advertise/pages/broadcastPage.tsx';
@@ -55,11 +56,12 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="home" replace />} />
-              <Route path="home" element={<HomePage />} />
+              <Route index element={<Navigate to="home1" replace />} />
+              <Route path="home1" element={<MainHomePage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="automation" element={<AutomationPage />} />
               <Route path="chats" element={<ChatsPage />} />
+              <Route path="home" element={<AnalyticsPage />} />
               <Route path="profile" element={<ProfilePage />} />
 
               {/* 🔻 Advertise main page with nested tabs */}

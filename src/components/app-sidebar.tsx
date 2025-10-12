@@ -14,6 +14,7 @@ import {
   IconAddressBook,
   IconSettingsAutomation,
   IconMessageDots,
+  IconChartBar,
   IconAdCircle,
 } from '@tabler/icons-react';
 
@@ -39,7 +40,7 @@ const data = {
   navMain: [
     {
       title: 'Home',
-      url: '/dashboard/home',
+      url: '/dashboard/home1',
       icon: IconHome,
       isActive: true,
     },
@@ -62,6 +63,12 @@ const data = {
       title: 'Advertise',
       url: '/dashboard/advertise/broadcast',
       icon: IconAdCircle,
+    },
+    {
+      title: 'Analytics',
+      url: '/dashboard/home',
+      icon: IconChartBar,
+      isActive: true,
     },
   ],
   navClouds: [

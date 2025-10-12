@@ -8,7 +8,7 @@ import DailySnapshotCard from '../components/dailySnapshotcard';
 import { useEffect } from 'react';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
 
-export default function HomePage() {
+export default function AnalyticsPage() {
   const dispatch = useAppDispatch();
 
   // useEffect(() => {
@@ -22,7 +22,7 @@ export default function HomePage() {
 
   return (
     <>
-      <SiteHeader title=" Home" />
+      <SiteHeader title="Analytics" />
       <div className="container mx-auto p-3">
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
