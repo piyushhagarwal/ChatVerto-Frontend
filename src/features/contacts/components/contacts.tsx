@@ -379,36 +379,39 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
             <Search className="h-4 w-4" />
           </Button>
         </div>
+        <div className="ml-auto flex">
+          <Select value={sortOption} onValueChange={handleSortChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="lastVisit-desc">
+                Last Visit (Newest)
+              </SelectItem>
+              <SelectItem value="lastVisit-asc">Last Visit (Oldest)</SelectItem>
+              <SelectItem value="visitCount-desc">Most Visits</SelectItem>
+              <SelectItem value="visitCount-asc">Least Visits</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select value={sortOption} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="lastVisit-desc">Last Visit (Newest)</SelectItem>
-            <SelectItem value="lastVisit-asc">Last Visit (Oldest)</SelectItem>
-            <SelectItem value="visitCount-desc">Most Visits</SelectItem>
-            <SelectItem value="visitCount-asc">Least Visits</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={pageSize.toString()}
-          onValueChange={value => {
-            setPageSize(Number(value));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10">10 per page</SelectItem>
-            <SelectItem value="25">25 per page</SelectItem>
-            <SelectItem value="50">50 per page</SelectItem>
-            <SelectItem value="100">100 per page</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={value => {
+              setPageSize(Number(value));
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 per page</SelectItem>
+              <SelectItem value="25">25 per page</SelectItem>
+              <SelectItem value="50">50 per page</SelectItem>
+              <SelectItem value="100">100 per page</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {loading ? (
