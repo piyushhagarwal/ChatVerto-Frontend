@@ -19,7 +19,7 @@ interface StatCardProps {
   value: string;
   trend: string;
   trendType: 'up' | 'down';
-  description: string;
+  period: string;
   icon: ReactNode;
 }
 
@@ -28,7 +28,7 @@ export function StatCard({
   value,
   trend,
   trendType,
-  description,
+  period,
   icon,
 }: StatCardProps) {
   return (
@@ -58,7 +58,7 @@ export function StatCard({
         </CardContent>
 
         <CardFooter className="block font-semibold text-sm text-muted-foreground tracking-wide">
-          {description}
+          Compared to <b>{period}</b>
         </CardFooter>
       </Card>
     </>

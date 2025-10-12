@@ -66,7 +66,7 @@ export function CustomerInsightsCard() {
               value="uniqueCustomers"
               className="px-5 py-2 text-sm font-medium rounded-lg border-0 hover:bg-accent/65 data-[state=on]:bg-primary data-[state=on]:text-accent transition-colors mr-2"
             >
-              Unique Customers
+              New Customers
             </ToggleGroupItem>
             <ToggleGroupItem
               value="repeatedCustomers"

@@ -75,15 +75,29 @@ export function AnalysisCards() {
             value={summary.totalCheckins.toString()}
             trend={summary.growth.checkins.toString() + '%'}
             trendType={summary.growth.checkins >= 0 ? 'up' : 'down'}
-            description="Compared to last month"
+            period={`${
+              {
+                today: 'Yesterday',
+                thisWeek: 'Last Week',
+                thisMonth: 'Last Month',
+                sixMonths: 'Last 6 Months',
+              }[period]
+            }`}
             icon={<Activity className="h-6 w-6 text-primary" />}
           />
           <StatCard
-            title="Unique Customers"
+            title="New Customers"
             value={summary.uniqueCustomers.toString()}
             trend={summary.growth.uniqueCustomers.toString() + '%'}
             trendType={summary.growth.checkins >= 0 ? 'up' : 'down'}
-            description="New vs returning balance"
+            period={`${
+              {
+                today: 'Yesterday',
+                thisWeek: 'Last Week',
+                thisMonth: 'Last Month',
+                sixMonths: 'Last 6 Months',
+              }[period]
+            }`}
             icon={<Users className="h-6 w-6 text-primary" />}
           />
           <StatCard
@@ -91,7 +105,14 @@ export function AnalysisCards() {
             value={summary.repeatedCustomers.toString()}
             trend={summary.growth.repeatedCustomers.toString() + '%'}
             trendType={summary.growth.repeatedCustomers >= 0 ? 'up' : 'down'}
-            description="Returning within 30 days"
+            period={`${
+              {
+                today: 'Yesterday',
+                thisWeek: 'Last Week',
+                thisMonth: 'Last Month',
+                sixMonths: 'Last 6 Months',
+              }[period]
+            }`}
             icon={<RefreshCw className="h-6 w-6 text-primary" />}
           />
         </div>
