@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ReactFlow, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -171,10 +171,16 @@ export default function SingleFlowPage() {
   }, [flowId, dispatch]);
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div
+      className="flex flex-col h-full "
+      style={{
+        backgroundImage: `radial-gradient(#9ca3af 1.3px, transparent 1px)`,
+        backgroundSize: '20px 20px',
+      }}
+    >
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="shadow-[0_0_5px_rgba(0,0,0,0.2)] border-b border-gray-200 px-[5px] py-2">
+        <div className="flex items-center justify-between bg-primary py-4 px-6 rounded-lg shadow-sm">
           {/* Flow Name - Left Side */}
           <div className="flex items-center space-x-3">
             {isEditingName ? (
@@ -183,16 +189,16 @@ export default function SingleFlowPage() {
                   value={tempName}
                   onChange={e => setTempName(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  className="text-xl font-semibold min-w-[200px] border-primary focus:ring-primary"
+                  className="text-xl font-semibold min-w-[200px] border-primary text-primary bg-card focus:ring-primary"
                   placeholder="Enter flow name"
                   autoFocus
                 />
                 <Button
                   size="sm"
                   onClick={handleSaveName}
-                  className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
+                  className="h-8 w-8 p-0 bg-accent hover:bg-accent/80"
                 >
-                  <Check className="h-4 w-4" />
+                  <Check className="h-4 w-4 text-primary" />
                 </Button>
                 <Button
                   size="sm"
@@ -205,14 +211,14 @@ export default function SingleFlowPage() {
               </div>
             ) : (
               <div className="flex items-center space-x-2 group">
-                <h1 className="text-2xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-semibold text-white">
                   {currentFlow?.name || 'Untitled Flow'}
                 </h1>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={handleEditName}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+                  className="group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-accent hover:text-gray-600"
                 >
                   <Edit2 className="h-4 w-4" />
                 </Button>
@@ -225,7 +231,7 @@ export default function SingleFlowPage() {
                 <div
                   className={`w-2 h-2 rounded-full ${currentFlow.saved ? 'bg-green-500' : 'bg-amber-500'}`}
                 />
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-white">
                   {currentFlow.saved ? 'Saved' : 'Unsaved changes'}
                 </span>
               </div>
@@ -237,7 +243,7 @@ export default function SingleFlowPage() {
             {/* Simplified Add Node Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="bg-primary text-white shadow-sm">
+                <Button className="bg-accent text-primary hover:bg-accent/80 shadow-sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Node
                 </Button>
@@ -274,8 +280,8 @@ export default function SingleFlowPage() {
               disabled={loading || currentFlow?.saved}
               className={`${
                 currentFlow?.saved
-                  ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  ? 'bg-accent hover:bg-green-700 text-primary'
+                  : 'bg-accent hover:bg-accent/70 text-primary'
               } shadow-sm transition-colors`}
             >
               {loading ? (
@@ -295,6 +301,11 @@ export default function SingleFlowPage() {
                 </>
               )}
             </Button>
+            <Link to="/dashboard/automation">
+              <Button className="bg-accent hover:bg-accent/80 text-Primary">
+                Back To Automations
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

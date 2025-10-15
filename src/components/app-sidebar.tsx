@@ -155,32 +155,79 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  onExpandedChange,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  onExpandedChange?: (expanded: boolean) => void;
+}) {
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  React.useEffect(() => {
+    onExpandedChange?.(isHovered);
+  }, [isHovered, onExpandedChange]);
+
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar
+      collapsible="offcanvas"
+      {...props}
+      className={`transition-all duration-800 ease-in-out ${
+        isHovered ? 'w-64' : 'w-18'
+      }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <a href="#">
-              <img
-                src="/Images/Wordmark.png"
-                alt="Acme Inc."
-                className="relative right-[30px] bottom-[15px] "
-              />
-            </a>
+            <div className="relative w-full flex items-center justify-start">
+              <a
+                href="#"
+                className={`transition-all duration-800 flex items-center ${
+                  isHovered ? 'mb-0' : 'mb-6'
+                }`}
+              >
+                <img
+                  src="/Images/Chatverto.png"
+                  alt="Acme Inc."
+                  className={`transition-all duration-800 ${
+                    isHovered
+                      ? ' top-2 relative left-1 top-4 w-[180px] h-[45px] '
+                      : 'w-[40px] h-[80px] '
+                  }`}
+                  style={{
+                    objectFit: 'contain',
+                    marginTop: isHovered ? '15px' : 'auto',
+                    marginBottom: isHovered ? '70px' : '12px',
+                    marginLeft: isHovered ? '0px' : 'auto',
+                    marginRight: isHovered ? '10px' : 'auto',
+                  }}
+                />
+                <img
+                  src="/Images/chatverto1.png"
+                  alt="Chatverto"
+                  className={`transition-all duration-800 ${
+                    isHovered
+                      ? 'opacity-100 visible relative left-1 bottom-4'
+                      : 'opacity-0 invisible'
+                  }`}
+                  style={{
+                    height: '25px',
+                    objectFit: 'contain',
+                  }}
+                />
+              </a>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="relative bottom-[35px]">
-        <NavMain items={data.navMain} />
-
-        {/* <NavSecondary
-          items={data.navSecondary}
-          className="relative top-[15rem]"
-        /> */}
+      <SidebarContent
+        className={`relative bottom-[35px] ${!isHovered ? 'px-2' : ''}`}
+      >
+        <NavMain items={data.navMain} collapsed={!isHovered} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={data.user} collapsed={!isHovered} />
       </SidebarFooter>
     </Sidebar>
   );

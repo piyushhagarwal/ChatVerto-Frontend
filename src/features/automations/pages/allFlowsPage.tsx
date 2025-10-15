@@ -8,12 +8,21 @@ import {
 import { SiteHeader } from '@/components/site-header';
 import { CreateFlowDialog } from '../components/createFlowDialog';
 import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import {
   fetchAllFlowsThunk,
   deleteFlowThunk,
   toggleFlowLiveStatusThunk,
 } from '@/store/slices/flowsSlice';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Trash2 } from 'lucide-react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -80,9 +89,24 @@ export default function AutomationPage() {
     state => state.flow
   );
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Prevent card click from triggering
-    dispatch(deleteFlowThunk(id));
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteName, setConfirmDeleteName] = useState<string | null>(
+    null
+  );
+
+  const confirmDelete = async () => {
+    if (confirmDeleteId) {
+      await dispatch(deleteFlowThunk(confirmDeleteId));
+      dispatch(fetchAllFlowsThunk()); // refresh list
+      setConfirmDeleteId(null);
+      setConfirmDeleteName(null);
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: string, name: string) => {
+    e.stopPropagation();
+    setConfirmDeleteId(id);
+    setConfirmDeleteName(name);
   };
 
   const handleToggleFlow = (flowId: string, currentStatus: boolean) => {
@@ -153,7 +177,7 @@ export default function AutomationPage() {
 
                   <button
                     className="text-red-600 hover:text-red-800 transition-colors duration-200 p-1 rounded"
-                    onClick={e => handleDelete(e, flow.id)}
+                    onClick={e => handleDelete(e, flow.id, flow.name)}
                     aria-label="Delete flow"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -180,6 +204,39 @@ export default function AutomationPage() {
           </div>
         )}
       </div>
+      <Dialog
+        open={!!confirmDeleteId}
+        onOpenChange={() => {
+          setConfirmDeleteId(null);
+          setConfirmDeleteName(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+
+          <p>
+            Are you sure you want to permanently delete{' '}
+            <strong>{confirmDeleteName}</strong>? This action cannot be undone.
+          </p>
+
+          <DialogFooter className="pt-4">
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmDeleteId(null);
+                setConfirmDeleteName(null);
+              }}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

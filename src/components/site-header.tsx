@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { IconMenu2 } from '@tabler/icons-react';
 
 interface SiteHeaderProps {
   title: string;
@@ -8,9 +9,15 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ title }: SiteHeaderProps) {
   return (
-    <header className="flex h-20 shrink-0 items-center bg-primary gap-2 border-t-5  border-l-5 border-r-5 border-[#fafff4ff] text-accent rounded-t-lg transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20">
+    <header className="flex h-20 shrink-0 items-center bg-primary gap-2 border-t-5 border-l-5 border-r-5 border-[#fafff4ff] text-accent rounded-t-lg transition-all duration-800 ease-in-out">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        <SidebarTrigger className="-ml-1" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="-ml-1 hover:bg-primary/10"
+        >
+          <IconMenu2 className="h-5 w-5 text-accent" />
+        </Button>
         <Separator
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
