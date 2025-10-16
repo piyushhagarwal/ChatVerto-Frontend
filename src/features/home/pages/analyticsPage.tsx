@@ -23,7 +23,7 @@ export default function AnalyticsPage() {
   return (
     <>
       <SiteHeader title="Analytics" />
-      <div className="container mx-auto p-3">
+      <div className="p-3">
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
         ) : (
@@ -47,6 +47,7 @@ export default function AnalyticsPage() {
                 <div className="mb-6">
                   <CustomerInsightsCard />
                 </div>
+
                 {/* <div className="mb-6">
                   <TrendsSection />
                 </div> */}

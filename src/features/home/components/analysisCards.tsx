@@ -25,7 +25,7 @@ export function AnalysisCards() {
   }, [dispatch, period]);
 
   return (
-    <div className="w-full rounded-xl  bg-card text-card-foreground shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6">
+    <div className="w-full rounded-xl bg-card text-card-foreground shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6">
       {/* Header with Dropdown */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-black tracking-tight">

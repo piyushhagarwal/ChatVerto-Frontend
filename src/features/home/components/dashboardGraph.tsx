@@ -36,7 +36,7 @@ export function CustomerInsightsCard() {
   }, [dispatch, period, type]);
 
   return (
-    <Card className="w-full  mx-auto shadow-[0_0_4px_rgba(0,0,0,0.2)] border border-gray-200 rounded-2xl">
+    <Card className="w-full shadow-[0_0_4px_rgba(0,0,0,0.2)] border border-gray-200 rounded-2xl">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-gray-100">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-lg sm:text-xl font-semibold text-gray-900 tracking-wide">
@@ -115,7 +115,7 @@ export function CustomerInsightsCard() {
         </div>
       </CardHeader>
       {chart && (
-        <CardContent className="pt-6 flex justify-center items-center h-[300px]">
+        <CardContent className="pt-6 flex justify-start items-start h-[300px]">
           {type === 'totalCheckins' && (
             <BarChartCard title="Total Check-ins" value={chart.chartData} />
           )}
