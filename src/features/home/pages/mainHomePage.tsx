@@ -1,4 +1,3 @@
-import React from 'react';
 import { SiteHeader } from '@/components/site-header';
 import {
   Card,

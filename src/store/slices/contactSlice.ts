@@ -77,7 +77,7 @@ export const createContactThunk = createAsyncThunk(
   async (payload: CreateSingleContactPayload, { rejectWithValue }) => {
     try {
       const res: ContactResponse = await createContact(payload);
-      return res.data.contact;
+      return res.data?.contact;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to create contact'
@@ -97,7 +97,7 @@ export const updateContactThunk = createAsyncThunk(
   ) => {
     try {
       const res: ContactResponse = await updateContact(contactId, payload);
-      return res.data.contact;
+      return res.data?.contact;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to update contact'
@@ -114,7 +114,7 @@ export const removeContactFromGroupThunk = createAsyncThunk(
   ) => {
     try {
       const response = await removeContactFromGroup(contactId, groupId);
-      return response.data.contact;
+      return response.data?.contact;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -130,7 +130,7 @@ export const deleteContactThunk = createAsyncThunk(
   async (contactId: string, { rejectWithValue }) => {
     try {
       const res: ContactResponse = await deleteContact(contactId);
-      return res.data.contact;
+      return res.data?.contact;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to delete contact'
@@ -174,8 +174,8 @@ const contactSlice = createSlice({
       })
       .addCase(fetchAllContactsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload.contacts;
-        state.pagination = action.payload.pagination;
+        state.contacts = action.payload?.contacts ?? [];
+        state.pagination = action.payload?.pagination ?? null;
       })
       .addCase(fetchAllContactsThunk.rejected, (state, action) => {
         state.loading = false;
@@ -189,8 +189,8 @@ const contactSlice = createSlice({
       })
       .addCase(fetchContactsByGroupIdThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload.contacts;
-        state.pagination = action.payload.pagination;
+        state.contacts = action.payload?.contacts ?? [];
+        state.pagination = action.payload?.pagination ?? null;
       })
       .addCase(fetchContactsByGroupIdThunk.rejected, (state, action) => {
         state.loading = false;
@@ -203,7 +203,9 @@ const contactSlice = createSlice({
         state.error = null;
       })
       .addCase(createContactThunk.fulfilled, (state, action) => {
-        state.contacts.push(action.payload);
+        if (action.payload) {
+          state.contacts.push(action.payload);
+        }
         state.loading = false;
       })
       .addCase(createContactThunk.rejected, (state, action) => {
@@ -217,8 +219,12 @@ const contactSlice = createSlice({
         state.error = null;
       })
       .addCase(updateContactThunk.fulfilled, (state, action) => {
-        const index = state.contacts.findIndex(c => c.id === action.payload.id);
-        if (index !== -1) state.contacts[index] = action.payload;
+        const index = state.contacts.findIndex(
+          c => c.id === action.payload?.id
+        );
+        if (index !== -1 && action.payload) {
+          state.contacts[index] = action.payload;
+        }
         state.loading = false;
       })
       .addCase(updateContactThunk.rejected, (state, action) => {
@@ -232,7 +238,9 @@ const contactSlice = createSlice({
         state.error = null;
       })
       .addCase(removeContactFromGroupThunk.fulfilled, (state, action) => {
-        state.contacts = state.contacts.filter(c => c.id !== action.payload.id);
+        state.contacts = state.contacts.filter(
+          c => c.id !== action.payload?.id
+        );
         state.loading = false;
       })
       .addCase(removeContactFromGroupThunk.rejected, (state, action) => {
@@ -246,7 +254,9 @@ const contactSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteContactThunk.fulfilled, (state, action) => {
-        state.contacts = state.contacts.filter(c => c.id !== action.payload.id);
+        state.contacts = state.contacts.filter(
+          c => c.id !== action.payload?.id
+        );
         state.loading = false;
       })
       .addCase(deleteContactThunk.rejected, (state, action) => {

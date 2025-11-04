@@ -2,10 +2,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchCampaignByIdThunk } from '@/store/slices/campiagnSlice';
-import { SiteHeader } from '@/components/site-header';
 import { Separator } from '@/components/ui/separator';
 
 export default function BroadcastPreviewPage() {

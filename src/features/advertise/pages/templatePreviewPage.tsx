@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchTemplateByIdThunk } from '@/store/slices/templateSlice';
 import type { Component } from '@/types/template';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 export default function TemplatePreviewPage() {

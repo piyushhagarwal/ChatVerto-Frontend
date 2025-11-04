@@ -1,15 +1,12 @@
-'use client';
-import React from 'react';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-  CardAction,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Activity, RefreshCw, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -29,7 +26,7 @@ export function CustomerInsightsCard() {
 
   const dispatch = useAppDispatch();
 
-  const { chart, loading, error } = useAppSelector(state => state.analytics);
+  const { chart } = useAppSelector(state => state.analytics);
 
   useEffect(() => {
     dispatch(fetchChartDataThunk({ period, type }));

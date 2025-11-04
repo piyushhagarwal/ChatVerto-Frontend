@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, UploadCloud } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export function CreateFlowDialog() {
   const dispatch = useAppDispatch();

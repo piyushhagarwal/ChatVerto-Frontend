@@ -3,7 +3,7 @@ import { useState, useEffect, type JSX } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -618,7 +618,7 @@ export default function CreateCampaign() {
               )
               .sort(([a], [b]) => Number(a) - Number(b));
 
-            sortedEntries.forEach(([key, value]) => {
+            sortedEntries.forEach(([, value]) => {
               parameters.push({
                 type: 'text',
                 text: value,

@@ -21,8 +21,8 @@ export const loginUser = createAsyncThunk(
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const response = await login(credentials);
-      const token = response.data.token;
-      localStorage.setItem('token', token);
+      const token = response.data?.token;
+      localStorage.setItem('token', token || '');
 
       return token;
     } catch (error: any) {
@@ -78,7 +78,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload;
+        state.token = action.payload ?? null;
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -92,7 +92,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload;
+        state.token = action.payload ?? null;
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {

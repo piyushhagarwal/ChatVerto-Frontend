@@ -10,10 +10,6 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-import { useEffect } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
 interface StatCardProps {
   title: string;
   value: string;

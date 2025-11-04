@@ -1,8 +1,6 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from '@/store';
 import type { AppDispatch } from '@/store';
@@ -56,10 +54,10 @@ export default function ProfileUpdateForm() {
     websiteInput: string;
     vertical: string;
   }>({
-    description: user?.description || '',
-    address: user?.address || '',
-    businessEmail: '',
-    websites: user?.websites || [],
+    description: user?.whatsAppDetails?.description || '',
+    address: user?.whatsAppDetails?.address || '',
+    businessEmail: user?.whatsAppDetails?.businessEmail || '',
+    websites: user?.whatsAppDetails?.websites || [],
     websiteInput: '',
     vertical: '',
   });
@@ -67,12 +65,12 @@ export default function ProfileUpdateForm() {
   useEffect(() => {
     if (user) {
       setForm({
-        description: user.description || '',
-        address: user.address || '',
-        businessEmail: user.businessEmail || '',
-        websites: user.websites || [],
+        description: user?.whatsAppDetails?.description || '',
+        address: user?.whatsAppDetails?.address || '',
+        businessEmail: user?.whatsAppDetails?.businessEmail || '',
+        websites: user?.whatsAppDetails?.websites || [],
         websiteInput: '',
-        vertical: user.vertical || '',
+        vertical: user?.whatsAppDetails?.vertical || '',
       });
     }
   }, [user]);
@@ -119,7 +117,7 @@ export default function ProfileUpdateForm() {
             <Input
               className="md:w-2/5"
               placeholder="Enter your business description"
-              value={user?.description}
+              value={user?.whatsAppDetails?.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
             />
             <p className="text-muted-foreground text-sm md:w-2/5">

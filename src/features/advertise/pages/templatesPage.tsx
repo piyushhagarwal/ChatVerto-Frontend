@@ -8,12 +8,10 @@ import {
   fetchAllTemplatesThunk,
   deleteTemplateThunk,
 } from '@/store/slices/templateSlice';
-import { TemplateCard } from '../components/TemplateCard';
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { type Template } from '@/types/template';
 import {
   Dialog,
   DialogContent,

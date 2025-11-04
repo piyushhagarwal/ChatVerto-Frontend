@@ -1,20 +1,10 @@
 import { SiteHeader } from '@/components/site-header';
 import WhatsAppSignupButton from '@/components/WhatsAppSignup';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks';
 import { AnalysisCards } from '../components/analysisCards';
 import { CustomerInsightsCard } from '../components/dashboardGraph';
-import { TrendsSection } from '../components/trendsSection';
-import DailySnapshotCard from '../components/dailySnapshotcard';
-import { useEffect } from 'react';
-import { getUserProfileThunk } from '@/store/slices/userSlice';
 
 export default function AnalyticsPage() {
-  const dispatch = useAppDispatch();
-
-  // useEffect(() => {
-  //   dispatch(getUserProfileThunk());
-  // }, [dispatch]);
-
   const isWhatsAppConnected = useAppSelector(
     state => state.user.user?.isWhatsappConnected || true
   );

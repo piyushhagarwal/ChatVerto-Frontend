@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
 import TopCard from '@/features/user/components/topCard';
 import ProfileUpdateForm from '../components/profileUpdateform';
-import { ProfilePhotoUploader } from '../components/profilePhotoUploader';
 import { SiteHeader } from '@/components/site-header';
 
 export default function ProfilePage() {

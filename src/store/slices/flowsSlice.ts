@@ -322,7 +322,15 @@ const flowSlice = createSlice({
       })
       .addCase(fetchFlowByIdThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentFlow = action.payload;
+        const payload = action.payload;
+        state.currentFlow = {
+          id: typeof payload.id === 'string' ? payload.id : '',
+          name: typeof payload.name === 'string' ? payload.name : '',
+          nodes: Array.isArray(payload.nodes) ? payload.nodes : [],
+          edges: Array.isArray(payload.edges) ? payload.edges : [],
+          saved: payload.saved === true,
+          isLive: typeof payload.isLive === 'boolean' ? payload.isLive : false,
+        };
       })
       .addCase(fetchFlowByIdThunk.rejected, (state, action) => {
         state.loading = false;
@@ -360,13 +368,23 @@ const flowSlice = createSlice({
       })
       .addCase(saveFlowThunk.fulfilled, (state, action) => {
         state.loading = false;
-        // Merge local nodes/edges with the saved flag
+        const payload = action.payload || {};
         state.currentFlow = {
-          ...state.currentFlow,
-          ...action.payload,
+          id:
+            typeof payload.id === 'string'
+              ? payload.id
+              : (state.currentFlow?.id ?? ''),
+          name:
+            typeof payload.name === 'string'
+              ? payload.name
+              : (state.currentFlow?.name ?? ''),
           nodes: state.currentFlow?.nodes || [],
           edges: state.currentFlow?.edges || [],
           saved: true,
+          isLive:
+            typeof payload.isLive === 'boolean'
+              ? payload.isLive
+              : (state.currentFlow?.isLive ?? false),
         };
       })
       .addCase(saveFlowThunk.rejected, (state, action) => {

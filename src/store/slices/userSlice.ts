@@ -3,12 +3,12 @@ import type {
   UserProfile,
   UserProfileResponse,
   UpdateUserProfileRequest,
-  UpdateProfilePictureRequest
+  UpdateProfilePictureRequest,
 } from '@/types/user';
 import {
   fetchUserProfile,
   updateUserProfile,
-  updateProfilePicture
+  updateProfilePicture,
 } from '@/api/endpoints/user';
 
 export interface UserState {
@@ -33,7 +33,7 @@ export const getUserProfileThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res: UserProfileResponse = await fetchUserProfile();
-      return res.data.user;
+      return res.data?.user;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch user profile'
@@ -62,12 +62,14 @@ export const updateProfilePictureThunk = createAsyncThunk<
   string, // return type
   UpdateProfilePictureRequest, // argument type
   { rejectValue: string }
->("user/updateProfilePicture", async (data, { rejectWithValue }) => {
+>('user/updateProfilePicture', async (data, { rejectWithValue }) => {
   try {
     const response = await updateProfilePicture(data);
     return response;
   } catch (error: any) {
-    return rejectWithValue(error?.response?.data?.message || "Failed to update profile picture");
+    return rejectWithValue(
+      error?.response?.data?.message || 'Failed to update profile picture'
+    );
   }
 });
 
@@ -90,7 +92,7 @@ const userSlice = createSlice({
       })
       .addCase(getUserProfileThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload || null;
       })
       .addCase(getUserProfileThunk.rejected, (state, action) => {
         state.loading = false;
@@ -102,7 +104,7 @@ const userSlice = createSlice({
         state.updateStatus = 'loading';
         state.updateError = null;
       })
-      .addCase(updateUserProfileThunk.fulfilled, (state) => {
+      .addCase(updateUserProfileThunk.fulfilled, state => {
         state.updateStatus = 'succeeded';
       })
       .addCase(updateUserProfileThunk.rejected, (state, action) => {
@@ -112,14 +114,14 @@ const userSlice = createSlice({
 
       // Update Profile Picture
       .addCase(updateProfilePictureThunk.pending, state => {
-        state.updateStatus = "loading";
+        state.updateStatus = 'loading';
         state.updateError = null;
       })
-      .addCase(updateProfilePictureThunk.fulfilled, (state) => {
-        state.updateStatus = "succeeded";
+      .addCase(updateProfilePictureThunk.fulfilled, state => {
+        state.updateStatus = 'succeeded';
       })
       .addCase(updateProfilePictureThunk.rejected, (state, action) => {
-        state.updateStatus = "failed";
+        state.updateStatus = 'failed';
         state.updateError = action.payload as string;
       });
   },

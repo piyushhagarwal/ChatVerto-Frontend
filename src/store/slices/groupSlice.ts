@@ -39,7 +39,7 @@ export const fetchAllGroupsThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res: GroupContactListResponse = await getAllGroups();
-      return res.data.groups;
+      return res.data?.groups;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch groups'
@@ -53,7 +53,7 @@ export const fetchGroupWithIdThunk = createAsyncThunk(
   async (groupId: string, { rejectWithValue }) => {
     try {
       const res: SingleGroupResponse = await getGroupById(groupId);
-      return res.data.group;
+      return res.data?.group;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch group'
@@ -67,7 +67,7 @@ export const createGroupThunk = createAsyncThunk(
   async (payload: CreateGroupContactPayload, { rejectWithValue }) => {
     try {
       const res: GroupContactResponse = await createGroup(payload);
-      return res.data.groupContact;
+      return res.data?.groupContact;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to create group'
@@ -87,7 +87,7 @@ export const updateGroupThunk = createAsyncThunk(
   ) => {
     try {
       const res: GroupContactResponse = await updateGroup(groupId, payload);
-      return res.data.groupContact;
+      return res.data?.groupContact;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to update group'
@@ -101,7 +101,7 @@ export const deleteGroupThunk = createAsyncThunk(
   async (groupId: string, { rejectWithValue }) => {
     try {
       const res: GroupContactResponse = await deleteGroup(groupId);
-      return res.data.groupContact;
+      return res.data?.groupContact;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to delete group'
@@ -130,7 +130,7 @@ const groupSlice = createSlice({
       })
       .addCase(fetchAllGroupsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.groups = action.payload;
+        state.groups = action.payload ?? [];
       })
       .addCase(fetchAllGroupsThunk.rejected, (state, action) => {
         state.loading = false;
@@ -142,7 +142,7 @@ const groupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchGroupWithIdThunk.fulfilled, (state, action) => {
-        state.selectedGroup = action.payload;
+        state.selectedGroup = action.payload || null;
       })
       .addCase(fetchGroupWithIdThunk.rejected, (state, action) => {
         state.loading = false;
@@ -154,7 +154,9 @@ const groupSlice = createSlice({
         state.error = null;
       })
       .addCase(createGroupThunk.fulfilled, (state, action) => {
-        state.groups.push(action.payload);
+        if (action.payload) {
+          state.groups.push(action.payload);
+        }
       })
       .addCase(createGroupThunk.rejected, (state, action) => {
         state.loading = false;
@@ -166,8 +168,11 @@ const groupSlice = createSlice({
         state.error = null;
       })
       .addCase(updateGroupThunk.fulfilled, (state, action) => {
-        const index = state.groups.findIndex(g => g.id === action.payload.id);
-        if (index !== -1) state.groups[index] = action.payload;
+        const updatedGroup = action.payload;
+        if (updatedGroup) {
+          const index = state.groups.findIndex(g => g.id === updatedGroup.id);
+          if (index !== -1) state.groups[index] = updatedGroup;
+        }
       })
       .addCase(updateGroupThunk.rejected, (state, action) => {
         state.loading = false;
@@ -179,7 +184,7 @@ const groupSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteGroupThunk.fulfilled, (state, action) => {
-        state.groups = state.groups.filter(g => g.id !== action.payload.id);
+        state.groups = state.groups.filter(g => g.id !== action.payload?.id);
         state.selectedGroup = null;
       })
       .addCase(deleteGroupThunk.rejected, (state, action) => {

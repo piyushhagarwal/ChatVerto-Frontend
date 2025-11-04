@@ -1,6 +1,4 @@
-'use client';
 import type { ChartDataPoint } from '@/types/analytics';
-import React from 'react';
 import {
   BarChart,
   Bar,
@@ -16,7 +14,7 @@ interface StatCardProps {
   value: ChartDataPoint[];
 }
 
-export function BarChartCard({ title, value }: StatCardProps) {
+export function BarChartCard({ value }: StatCardProps) {
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={value}>

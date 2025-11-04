@@ -1,5 +1,3 @@
-'use client';
-import React from 'react';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 
 const pieData = [
@@ -20,7 +18,7 @@ export function PieChartCard() {
         outerRadius={80}
         label
       >
-        {pieData.map((entry, index) => (
+        {pieData.map((_, index) => (
           <Cell
             key={`cell-${index}`}
             fill={pieColors[index % pieColors.length]}

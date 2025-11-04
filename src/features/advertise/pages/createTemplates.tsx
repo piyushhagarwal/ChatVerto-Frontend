@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,10 +30,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { createTemplateThunk } from '@/store/slices/templateSlice';
-import {
-  uploadMediaByResumableApiThunk,
-  clearMediaState,
-} from '@/store/slices/mediaSlice';
+import { uploadMediaByResumableApiThunk } from '@/store/slices/mediaSlice';
 import type {
   ButtonType,
   Component,
@@ -122,11 +119,7 @@ export default function CreateTemplatePage() {
   };
 
   // Handle file selection and auto-upload
-  const handleFileSelect = async (
-    uploadKey: string,
-    file: File,
-    mediaType: 'image' | 'video' | 'document'
-  ) => {
+  const handleFileSelect = async (uploadKey: string, file: File) => {
     // Set the file and start uploading immediately
     setMediaUploads(prev => ({
       ...prev,
@@ -219,7 +212,7 @@ export default function CreateTemplatePage() {
                 onChange={e => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    handleFileSelect(uploadKey, file, mediaType);
+                    handleFileSelect(uploadKey, file);
                   }
                 }}
                 className="block w-full text-sm text-gray-500
@@ -552,7 +545,7 @@ export default function CreateTemplatePage() {
 
     setValidationErrors(prev => {
       // Remove old errors for this field and related fields
-      const updatedErrors = { ...prev };
+      const updatedErrors: Record<string, string> = { ...prev };
 
       // Remove field-specific errors
       Object.keys(updatedErrors).forEach(key => {
@@ -573,8 +566,21 @@ export default function CreateTemplatePage() {
         }
       });
 
+      // Ensure newErrors only contains string values (filter out undefined/null)
+      const sanitizedNewErrors: Record<string, string> = Object.entries(
+        newErrors
+      ).reduce(
+        (acc, [k, v]) => {
+          if (v !== undefined && v !== null) {
+            acc[k] = String(v);
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
       // Add new errors
-      return { ...updatedErrors, ...newErrors };
+      return { ...updatedErrors, ...sanitizedNewErrors };
     });
   };
 

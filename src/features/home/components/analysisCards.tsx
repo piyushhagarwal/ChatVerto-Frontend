@@ -17,7 +17,7 @@ export function AnalysisCards() {
 
   const dispatch = useAppDispatch();
 
-  const { summary, loading, error } = useAppSelector(state => state.analytics);
+  const { summary } = useAppSelector(state => state.analytics);
 
   // Fetch summary data when period changes
   useEffect(() => {

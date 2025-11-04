@@ -1,6 +1,3 @@
-// components/profile/TopCard.tsx
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { type UserProfile } from '@/types/user'; // adjust based on your actual type path
 import { ProfilePhotoUploader } from './profilePhotoUploader';
 import { Pencil } from 'lucide-react';

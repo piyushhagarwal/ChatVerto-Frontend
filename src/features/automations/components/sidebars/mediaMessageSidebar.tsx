@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { updateNodeData } from '@/store/slices/flowsSlice';
 import { uploadMediaThunk, clearMediaState } from '@/store/slices/mediaSlice';
 import { useAppDispatch } from '@/store/hooks';
@@ -225,7 +225,7 @@ export default function MediaMessageSidebar({
   };
 
   // Render media upload component (similar to campaign logic)
-  const renderMediaUpload = (): JSX.Element => {
+  const renderMediaUpload = (): React.ReactElement => {
     const acceptedTypes = getAcceptedFileTypes();
 
     return (
