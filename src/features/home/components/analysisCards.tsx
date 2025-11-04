@@ -89,7 +89,7 @@ export function AnalysisCards() {
             title="New Customers"
             value={summary.uniqueCustomers.toString()}
             trend={summary.growth.uniqueCustomers.toString() + '%'}
-            trendType={summary.growth.checkins >= 0 ? 'up' : 'down'}
+            trendType={summary.growth.uniqueCustomers >= 0 ? 'up' : 'down'}
             period={`${
               {
                 today: 'Yesterday',

@@ -19,7 +19,7 @@ type Props = {
 export default function TopCard({ user }: Props) {
   return (
     <div className="p-[5px]">
-      <div className="w-full shadow-[0_0_10px_rgba(0,0,0,0.2)] bg-card">
+      <div className="w-auto shadow-[0_0_10px_rgba(0,0,0,0.2)] bg-card rounded-xl m-2">
         <div className="p-6 space-y-6">
           {/* Row 1 */}
           <div className="grid md:grid-cols-4 gap-4 border-b pb-4 ml-2 mr-2">

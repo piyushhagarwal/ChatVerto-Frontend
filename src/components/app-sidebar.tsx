@@ -208,7 +208,7 @@ export function AppSidebar({
                   alt="Chatverto"
                   className={`transition-all duration-800 ${
                     isHovered
-                      ? 'opacity-100 visible relative right-2 bottom-4'
+                      ? 'opacity-100 visible relative left-1 bottom-4'
                       : 'opacity-0 invisible'
                   }`}
                   style={{
