@@ -59,7 +59,7 @@ export default function MainHomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen rounded-2xl bg-muted/40">
       <SiteHeader title="Home" />
 
       {/* Welcome Section */}

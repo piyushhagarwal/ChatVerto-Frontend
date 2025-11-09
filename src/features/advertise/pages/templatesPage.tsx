@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 
 export default function TemplatesPage() {
   const dispatch = useAppDispatch();
@@ -138,13 +138,7 @@ export default function TemplatesPage() {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="hover:bg-muted hover:text-primary"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+
                     <Button
                       size="icon"
                       variant="ghost"
