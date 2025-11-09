@@ -33,7 +33,7 @@ const data = {
   navMain: [
     {
       title: 'Home',
-      url: '/dashboard/home1',
+      url: '/dashboard/home',
       icon: IconHome,
       isActive: true,
     },
@@ -59,7 +59,7 @@ const data = {
     },
     {
       title: 'Analytics',
-      url: '/dashboard/home',
+      url: '/dashboard/analytics',
       icon: IconChartBar,
       isActive: true,
     },

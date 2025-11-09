@@ -56,12 +56,12 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="home1" replace />} />
-              <Route path="home1" element={<MainHomePage />} />
+              <Route index element={<Navigate to="home" replace />} />
+              <Route path="home" element={<MainHomePage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="automation" element={<AutomationPage />} />
               <Route path="chats" element={<ChatsPage />} />
-              <Route path="home" element={<AnalyticsPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="profile" element={<ProfilePage />} />
 
               {/* 🔻 Advertise main page with nested tabs */}
