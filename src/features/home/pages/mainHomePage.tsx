@@ -6,6 +6,9 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getUserProfileThunk } from '@/store/slices/userSlice';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -14,12 +17,19 @@ import {
   FileText,
   Users,
   BarChart3,
-  PlusCircle,
-  Sparkles,
   Lightbulb,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function MainHomePage() {
+  const dispatch = useAppDispatch();
+  const { user, loading, error } = useAppSelector(state => state.user);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getUserProfileThunk());
+  }, [dispatch]);
+
   const modules = [
     {
       title: 'Flows',
@@ -27,6 +37,7 @@ export default function MainHomePage() {
         'Automate your WhatsApp interactions using visual flow builders.',
       icon: Workflow,
       action: 'Open Flows',
+      path: '/dashboard/automation',
     },
     {
       title: 'Campaigns',
@@ -34,6 +45,7 @@ export default function MainHomePage() {
         'Create and manage broadcast campaigns for WhatsApp messaging.',
       icon: Megaphone,
       action: 'Create Campaign',
+      path: '/dashboard/advertise/broadcast',
     },
     {
       title: 'Templates',
@@ -41,6 +53,7 @@ export default function MainHomePage() {
         'Manage pre-approved message templates for faster communication.',
       icon: FileText,
       action: 'View Templates',
+      path: '/dashboard/advertise/templates',
     },
     {
       title: 'Contacts',
@@ -48,6 +61,7 @@ export default function MainHomePage() {
         'Manage all your WhatsApp contacts and organize them into groups for targeting.',
       icon: Users,
       action: 'Open Contacts',
+      path: '/dashboard/contact',
     },
     {
       title: 'Analytics',
@@ -55,100 +69,90 @@ export default function MainHomePage() {
         'View campaign reports, message delivery, and engagement insights in one place.',
       icon: BarChart3,
       action: 'View Analytics',
+      path: '/dashboard/analytics',
     },
   ];
 
   return (
-    <div className="min-h-screen rounded-2xl bg-muted/40">
-      <SiteHeader title="Home" />
+    <>
+      {loading && <p className="text-muted-foreground">Loading...</p>}
 
-      {/* Welcome Section */}
-      <div className="px-6 pt-6">
-        <h2 className="text-2xl font-semibold">Welcome back, Aditya 👋</h2>
-        <p className="text-muted-foreground mt-1">
-          Manage your WhatsApp automation system from one unified dashboard.
+      {error && (
+        <p className="text-sm text-red-500 bg-red-50 border border-red-200 p-3 rounded">
+          {error}
         </p>
-      </div>
+      )}
 
-      {/* Quick Actions */}
-      <div className="px-6 mt-6">
-        <Card className="p-4">
-          <div className="flex flex-wrap gap-3 items-center">
-            <Button variant="default" className="flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" /> New Campaign
-            </Button>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <Workflow className="h-4 w-4" /> Create Flow
-            </Button>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <Users className="h-4 w-4" /> Add Contact / Group
-            </Button>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" /> View Analytics
-            </Button>
+      <div className="min-h-screen rounded-2xl bg-muted/40">
+        <SiteHeader title="Home" />
+
+        {/* Welcome Section */}
+        <div className="px-6 pt-6 pb-5">
+          <div className="flex gap-1">
+            <h2 className="text-2xl font-semibold">Welcome back, </h2>
+            <h2 className="text-2xl font-semibold">
+              {user?.whatsAppDetails?.verifiedName} 👋
+            </h2>
           </div>
-        </Card>
-      </div>
+          <p className="text-muted-foreground mt-1">
+            Manage your WhatsApp automation system from one unified dashboard.
+          </p>
+        </div>
 
-      <Separator className="my-8" />
-
-      {/* Main Feature Modules */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10">
-        {modules.map((mod, index) => (
-          <Card
-            key={index}
-            className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
-          >
+        {/* Quick Actions */}
+        <div className="px-6 pb-0">
+          <Card className="border-l-4 border-primary/80 bg-primary/5">
             <CardHeader className="flex flex-row items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                <mod.icon className="h-6 w-6" />
-              </div>
+              <Lightbulb className="h-5 w-5 text-primary" />
               <div>
-                <CardTitle>{mod.title}</CardTitle>
-                <CardDescription>{mod.description}</CardDescription>
+                <CardTitle className="text-lg">Getting Started</CardTitle>
+                <CardDescription>
+                  💡 Not sure where to begin? Start by creating your first{' '}
+                  <span className="font-medium text-primary">
+                    automation flow
+                  </span>{' '}
+                  or a new WhatsApp campaign to reach your audience instantly.
+                </CardDescription>
               </div>
             </CardHeader>
-            <CardContent>
-              <Button className="mt-2 w-full">{mod.action}</Button>
-            </CardContent>
           </Card>
-        ))}
-      </div>
+        </div>
 
-      {/* Getting Started Section */}
-      <div className="px-6 pb-10">
-        <Card className="border-l-4 border-primary/80 bg-primary/5">
-          <CardHeader className="flex flex-row items-center gap-3">
-            <Lightbulb className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle className="text-lg">Getting Started</CardTitle>
-              <CardDescription>
-                💡 Not sure where to begin? Start by creating your first{' '}
-                <span className="font-medium text-primary">
-                  automation flow
-                </span>{' '}
-                or a new WhatsApp campaign to reach your audience instantly.
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
-      </div>
+        <Separator className="my-8" />
 
-      {/* Optional Announcement */}
-      <div className="px-6 pb-10">
-        <Card className="border-l-4 border-primary/80 bg-primary/5">
-          <CardHeader className="flex flex-row items-center gap-3">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle className="text-lg">What’s New</CardTitle>
-              <CardDescription>
-                🚀 You can now schedule campaigns to auto-send on specific
-                dates. Try it today!
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
+        {/* Main Feature Modules */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10">
+          {modules.map((mod, index) => (
+            <Card
+              key={index}
+              className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+            >
+              <CardHeader className="flex flex-row items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                  <mod.icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <CardTitle>{mod.title}</CardTitle>
+                  <CardDescription>{mod.description}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  className="mt-2 w-full"
+                  onClick={e => {
+                    e.stopPropagation(); // prevent triggering card click
+                    navigate(mod.path); // ✅ button redirects
+                  }}
+                >
+                  {mod.action}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Getting Started Section */}
       </div>
-    </div>
+    </>
   );
 }
