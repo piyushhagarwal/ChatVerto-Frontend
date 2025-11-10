@@ -175,14 +175,14 @@ export function AppSidebar({
           <SidebarMenuItem>
             <div className="relative w-full flex items-center justify-start">
               <a
-                href="#"
+                href="/"
                 className={`transition-all duration-800 flex items-center ${
                   isHovered ? 'mb-0' : 'mb-6'
                 }`}
               >
                 <img
                   src="/Images/Chatverto.png"
-                  alt="Acme Inc."
+                  alt="Chatverto Logo"
                   className={`transition-all duration-800 ${
                     isHovered
                       ? ' top-2 relative left-1 top-4 w-[180px] h-[45px] '
