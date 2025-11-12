@@ -14,7 +14,7 @@ import { AuthGuard } from './components/AuthGuard';
 import { WhatsAppConnectionGuard } from './components/WhatsAppConnectionGuard.tsx';
 
 import Login from './features/auth/pages/loginPage';
-import Register from './features/auth/pages/registerPage';
+// import Register from './features/auth/pages/registerPage';
 import DashboardLayout from './features/dashboard/dashboardLayout';
 import AnalyticsPage from './features/home/pages/analyticsPage.tsx';
 import ContactPage from './features/contacts/pages/contactPage';
@@ -53,7 +53,7 @@ function App() {
               element={<Navigate to="/dashboard/home" replace />}
             />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* <Route path="/register" element={<Register />} /> */}
 
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Navigate to="home" replace />} />
