@@ -15,6 +15,11 @@ const initialState: AuthState = {
   error: null,
 };
 
+export const logoutThunk = createAsyncThunk('auth/logout', async () => {
+  localStorage.removeItem('token');
+  return null;
+});
+
 // Async thunk for user login
 export const loginUser = createAsyncThunk(
   'auth/login',
@@ -71,6 +76,12 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+
+      .addCase(logoutThunk.fulfilled, state => {
+        state.token = null;
+        state.error = null;
+        state.loading = false;
+      })
       //Login
       .addCase(loginUser.pending, state => {
         state.loading = true;

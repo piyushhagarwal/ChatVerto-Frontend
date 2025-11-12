@@ -430,7 +430,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
               >
                 <DialogTrigger asChild>
                   <Button variant="destructive" size="sm">
-                    Delete Selected ({selectedContacts.length})
+                    Click To Delete Selected ({selectedContacts.length})
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
