@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+
 import {
   Workflow,
   Megaphone,
