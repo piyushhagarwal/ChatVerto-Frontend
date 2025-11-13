@@ -141,43 +141,43 @@ export default function MainHomePage() {
                   </Card>
                 </div>
 
-                <Separator className="my-8" />
-
                 {/* Main Feature Modules */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10">
-                  {modules.map((mod, index) => (
-                    <Card
-                      key={index}
-                      className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
-                    >
-                      <CardHeader className="flex flex-row items-center gap-3">
-                        <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                          <mod.icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <CardTitle>{mod.title}</CardTitle>
-                          <CardDescription>{mod.description}</CardDescription>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <Button
-                          className="mt-2 w-full"
-                          onClick={e => {
-                            e.stopPropagation(); // prevent triggering card click
-                            navigate(mod.path); // ✅ button redirects
-                          }}
-                        >
-                          {mod.action}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div className="rounded-2xl backdrop-blur-md bg-white border border-white/20 shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6  m-5 mt-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10 pt-10 ">
+                    {modules.map((mod, index) => (
+                      <Card
+                        key={index}
+                        className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+                      >
+                        <CardHeader className="flex flex-row items-center gap-3">
+                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <mod.icon className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <CardTitle>{mod.title}</CardTitle>
+                            <CardDescription>{mod.description}</CardDescription>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <Button
+                            className="mt-2 w-full"
+                            onClick={e => {
+                              e.stopPropagation(); // prevent triggering card click
+                              navigate(mod.path); // ✅ button redirects
+                            }}
+                          >
+                            {mod.action}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
           </div>
         )}
-        ;{/* Getting Started Section */}
+        {/* Getting Started Section */}
       </div>
     </>
   );
