@@ -20,9 +20,13 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import WhatsAppSignupButton from '@/components/WhatsAppSignup';
 
 export default function MainHomePage() {
   const dispatch = useAppDispatch();
+  const isWhatsAppConnected = useAppSelector(
+    state => state.user.user?.isWhatsappConnected
+  );
   const { user, loading, error } = useAppSelector(state => state.user);
   const navigate = useNavigate();
 
@@ -75,8 +79,6 @@ export default function MainHomePage() {
 
   return (
     <>
-      {loading && <p className="text-muted-foreground">Loading...</p>}
-
       {error && (
         <p className="text-sm text-red-500 bg-red-50 border border-red-200 p-3 rounded">
           {error}
@@ -85,73 +87,97 @@ export default function MainHomePage() {
 
       <div className="min-h-screen rounded-2xl bg-muted/40">
         <SiteHeader title="Home" />
-
         {/* Welcome Section */}
-        <div className="px-6 pt-6 pb-5">
-          <div className="flex gap-1">
-            <h2 className="text-2xl font-semibold">Welcome back, </h2>
-            <h2 className="text-2xl font-semibold">
-              {user?.whatsAppDetails?.verifiedName} 👋
-            </h2>
-          </div>
-          <p className="text-muted-foreground mt-1">
-            Manage your WhatsApp automation system from one unified dashboard.
-          </p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="px-6 pb-0">
-          <Card className="border-l-4 border-primary/80 bg-primary/5">
-            <CardHeader className="flex flex-row items-center gap-3">
-              <Lightbulb className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle className="text-lg">Getting Started</CardTitle>
-                <CardDescription>
-                  💡 Not sure where to begin? Start by creating your first{' '}
-                  <span className="font-medium text-primary">
-                    automation flow
-                  </span>{' '}
-                  or a new WhatsApp campaign to reach your audience instantly.
-                </CardDescription>
+        {loading ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : (
+          <div>
+            {!isWhatsAppConnected ? (
+              <div className="text-center py-8">
+                <h2 className="text-xl mb-4">
+                  Connect Your WhatsApp Business Account
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  To start using ChatVerto features, please connect your
+                  WhatsApp Business account
+                </p>
+                <WhatsAppSignupButton />
               </div>
-            </CardHeader>
-          </Card>
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Main Feature Modules */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10">
-          {modules.map((mod, index) => (
-            <Card
-              key={index}
-              className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
-            >
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                  <mod.icon className="h-6 w-6" />
+            ) : (
+              <>
+                <div className="px-6 pt-6 pb-5">
+                  <div className="flex gap-1">
+                    <h2 className="text-2xl font-semibold">Welcome back, </h2>
+                    <h2 className="text-2xl font-semibold">
+                      {user?.whatsAppDetails?.verifiedName} 👋
+                    </h2>
+                  </div>
+                  <p className="text-muted-foreground mt-1">
+                    Manage your WhatsApp automation system from one unified
+                    dashboard.
+                  </p>
                 </div>
-                <div>
-                  <CardTitle>{mod.title}</CardTitle>
-                  <CardDescription>{mod.description}</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  className="mt-2 w-full"
-                  onClick={e => {
-                    e.stopPropagation(); // prevent triggering card click
-                    navigate(mod.path); // ✅ button redirects
-                  }}
-                >
-                  {mod.action}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
 
-        {/* Getting Started Section */}
+                {/* Quick Actions */}
+                <div className="px-6 pb-0">
+                  <Card className="border-l-4 border-primary/80 bg-primary/5">
+                    <CardHeader className="flex flex-row items-center gap-3">
+                      <Lightbulb className="h-5 w-5 text-primary" />
+                      <div>
+                        <CardTitle className="text-lg">
+                          Getting Started
+                        </CardTitle>
+                        <CardDescription>
+                          💡 Not sure where to begin? Start by creating your
+                          first{' '}
+                          <span className="font-medium text-primary">
+                            automation flow
+                          </span>{' '}
+                          or a new WhatsApp campaign to reach your audience
+                          instantly.
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </div>
+
+                <Separator className="my-8" />
+
+                {/* Main Feature Modules */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10">
+                  {modules.map((mod, index) => (
+                    <Card
+                      key={index}
+                      className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+                    >
+                      <CardHeader className="flex flex-row items-center gap-3">
+                        <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                          <mod.icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <CardTitle>{mod.title}</CardTitle>
+                          <CardDescription>{mod.description}</CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          className="mt-2 w-full"
+                          onClick={e => {
+                            e.stopPropagation(); // prevent triggering card click
+                            navigate(mod.path); // ✅ button redirects
+                          }}
+                        >
+                          {mod.action}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        ;{/* Getting Started Section */}
       </div>
     </>
   );

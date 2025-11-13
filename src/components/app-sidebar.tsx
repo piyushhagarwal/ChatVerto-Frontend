@@ -221,6 +221,17 @@ export function AppSidebar({
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} collapsed={!isHovered} />
+        {isHovered && (
+          <div className="flex gap-1 transition-all duration-800 opacity-100 visible">
+            <p className="text-[12px] font-semibold ">Powered By</p>
+            <a
+              className="text-[12px] font-bold text-[#CDE4B1] underline hover:text-accent transition-colors"
+              href="https://www.bizverto.tech"
+            >
+              Bizverto Tech
+            </a>
+          </div>
+        )}
       </SidebarFooter>
     </Sidebar>
   );
