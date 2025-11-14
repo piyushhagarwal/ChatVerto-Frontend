@@ -16,7 +16,7 @@ export default function Advertise() {
       <div className="flex h-full w-full ">
         {/* Sidebar */}
 
-        <aside className="w-64 h-[calc(116vh-64px)] ml-[5px] bg-card/1 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] flex flex-col items-start justify-start mb-3">
+        <aside className="w-64 h-[calc(116vh-64px)] ml-[5px] bg-white rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] flex flex-col items-start justify-start mb-3">
           <div className="w-full px-4 py-4 pr-4 space-y-2">
             <Button
               variant={pathname.includes('broadcast') ? 'default' : 'ghost'}

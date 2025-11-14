@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Users, Plus, MoreVertical, Trash2, AlertCircle } from 'lucide-react';
-
+import { BellPlus } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -137,7 +137,7 @@ export default function Groups({
             }`}
             onClick={() => onGroupSelect(null)}
           >
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between ">
               <CardTitle>All Contacts</CardTitle>
               <Users className="w-4 h-4" />
             </CardHeader>
@@ -155,22 +155,30 @@ export default function Groups({
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{group.name}</CardTitle>
                 <div onClick={e => e.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-5 w-5">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteGroup(group.id, group.name)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {group.name === 'Opt-in Contacts' ? (
+                    <div className="flex items-center justify-center  text-primary">
+                      <BellPlus className="w-5 h-5" />
+                    </div>
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-5 w-5">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleDeleteGroup(group.id, group.name)
+                          }
+                          className="text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               </CardHeader>
             </Card>

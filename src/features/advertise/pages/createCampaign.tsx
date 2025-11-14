@@ -839,7 +839,7 @@ export default function CreateCampaign() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Section - Input Fields */}
-        <div className="w-2/3 p-6 overflow-y-auto space-y-4  rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] mt-3 mb-3 ml-[5px]">
+        <div className="w-2/3 p-6 bg-card overflow-y-auto space-y-4  rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] mt-3 mb-3 ml-[5px]">
           <form
             id="campaign-form"
             onSubmit={handleSubmit}
@@ -1042,10 +1042,10 @@ export default function CreateCampaign() {
 
         {/* Right Section - Preview */}
         <div
-          className="flex-1  flex  justify-center rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] mt-3 mb-3 mr-[5px] ml-[7px]"
+          className="flex-1 flex bg-card justify-center rounded-b-2xl shadow-[0_0_10px_rgba(0,0,0,0.2)] mt-3 mb-3 mr-[5px] ml-[7px]"
           style={{
             backgroundImage:
-              'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
+              'radial-gradient(circle, rgba(0,0,0,0.3) 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
         >

@@ -51,7 +51,7 @@ export default function TemplatesPage() {
   // );
 
   return (
-    <div className="space-y-4 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] bg-card/1 p-6">
+    <div className="space-y-4 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] bg-white p-6">
       <div className="flex items-center justify-between mb-12">
         <div className="flex items-center gap-2">
           <FileText className="text-primary w-5 h-5" />
@@ -103,7 +103,7 @@ export default function TemplatesPage() {
               {templates.map(template => (
                 <tr
                   key={template.id}
-                  className="border-t text-center align-middle"
+                  className="border-t text-center  bg-[#FAFFF4] align-middle"
                 >
                   <td className="px-4 py-2  text-sm font-semibold text-gray-700 tracking-wide ">
                     {template.name}

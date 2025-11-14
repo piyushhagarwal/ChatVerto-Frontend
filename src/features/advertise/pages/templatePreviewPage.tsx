@@ -68,7 +68,7 @@ export default function TemplatePreviewPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* Category */}
-            <div className="rounded-sm bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
+            <div className="rounded-lg bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Category
               </p>
@@ -78,7 +78,7 @@ export default function TemplatePreviewPage() {
             </div>
 
             {/* Language */}
-            <div className="rounded-sm bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
+            <div className="rounded-lg bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Language
               </p>
@@ -88,7 +88,7 @@ export default function TemplatePreviewPage() {
             </div>
 
             {/* Status */}
-            <div className="rounded-sm bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
+            <div className="rounded-lg bg-white p-6 shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col justify-center">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Status
               </p>
@@ -109,10 +109,10 @@ export default function TemplatePreviewPage() {
 
         {/* ✅ Right Section - WhatsApp Preview */}
         <div
-          className="bg-[##FAFFF4] shadow-[0_0_8px_rgba(0,0,0,0.15)] rounded-sm p-5"
+          className="bg-card shadow-[0_0_8px_rgba(0,0,0,0.15)] rounded-lg p-5"
           style={{
             backgroundImage:
-              'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
+              'radial-gradient(circle, rgba(0,0,0,0.3) 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
         >
