@@ -45,7 +45,7 @@ export default function BroadcastPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="space-y-6 bg-card/1  rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6 ">
+    <div className="space-y-6 bg-white  rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6 ">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 className="text-primary w-5 h-5" />
@@ -96,7 +96,7 @@ export default function BroadcastPage() {
               </thead>
               <tbody>
                 {campaigns.map(campaign => (
-                  <tr key={campaign.id} className="border-t">
+                  <tr key={campaign.id} className="border-t bg-[#FAFFF4]">
                     <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
                       {campaign.name}
                     </td>

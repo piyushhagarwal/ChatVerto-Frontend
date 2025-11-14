@@ -148,7 +148,7 @@ export default function AutomationPage() {
             {flows.map(flow => (
               <Card
                 key={flow.id}
-                className="shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded-sm bg-[#FAFFF4] hover:shadow-lg text-primary
+                className="shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded-sm bg-card hover:shadow-lg text-primary
                   transition-all duration-300 cursor-pointer relative
                   w-90 h-40 border-1 hover:scale-[1.02] hover:z-10"
                 onClick={() => navigate(`/flows/${flow.id}`)}
