@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { FacebookLoginResponse } from '@/types/facebook';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from '@/store/hooks';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
 import type { EmbeddedSignupPayload } from '@/types/whatsAppES';
 import { createEmbeddedSignup } from '@/api/endpoints/whatsappES';
 
 const WhatsAppSignupButton: React.FC = () => {
-  const [phoneNumberId, setPhoneNumberId] = useState<string | null>(null);
-  const [wabaId, setWabaId] = useState<string | null>(null);
+  // ⚡ loader state for UI
+  const [signupLoading, setSignupLoading] = useState(false);
 
   // Use ref to store data that doesn't cause re-renders
   const signupDataRef = useRef<{
@@ -21,12 +21,11 @@ const WhatsAppSignupButton: React.FC = () => {
     wabaId: null,
   });
 
-  // Configure your Facebook app settings here
   const config = {
     appId: import.meta.env.VITE_WHATSAPP_APP_ID,
     graphApiVersion: import.meta.env.VITE_WHATSAPP_GRAPH_API_VERSION,
     configurationId: import.meta.env.VITE_WHATSAPP_CONFIGURATION_ID,
-    featureType: '', // Replace with your Feature Type
+    featureType: '', // Add if needed
   };
 
   const dispatch = useAppDispatch();
@@ -34,11 +33,12 @@ const WhatsAppSignupButton: React.FC = () => {
   const handleEmbeddedSignup = async (payload: EmbeddedSignupPayload) => {
     try {
       await createEmbeddedSignup(payload);
-      // After successful signup, fetch the updated user info
-      dispatch(getUserProfileThunk());
+
+      // Backend will take some time → keep loader ON
+      await dispatch(getUserProfileThunk());
     } catch (error) {
-      // Handle error (show toast, etc.)
       console.error('Embedded signup failed:', error);
+      setSignupLoading(false); // ❗Stop loader on error
     }
   };
 
@@ -48,12 +48,8 @@ const WhatsAppSignupButton: React.FC = () => {
     if (code && phoneNumberId && wabaId) {
       handleEmbeddedSignup({ shortLivedToken: code, phoneNumberId, wabaId });
 
-      // Reset the ref data after sending
-      signupDataRef.current = {
-        code: null,
-        phoneNumberId: null,
-        wabaId: null,
-      };
+      // Reset after sending
+      signupDataRef.current = { code: null, phoneNumberId: null, wabaId: null };
     }
   };
 
@@ -68,7 +64,6 @@ const WhatsAppSignupButton: React.FC = () => {
       document.head.appendChild(script);
     };
 
-    // Initialize Facebook SDK
     window.fbAsyncInit = function () {
       window.FB.init({
         appId: config.appId,
@@ -78,7 +73,7 @@ const WhatsAppSignupButton: React.FC = () => {
       });
     };
 
-    // Set up message event listener for WhatsApp signup
+    // Listen for WA signup messages
     const handleMessage = (event: MessageEvent) => {
       if (!event.origin.endsWith('facebook.com')) return;
 
@@ -88,24 +83,22 @@ const WhatsAppSignupButton: React.FC = () => {
         if (data.type === 'WA_EMBEDDED_SIGNUP') {
           if (data.event === 'CANCEL') {
             console.log('WhatsApp signup cancelled');
+            setSignupLoading(false);
           } else if (data.event === 'FINISH') {
-            const tempPhoneNumberId = data.data?.phone_number_id;
-            const tempWabaId = data.data?.waba_id;
+            const phoneNumberId = data.data?.phone_number_id;
+            const wabaId = data.data?.waba_id;
 
-            // Update state for UI
-            setPhoneNumberId(tempPhoneNumberId);
-            setWabaId(tempWabaId);
+            signupDataRef.current.phoneNumberId = phoneNumberId;
+            signupDataRef.current.wabaId = wabaId;
 
-            // Update ref for backend sending
-            signupDataRef.current.phoneNumberId = tempPhoneNumberId;
-            signupDataRef.current.wabaId = tempWabaId;
+            // ⭐ Show loader instantly
+            setSignupLoading(true);
 
-            // Check if we have all data and send to backend
             checkAndSendData();
           }
         }
       } catch {
-        // Ignore JSON parse errors
+        // ignore invalid JSON
       }
     };
 
@@ -115,20 +108,16 @@ const WhatsAppSignupButton: React.FC = () => {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, []); // Empty dependency array - runs only once
+  }, []);
 
   const launchWhatsAppSignup = () => {
     const fbLoginCallback = (response: FacebookLoginResponse) => {
       if (response.authResponse?.code) {
-        console.log(
-          'Facebook login successful with code:',
-          response.authResponse.code
-        );
-
-        // Store code in ref
         signupDataRef.current.code = response.authResponse.code;
 
-        // Check if we have all data and send to backend
+        // ⭐ Immediate loader on success
+        setSignupLoading(true);
+
         checkAndSendData();
       } else {
         console.log('Facebook login failed:', response);
@@ -148,45 +137,40 @@ const WhatsAppSignupButton: React.FC = () => {
         },
       });
     } else {
-      console.error('Facebook SDK not loaded');
       handleError('Facebook SDK not loaded');
     }
   };
 
   const handleError = (error: any) => {
     console.error('WhatsApp signup failed:', error);
-    // Add your error handling logic here
-    // For example: show error message to user
-  };
-
-  const handleClick = () => {
-    launchWhatsAppSignup();
+    setSignupLoading(false);
   };
 
   return (
     <div>
-      <button
-        onClick={handleClick}
-        style={{
-          backgroundColor: '#1877f2',
-          border: 0,
-          borderRadius: '4px',
-          color: '#fff',
-          cursor: 'pointer',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          height: '40px',
-          padding: '0 24px',
-        }}
-      >
-        Login with Facebook
-      </button>
-      {phoneNumberId && wabaId && (
-        <div>
-          <p>Phone Number ID: {phoneNumberId}</p>
-          <p>WABA ID: {wabaId}</p>
+      {signupLoading ? (
+        <div className="flex items-center justify-center gap-2 py-2">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+          <span className="text-gray-700 font-medium">Finishing setup…</span>
         </div>
+      ) : (
+        <button
+          onClick={launchWhatsAppSignup}
+          style={{
+            backgroundColor: '#1877f2',
+            border: 0,
+            borderRadius: '4px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            height: '40px',
+            padding: '0 24px',
+          }}
+        >
+          Login with Facebook
+        </button>
       )}
     </div>
   );
