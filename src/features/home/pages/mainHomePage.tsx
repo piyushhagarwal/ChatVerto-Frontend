@@ -85,7 +85,7 @@ export default function MainHomePage() {
         </p>
       )}
 
-      <div className="min-h-screen rounded-2xl bg-muted/40">
+      <div className="min-h-screen rounded-2xl ">
         <SiteHeader title="Home" />
         {/* Welcome Section */}
         {loading ? (
