@@ -5,9 +5,9 @@ export interface WhatsAppDetails {
   description?: string;
   vertical?: string;
   about?: string;
-  businessEmail?: string;
+  email?: string;
   websites?: string[];
-  profilePictureUrl?: string;
+  profile_picture_url?: string;
   verifiedName?: string;
   displayPhoneNumber?: string;
 }
@@ -27,7 +27,6 @@ export interface UpdateUserProfileRequest {
   description?: string;
   vertical?: string;
   about?: string;
-  businessEmail?: string;
   email?: string;
   websites?: string[];
   profile_picture_handle?: string;

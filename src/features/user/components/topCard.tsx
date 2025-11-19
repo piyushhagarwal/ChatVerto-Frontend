@@ -22,10 +22,10 @@ export default function TopCard({ user }: Props) {
           <div className="grid md:grid-cols-4 gap-4 border-b pb-4 ml-2 mr-2">
             <div className="flex items-center gap-3 border-r pr-4 relative">
               {/* Profile Picture */}
-              {user.whatsAppDetails?.profilePictureUrl ? (
+              {user.whatsAppDetails?.profile_picture_url ? (
                 <div className="relative">
                   <img
-                    src={user.whatsAppDetails.profilePictureUrl}
+                    src={user.whatsAppDetails.profile_picture_url}
                     alt="Profile"
                     className="h-16 w-16 rounded-full object-cover border"
                   />
@@ -52,7 +52,7 @@ export default function TopCard({ user }: Props) {
                       </DialogHeader>
                       <div className="flex justify-center">
                         <img
-                          src={user.whatsAppDetails.profilePictureUrl}
+                          src={user.whatsAppDetails.profile_picture_url}
                           alt="Preview"
                           className="w-40 h-40 rounded-full object-cover border"
                         />
@@ -86,7 +86,7 @@ export default function TopCard({ user }: Props) {
             <div className="border-r pr-4">
               <p className="text-muted-foreground text-sm">Business Email</p>
               <p className="font-medium">
-                {user.whatsAppDetails?.businessEmail || '-'}
+                {user.whatsAppDetails?.email || '-'}
               </p>
             </div>
 

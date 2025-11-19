@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { BarChartCard } from './graphs/barChartCard';
+import { MonthlyBarChartCard } from './graphs/monthlyChartCard';
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchChartDataThunk } from '@/store/slices/analyticsSlice';
@@ -113,14 +114,23 @@ export function CustomerInsightsCard() {
       </CardHeader>
       {chart && (
         <CardContent className="pt-6 flex justify-start items-start h-[300px]">
-          {type === 'totalCheckins' && (
-            <BarChartCard title="Total Check-ins" value={chart.chartData} />
-          )}
-          {type === 'uniqueCustomers' && (
-            <BarChartCard title="Total Check-ins" value={chart.chartData} />
-          )}
-          {type === 'repeatedCustomers' && (
-            <BarChartCard title="Total Check-ins" value={chart.chartData} />
+          {period === 'thisMonth' ? (
+            <MonthlyBarChartCard
+              title="Total Check-ins"
+              value={chart.chartData}
+            />
+          ) : (
+            <>
+              {type === 'totalCheckins' && (
+                <BarChartCard title="Total Check-ins" value={chart.chartData} />
+              )}
+              {type === 'uniqueCustomers' && (
+                <BarChartCard title="Total Check-ins" value={chart.chartData} />
+              )}
+              {type === 'repeatedCustomers' && (
+                <BarChartCard title="Total Check-ins" value={chart.chartData} />
+              )}
+            </>
           )}
         </CardContent>
       )}

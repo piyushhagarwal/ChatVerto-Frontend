@@ -49,14 +49,14 @@ export default function ProfileUpdateForm() {
   const [form, setForm] = useState<{
     description: string;
     address: string;
-    businessEmail: string;
+    email: string;
     websites: string[];
     websiteInput: string;
     vertical: string;
   }>({
     description: user?.whatsAppDetails?.description || '',
     address: user?.whatsAppDetails?.address || '',
-    businessEmail: user?.whatsAppDetails?.businessEmail || '',
+    email: user?.whatsAppDetails?.email || '',
     websites: user?.whatsAppDetails?.websites || [],
     websiteInput: '',
     vertical: '',
@@ -67,7 +67,7 @@ export default function ProfileUpdateForm() {
       setForm({
         description: user?.whatsAppDetails?.description || '',
         address: user?.whatsAppDetails?.address || '',
-        businessEmail: user?.whatsAppDetails?.businessEmail || '',
+        email: user?.whatsAppDetails?.email || '',
         websites: user?.whatsAppDetails?.websites || [],
         websiteInput: '',
         vertical: user?.whatsAppDetails?.vertical || '',
@@ -94,7 +94,7 @@ export default function ProfileUpdateForm() {
     const payload = {
       description: form.description,
       address: form.address,
-      businessEmail: form.businessEmail,
+      email: form.email,
       websites: form.websites,
       vertical: form.vertical,
     };
@@ -117,7 +117,7 @@ export default function ProfileUpdateForm() {
             <Input
               className="md:w-2/5"
               placeholder="Enter your business description"
-              value={user?.whatsAppDetails?.description}
+              value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
             />
             <p className="text-muted-foreground text-sm md:w-2/5">
@@ -147,10 +147,8 @@ export default function ProfileUpdateForm() {
             <Input
               className="md:w-2/5"
               placeholder="Enter your business email"
-              value={form.businessEmail}
-              onChange={e =>
-                setForm({ ...form, businessEmail: e.target.value })
-              }
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
             />
             <p className="text-muted-foreground text-sm md:w-2/5">
               Add your business email as an additional point of contact.
