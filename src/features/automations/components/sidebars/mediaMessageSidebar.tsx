@@ -45,6 +45,13 @@ interface MediaUploadState {
   error: string | null;
 }
 
+// File size limits in MB
+const FILE_SIZE_LIMITS = {
+  image: 5,
+  video: 16,
+  document: 100,
+};
+
 export default function MediaMessageSidebar({
   nodeId,
   initialData,
@@ -88,8 +95,45 @@ export default function MediaMessageSidebar({
     if (onClose) onClose();
   };
 
+  // Validate file size
+  const validateFileSize = (
+    file: File,
+    type: 'image' | 'video' | 'document'
+  ): { valid: boolean; error?: string } => {
+    const fileSizeMB = file.size / 1024 / 1024;
+    const limit = FILE_SIZE_LIMITS[type];
+
+    if (fileSizeMB > limit) {
+      return {
+        valid: false,
+        error: `File size exceeds ${limit}MB limit. Your file is ${fileSizeMB.toFixed(2)}MB.`,
+      };
+    }
+
+    return { valid: true };
+  };
+
   // Handle file selection and auto-upload (matching campaign logic)
   const handleFileSelect = async (file: File) => {
+    // Validate file size first
+    if (mediaType) {
+      const validation = validateFileSize(
+        file,
+        mediaType as 'image' | 'video' | 'document'
+      );
+
+      if (!validation.valid) {
+        setMediaUpload({
+          file: null,
+          uploading: false,
+          uploaded: false,
+          mediaId: null,
+          error: validation.error || 'File size exceeds limit',
+        });
+        return;
+      }
+    }
+
     // Set the file and start uploading immediately
     setMediaUpload({
       file,
@@ -224,6 +268,13 @@ export default function MediaMessageSidebar({
     setFileName('');
   };
 
+  // Get size limit text
+  const getSizeLimitText = () => {
+    if (!mediaType) return '';
+    const limit = FILE_SIZE_LIMITS[mediaType as keyof typeof FILE_SIZE_LIMITS];
+    return `Maximum file size: ${limit}MB`;
+  };
+
   // Render media upload component (similar to campaign logic)
   const renderMediaUpload = (): React.ReactElement => {
     const acceptedTypes = getAcceptedFileTypes();
@@ -232,7 +283,7 @@ export default function MediaMessageSidebar({
       <div className="space-y-3">
         <Label className="text-sm font-medium">Upload {mediaType} *</Label>
 
-        {!mediaUpload.file ? (
+        {!mediaUpload.file && !mediaUpload.error ? (
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
               isDragging
@@ -265,15 +316,46 @@ export default function MediaMessageSidebar({
               </Button>
             </div>
           </div>
+        ) : mediaUpload.error && !mediaUpload.file ? (
+          <div className="border-2 border-red-200 bg-red-50 rounded-lg p-6">
+            <div className="flex flex-col items-center gap-3">
+              <AlertCircle className="w-8 h-8 text-red-600" />
+              <p className="text-sm text-red-700 font-medium text-center">
+                {mediaUpload.error}
+              </p>
+              <input
+                type="file"
+                className="hidden"
+                id="fileInputRetry"
+                accept={acceptedTypes}
+                onChange={handleFileInputChange}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setMediaUpload(prev => ({ ...prev, error: null }));
+                  document.getElementById('fileInputRetry')?.click();
+                }}
+              >
+                Try Again
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <div className="text-sm font-medium">
-                  {mediaUpload.file.name}
+                  {mediaUpload.file?.name}
                 </div>
                 <div className="text-xs text-gray-500">
-                  ({(mediaUpload.file.size / 1024 / 1024).toFixed(2)} MB)
+                  (
+                  {mediaUpload.file
+                    ? (mediaUpload.file.size / 1024 / 1024).toFixed(2)
+                    : '0'}{' '}
+                  MB)
                 </div>
               </div>
               <Button
@@ -321,8 +403,8 @@ export default function MediaMessageSidebar({
         )}
 
         <p className="text-xs text-gray-500">
-          Upload your {mediaType} file. The media ID will be automatically set
-          after upload.
+          {getSizeLimitText()}. The media ID will be automatically set after
+          upload.
         </p>
       </div>
     );

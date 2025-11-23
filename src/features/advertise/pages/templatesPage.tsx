@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -40,18 +39,9 @@ export default function TemplatesPage() {
   };
 
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // const filteredTemplates = demoTemplates.filter(
-  //   template =>
-  //     template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     template.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     template.language.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     template.status.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
 
   return (
-    <div className="space-y-4 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] bg-white p-6">
+    <div className="space-y-1 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] bg-white p-6">
       <div className="flex items-center justify-between mb-12">
         <div className="flex items-center gap-2">
           <FileText className="text-primary w-5 h-5" />
@@ -62,16 +52,6 @@ export default function TemplatesPage() {
         >
           Create New Template
         </Button>
-      </div>
-
-      {/* Search input and Create button */}
-      <div className="flex justify-between items-center">
-        <Input
-          placeholder="Search templates..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="max-w-xs"
-        />
       </div>
 
       <div className="flex flex-col gap-6 mt-2">

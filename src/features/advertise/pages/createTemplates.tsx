@@ -57,6 +57,12 @@ interface MediaUploadState {
   };
 }
 
+// File size limits in MB
+const FILE_SIZE_LIMITS = {
+  image: 5,
+  video: 16,
+  document: 100,
+};
 export default function CreateTemplatePage() {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector(state => state.template);
@@ -117,9 +123,56 @@ export default function CreateTemplatePage() {
         return '*/*';
     }
   };
+  // Validate file size
+  const validateFileSize = (
+    file: File,
+    type: 'image' | 'video' | 'document'
+  ): { valid: boolean; error?: string } => {
+    const fileSizeMB = file.size / 1024 / 1024;
+    const limit = FILE_SIZE_LIMITS[type];
 
+    if (fileSizeMB > limit) {
+      return {
+        valid: false,
+        error: `File size exceeds ${limit}MB limit. Your file is ${fileSizeMB.toFixed(2)}MB.`,
+      };
+    }
+
+    return { valid: true };
+  };
+
+  // Get size limit text
+  const getSizeLimitText = (mediaType: 'image' | 'video' | 'document') => {
+    const limit = FILE_SIZE_LIMITS[mediaType];
+    return `Maximum file size: ${limit}MB`;
+  };
+  // Handle file selection and auto-upload
   // Handle file selection and auto-upload
   const handleFileSelect = async (uploadKey: string, file: File) => {
+    // Determine media type from upload key
+    const mediaType = uploadKey.includes('image')
+      ? 'image'
+      : uploadKey.includes('video')
+        ? 'video'
+        : 'document';
+
+    // Validate file size first
+    const validation = validateFileSize(file, mediaType);
+
+    if (!validation.valid) {
+      setMediaUploads(prev => ({
+        ...prev,
+        [uploadKey]: {
+          file: null,
+          uploading: false,
+          uploaded: false,
+          mediaHandle: null,
+          error: validation.error || 'File size exceeds limit',
+        },
+      }));
+      return;
+    }
+
     // Set the file and start uploading immediately
     setMediaUploads(prev => ({
       ...prev,
@@ -187,6 +240,7 @@ export default function CreateTemplatePage() {
   };
 
   // Render media upload component
+  // Render media upload component
   const renderMediaUpload = (
     uploadKey: string,
     mediaType: 'image' | 'video' | 'document',
@@ -195,12 +249,44 @@ export default function CreateTemplatePage() {
     const uploadState = mediaUploads[uploadKey];
     const acceptedTypes = getAcceptedFileTypes(mediaType);
 
+    // Add these drag handlers
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDragEnter = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleFileSelect(uploadKey, files[0]);
+      }
+    };
+
     return (
       <div className="space-y-3">
         <label className="block text-sm font-medium">{label}</label>
 
-        {!uploadState?.file ? (
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+        {!uploadState?.file && !uploadState?.error ? (
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-lg p-4"
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             <div className="text-center">
               <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
               <div className="text-sm text-gray-600 mb-2">
@@ -216,12 +302,48 @@ export default function CreateTemplatePage() {
                   }
                 }}
                 className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-full file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-primary file:text-accent
-                  "
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-primary file:text-accent
+                "
               />
+            </div>
+          </div>
+        ) : uploadState?.error && !uploadState?.file ? (
+          <div className="border-2 border-red-200 bg-red-50 rounded-lg p-6">
+            <div className="flex flex-col items-center gap-3">
+              <AlertCircle className="w-8 h-8 text-red-600" />
+              <p className="text-sm text-red-700 font-medium text-center">
+                {uploadState.error}
+              </p>
+              <input
+                type="file"
+                className="hidden"
+                id={`${uploadKey}-retry`}
+                accept={acceptedTypes}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setMediaUploads(prev => {
+                      const newState = { ...prev };
+                      delete newState[uploadKey];
+                      return newState;
+                    });
+                    handleFileSelect(uploadKey, file);
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  document.getElementById(`${uploadKey}-retry`)?.click();
+                }}
+              >
+                Try Again
+              </Button>
             </div>
           </div>
         ) : (
@@ -229,10 +351,14 @@ export default function CreateTemplatePage() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <div className="text-sm font-medium">
-                  {uploadState.file.name}
+                  {uploadState?.file?.name}
                 </div>
                 <div className="text-xs text-gray-500">
-                  ({(uploadState.file.size / 1024 / 1024).toFixed(2)} MB)
+                  (
+                  {uploadState?.file
+                    ? (uploadState.file.size / 1024 / 1024).toFixed(2)
+                    : '0'}{' '}
+                  MB)
                 </div>
               </div>
               <Button
@@ -240,30 +366,30 @@ export default function CreateTemplatePage() {
                 size="sm"
                 onClick={() => removeUploadedFile(uploadKey)}
                 className="h-8 w-8 p-0"
-                disabled={uploadState.uploading}
+                disabled={uploadState?.uploading}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            {uploadState.error && (
+            {uploadState?.error && (
               <div className="text-sm text-red-600 mb-2">
                 {uploadState.error}
               </div>
             )}
 
             <div className="flex items-center gap-2">
-              {uploadState.uploaded ? (
+              {uploadState?.uploaded ? (
                 <div className="flex items-center gap-2 text-green-600 text-sm">
                   <Check className="h-4 w-4" />
                   Uploaded successfully
                 </div>
-              ) : uploadState.uploading ? (
+              ) : uploadState?.uploading ? (
                 <div className="flex items-center gap-2 text-yellow-600 text-sm">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Uploading...
                 </div>
-              ) : uploadState.error ? (
+              ) : uploadState?.error ? (
                 <div className="flex items-center gap-2 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
                   Upload failed - {uploadState.error}
@@ -274,7 +400,7 @@ export default function CreateTemplatePage() {
         )}
 
         <p className="text-xs text-gray-500">
-          Upload your {mediaType} file. The file will be used as example media
+          {getSizeLimitText(mediaType)}. The file will be used as example media
           for the template.
         </p>
       </div>

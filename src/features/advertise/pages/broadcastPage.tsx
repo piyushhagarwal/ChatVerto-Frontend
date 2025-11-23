@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { BroadcastDialog } from '../components/BroadcastDialog';
 import { useState } from 'react';
 import { BarChart3 } from 'lucide-react';
@@ -42,7 +42,6 @@ export default function BroadcastPage() {
   };
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
   return (
     <div className="space-y-6 bg-white  rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6 ">
@@ -62,14 +61,8 @@ export default function BroadcastPage() {
       </div>
 
       {/* Search and Campaign Table */}
-      <div className="space-y-4 pt-6">
-        <Input
-          placeholder="Search campaigns..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="max-w-xs"
-        />
-        <div className="flex flex-col gap-6 mt-2">
+      <div className="space-y-1 pt-6">
+        <div className="flex flex-col gap-6 ">
           {error && (
             <Alert
               variant="destructive"

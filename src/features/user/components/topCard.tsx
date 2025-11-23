@@ -22,50 +22,53 @@ export default function TopCard({ user }: Props) {
           <div className="grid md:grid-cols-4 gap-4 border-b pb-4 ml-2 mr-2">
             <div className="flex items-center gap-3 border-r pr-4 relative">
               {/* Profile Picture */}
-              {user.whatsAppDetails?.profile_picture_url ? (
-                <div className="relative">
-                  <img
-                    src={user.whatsAppDetails.profile_picture_url}
-                    alt="Profile"
-                    className="h-16 w-16 rounded-full object-cover border"
-                  />
+              <div className="relative">
+                <img
+                  src={
+                    user.whatsAppDetails?.profile_picture_url?.trim()
+                      ? user.whatsAppDetails.profile_picture_url
+                      : '/Images/Chatverto.png' // 👉 fallback image
+                  }
+                  alt="Profile"
+                  className="h-16 w-16 rounded-full object-cover border"
+                />
 
-                  {/* Pencil icon button */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow 
-             transition-all duration-200 
-             hover:bg-gray-100 hover:scale-110 hover:shadow-md"
-                        title="Edit profile picture"
-                      >
-                        <Pencil className="h-4 w-4 text-primary" />
-                      </button>
-                    </DialogTrigger>
+                {/* Pencil Icon */}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button
+                      className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow
+        transition-all duration-200 
+        hover:bg-gray-100 hover:scale-110 hover:shadow-md"
+                      title="Edit profile picture"
+                    >
+                      <Pencil className="h-4 w-4 text-primary" />
+                    </button>
+                  </DialogTrigger>
 
-                    {/* Dialog Content */}
-                    <DialogContent className="sm:max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle className="text-center">
-                          Edit Profile Picture
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="flex justify-center">
-                        <img
-                          src={user.whatsAppDetails.profile_picture_url}
-                          alt="Preview"
-                          className="w-40 h-40 rounded-full object-cover border"
-                        />
-                      </div>
-                      <ProfilePhotoUploader />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              ) : (
-                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                  ?
-                </div>
-              )}
+                  <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-center">
+                        Edit Profile Picture
+                      </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="flex justify-center">
+                      <img
+                        src={
+                          user.whatsAppDetails?.profile_picture_url?.trim()
+                            ? user.whatsAppDetails.profile_picture_url
+                            : '/Images/profile_avatar.jpg' // 👉 fallback inside dialog
+                        }
+                        alt="Preview"
+                        className="w-40 h-40 rounded-full object-cover border"
+                      />
+                    </div>
+
+                    <ProfilePhotoUploader />
+                  </DialogContent>
+                </Dialog>
+              </div>
 
               {/* Name Info */}
               <div>
