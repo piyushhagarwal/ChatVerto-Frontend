@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -87,7 +87,7 @@ export default function CreateTemplatePage() {
   const [useQuickReply, setUseQuickReply] = useState(false);
   const [usePhoneButton, setUsePhoneButton] = useState(false);
   const [mediaUploads, setMediaUploads] = useState<MediaUploadState>({});
-
+  const navigate = useNavigate();
   // New state for positional arguments
   const [headerExamples, setHeaderExamples] = useState<string[]>(['']);
   const [bodyExamples, setBodyExamples] = useState<string[]>(['']);
@@ -553,6 +553,7 @@ export default function CreateTemplatePage() {
     try {
       await dispatch(createTemplateThunk(templateData)).unwrap();
       resetForm();
+      navigate('/dashboard/advertise/templates');
     } catch (err) {
       console.error('Failed to create template:', err);
     }

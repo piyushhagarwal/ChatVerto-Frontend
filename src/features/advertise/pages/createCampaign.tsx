@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -76,6 +77,8 @@ export default function CreateCampaign() {
     state => state.template
   );
   const { groups } = useAppSelector(state => state.group);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -640,7 +643,7 @@ export default function CreateCampaign() {
       case 'FOOTER':
         return (
           <div key={`footer-${componentIndex}`} className="space-y-2">
-            <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2m">
+            <Label className="block text-sm font-semibold text-gray-700 tracking-wide mb-2">
               Footer
             </Label>
             <div className="p-2  rounded text-sm text-primary">
@@ -903,6 +906,8 @@ export default function CreateCampaign() {
       setTemplateParams({});
       setMediaUploads({});
       dispatch(clearMediaState());
+      //  Redirect to campaigns page
+      navigate('/dashboard/advertise/broadcast');
     } catch (error) {
       console.error('Error creating campaign:', error);
     }
