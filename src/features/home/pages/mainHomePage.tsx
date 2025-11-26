@@ -10,7 +10,13 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
 import { Button } from '@/components/ui/button';
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Workflow,
   Megaphone,
@@ -18,6 +24,8 @@ import {
   Users,
   BarChart3,
   Lightbulb,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WhatsAppSignupButton from '@/components/WhatsAppSignup';
@@ -79,18 +87,69 @@ export default function MainHomePage() {
 
   return (
     <>
-      {error && (
-        <p className="text-sm text-red-500 bg-red-50 border border-red-200 p-3 rounded">
-          {error}
-        </p>
-      )}
+      {/* Loading Dialog */}
+      <Dialog open={loading}>
+        <DialogContent
+          className="sm:max-w-md [&>button]:hidden"
+          style={{ backgroundColor: 'rgb(250, 255, 244)' }}
+        >
+          <DialogHeader className="items-center text-center space-y-4">
+            <div className="relative">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: '#CDDF7D' }}
+              >
+                <Loader2
+                  className="h-8 w-8 animate-spin"
+                  style={{ color: '#064734' }}
+                />
+              </div>
+              <div
+                className="absolute inset-0 w-16 h-16 rounded-full animate-ping opacity-20"
+                style={{ backgroundColor: '#CDDF7D' }}
+              ></div>
+            </div>
+            <DialogTitle
+              className="text-xl font-semibold"
+              style={{ color: '#064734' }}
+            >
+              Loading
+            </DialogTitle>
+            <DialogDescription
+              className="text-base"
+              style={{ color: '#064734', opacity: 0.7 }}
+            >
+              Please wait while we load your homepage...
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
 
-      <div className="min-h-screen rounded-2xl ">
-        <SiteHeader title="Home" />
-        {/* Welcome Section */}
-        {loading ? (
-          <p className="text-muted-foreground">Loading...</p>
-        ) : (
+      {/* Error Dialog */}
+      <Dialog open={!!error}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-5 w-5" />
+              Error
+            </DialogTitle>
+            <DialogDescription className="text-red-600">
+              {error}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Main Content - Only visible when not loading */}
+      {!loading && (
+        <div className="min-h-screen rounded-2xl ">
+          <SiteHeader title="Home" />
+          {/* Welcome Section */}
           <div>
             {!isWhatsAppConnected ? (
               <div className="text-center py-8">
@@ -162,8 +221,8 @@ export default function MainHomePage() {
                           <Button
                             className="mt-2 w-full"
                             onClick={e => {
-                              e.stopPropagation(); // prevent triggering card click
-                              navigate(mod.path); // ✅ button redirects
+                              e.stopPropagation();
+                              navigate(mod.path);
                             }}
                           >
                             {mod.action}
@@ -176,9 +235,8 @@ export default function MainHomePage() {
               </>
             )}
           </div>
-        )}
-        {/* Getting Started Section */}
-      </div>
+        </div>
+      )}
     </>
   );
 }
