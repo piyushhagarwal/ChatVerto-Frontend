@@ -27,6 +27,7 @@ import {
 } from '@/store/slices/groupSlice';
 
 import type { GroupContact } from '@/types/contact';
+import { Loader2 } from 'lucide-react';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 
 interface GroupsProps {
@@ -60,7 +61,7 @@ export default function Groups({
     }
   };
 
-  const { groups, error } = useAppSelector(state => state.group);
+  const { groups, loading, error } = useAppSelector(state => state.group);
 
   useEffect(() => {
     if (error) {
@@ -86,27 +87,23 @@ export default function Groups({
 
   return (
     <section>
-      {error && (
-        <Alert
-          variant="destructive"
-          className="justify-items-start border-destructive my-3"
-        >
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{error}</AlertTitle>
-        </Alert>
-      )}
+      {/* Top section ALWAYS visible */}
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-xl font-semibold">Groups</h2>
+
+        {/* Create Group Dialog */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-primary">
               <Plus className="w-4 h-4 mr-1" /> Create Group
             </Button>
           </DialogTrigger>
+
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Group</DialogTitle>
             </DialogHeader>
+
             <div className="space-y-2">
               <Label htmlFor="groupName">Group Name</Label>
               <Input
@@ -117,10 +114,9 @@ export default function Groups({
                 onKeyDown={e => e.key === 'Enter' && handleCreateGroup()}
               />
             </div>
+
             <DialogFooter className="pt-4">
-              <Button type="submit" onClick={handleCreateGroup}>
-                Save
-              </Button>
+              <Button onClick={handleCreateGroup}>Save</Button>
               <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
@@ -128,74 +124,100 @@ export default function Groups({
           </DialogContent>
         </Dialog>
       </div>
-      {groups.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-6">
-          {/* All Contacts Card */}
-          <Card
-            className={`cursor-pointer hover:shadow ${
-              selectedGroupId === null ? 'ring-2' : ''
-            }`}
-            onClick={() => onGroupSelect(null)}
-          >
-            <CardHeader className="flex flex-row items-center justify-between ">
-              <CardTitle>All Contacts</CardTitle>
-              <Users className="w-4 h-4" />
-            </CardHeader>
-          </Card>
 
-          {/* Group Cards */}
-          {groups.map((group: GroupContact) => (
-            <Card
-              key={group.id}
-              className={`cursor-pointer hover:shadow relative ${
-                selectedGroupId === group.id ? 'ring-2' : ''
-              }`}
-              onClick={() => onGroupSelect(group.id)}
-            >
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>{group.name}</CardTitle>
-                <div onClick={e => e.stopPropagation()}>
-                  {group.name === 'Opt-in Contacts' ? (
-                    <div className="flex items-center justify-center  text-primary">
-                      <BellPlus className="w-5 h-5" />
-                    </div>
-                  ) : (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-5 w-5">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleDeleteGroup(group.id, group.name)
-                          }
-                          className="text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              </CardHeader>
-            </Card>
-          ))}
+      {/* CONDITIONAL AREA — only this part changes */}
+      {error ? (
+        <Alert
+          variant="destructive"
+          className="justify-items-start border-destructive my-3"
+        >
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{error}</AlertTitle>
+        </Alert>
+      ) : loading ? (
+        <div className="text-center py-2 flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="text-lg  text-primary font-medium">
+            Please wait...
+          </span>
         </div>
       ) : (
-        <p className="text-muted-foreground">No groups available.</p>
+        <>
+          {groups.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-6">
+              {/* All Contacts */}
+              <Card
+                className={`cursor-pointer hover:shadow ${
+                  selectedGroupId === null ? 'ring-2' : ''
+                }`}
+                onClick={() => onGroupSelect(null)}
+              >
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>All Contacts</CardTitle>
+                  <Users className="w-4 h-4" />
+                </CardHeader>
+              </Card>
+
+              {/* Group Cards */}
+              {groups.map((group: GroupContact) => (
+                <Card
+                  key={group.id}
+                  className={`cursor-pointer hover:shadow relative ${
+                    selectedGroupId === group.id ? 'ring-2' : ''
+                  }`}
+                  onClick={() => onGroupSelect(group.id)}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>{group.name}</CardTitle>
+
+                    <div onClick={e => e.stopPropagation()}>
+                      {group.name === 'Opt-in Contacts' ? (
+                        <BellPlus className="w-5 h-5 text-primary" />
+                      ) : (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleDeleteGroup(group.id, group.name)
+                              }
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground pb-6">No groups available.</p>
+          )}
+        </>
       )}
+
+      {/* Delete Confirmation */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Group</DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to delete the group{' '}
-            <strong>{groupToDelete?.name}</strong>? This action cannot be
-            undone.
+            Are you sure you want to delete{' '}
+            <strong>{groupToDelete?.name}</strong>? This cannot be undone.
           </p>
           <DialogFooter className="pt-4">
             <Button variant="destructive" onClick={confirmDeleteGroup}>

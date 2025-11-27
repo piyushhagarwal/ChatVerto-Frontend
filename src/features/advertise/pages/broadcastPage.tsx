@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Loader2 } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,7 +45,8 @@ export default function BroadcastPage() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="space-y-6 bg-white  rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6 ">
+    <div className="space-y-6 bg-white rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6">
+      {/* ---------------------- HEADER - ALWAYS CONSTANT ---------------------- */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 className="text-primary w-5 h-5" />
@@ -60,22 +62,36 @@ export default function BroadcastPage() {
         </Button>
       </div>
 
-      {/* Search and Campaign Table */}
+      {/* ---------------------- SEARCH / FILTER AREA (ALWAYS VISIBLE) ---------------------- */}
       <div className="space-y-1 pt-6">
-        <div className="flex flex-col gap-6 ">
-          {error && (
+        {/* ERROR BOX */}
+        {error && (
+          <div className="h-30 w-full p-3 my-2 mb-4">
             <Alert
               variant="destructive"
               className="justify-items-start border-destructive"
             >
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Template loading failed</AlertTitle>
+              <AlertTitle>Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          )}
-        </div>
+          </div>
+        )}
 
-        {campaigns && (
+        {/* ---------------------- CONDITIONAL TABLE AREA ---------------------- */}
+        {error ? (
+          // ❌ ERROR → Do not show table
+          <></>
+        ) : loading ? (
+          // ⏳ LOADING SPINNER
+          <div className="text-center py-20 flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="text-lg  text-primary font-medium">
+              Please wait...
+            </span>
+          </div>
+        ) : campaigns && campaigns.length > 0 ? (
+          // ✅ TABLE VIEW
           <div className="overflow-x-auto border rounded-lg">
             <table className="min-w-full text-sm">
               <thead className="bg-primary text-accent">
@@ -90,30 +106,31 @@ export default function BroadcastPage() {
               <tbody>
                 {campaigns.map(campaign => (
                   <tr key={campaign.id} className="border-t bg-[#FAFFF4]">
-                    <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
+                    <td className="px-4 py-2 text-center font-semibold text-gray-700">
                       {campaign.name}
                     </td>
-                    <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
+                    <td className="px-4 py-2 text-center font-semibold text-gray-700">
                       {campaign.groupName}
                     </td>
-                    <td className="px-4 py-2 text-center align-middle text-sm font-semibold text-gray-700 tracking-wide">
+                    <td className="px-4 py-2 text-center font-semibold text-gray-700">
                       {campaign.templateName}
                     </td>
-                    <td className="px-4 py-2 text-center align-middle">
+
+                    <td className="px-4 py-2 text-center">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-semibold text-gray-700 tracking-wided 
-                      ${
-                        campaign.status === 'Completed'
-                          ? 'bg-green-100 text-green-700'
-                          : campaign.status === 'Failed'
-                            ? 'bg-red-100 text-red-700'
-                            : 'bg-yellow-100 text-yellow-800'
-                      }`}
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          campaign.status === 'Completed'
+                            ? 'bg-green-100 text-green-700'
+                            : campaign.status === 'Failed'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-800'
+                        }`}
                       >
                         {campaign.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2 space-x-2 text-center">
+
+                    <td className="px-4 py-2 text-center">
                       <div className="flex justify-center items-center space-x-2">
                         <Link to={`${campaign.id}/preview`}>
                           <Button
@@ -124,13 +141,6 @@ export default function BroadcastPage() {
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
-                        {/* <Button
-                          size="icon"
-                          variant="ghost"
-                          className="hover:bg-muted hover:text-primary"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button> */}
 
                         <Button
                           size="icon"
@@ -147,17 +157,21 @@ export default function BroadcastPage() {
               </tbody>
             </table>
           </div>
+        ) : (
+          // 🟦 EMPTY STATE (NO CAMPAIGNS)
+          <div className="text-center py-10">
+            <p className="text-gray-500 text-lg">No campaigns found.</p>
+            <p className="text-gray-400 text-sm mt-1">
+              Create your first campaign to get started.
+            </p>
+          </div>
         )}
-        <div>
-          {loading && (
-            <div className="flex items-center gap-2 text-sm text-gray-700 px-4 py-2">
-              <p>Please wait for the Campiagns ...</p>
-            </div>
-          )}
-        </div>
       </div>
 
+      {/* ---------------------- BROADCAST DIALOG (ALWAYS VISIBLE) ---------------------- */}
       <BroadcastDialog open={open} setOpen={setOpen} />
+
+      {/* ---------------------- DELETE CONFIRMATION DIALOG ---------------------- */}
       <Dialog
         open={!!confirmDeleteId}
         onOpenChange={() => setConfirmDeleteId(null)}

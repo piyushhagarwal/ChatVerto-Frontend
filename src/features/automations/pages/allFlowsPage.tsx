@@ -125,32 +125,41 @@ export default function AutomationPage() {
   return (
     <div className="w-full h-full">
       <SiteHeader title="Automations" />
+
+      {/* Create Flow Button ALWAYS visible */}
       <div className="w-full flex justify-end px-4">
         <CreateFlowDialog />
       </div>
 
-      <div className="flex flex-col gap-6 mt-2">
-        {error && (
+      {/* ----------------------- CONDITIONAL RENDER AREA ----------------------- */}
+      <div className="mt-4 px-4">
+        {error ? (
+          // 🔴 ERROR STATE
           <Alert
             variant="destructive"
-            className="justify-items-start border-destructive mx-4"
+            className="justify-items-start border-destructive"
           >
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Flow operation failed</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        )}
-      </div>
-
-      <div>
-        {flows && flows.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4 py-6">
+        ) : loading ? (
+          // ⏳ LOADING STATE
+          <div className="text-center py-20 flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 animate-spin" />
+            <span className="text-lg  text-primary font-medium">
+              Please wait...
+            </span>
+          </div>
+        ) : flows && flows.length > 0 ? (
+          // ✅ SUCCESS — SHOW FLOWS GRID
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6">
             {flows.map(flow => (
               <Card
                 key={flow.id}
-                className="shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded-sm bg-card hover:shadow-lg text-primary
-                  transition-all duration-300 cursor-pointer relative
-                  w-90 h-40 border-1 hover:scale-[1.02] hover:z-10"
+                className="shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded-sm bg-card
+              hover:shadow-lg text-primary transition-all duration-300 cursor-pointer
+              w-90 h-40 border-1 hover:scale-[1.02] hover:z-10"
                 onClick={() => navigate(`/flows/${flow.id}`)}
               >
                 <CardHeader>
@@ -160,7 +169,9 @@ export default function AutomationPage() {
                   <CardDescription className="text-sm text-gray-600">
                     Status:
                     <span
-                      className={`ml-1 font-medium ${flow.isLive ? 'text-green-600' : 'text-gray-500'}`}
+                      className={`ml-1 font-medium ${
+                        flow.isLive ? 'text-green-600' : 'text-gray-500'
+                      }`}
                     >
                       {flow.isLive ? 'Live' : 'Inactive'}
                     </span>
@@ -187,6 +198,7 @@ export default function AutomationPage() {
             ))}
           </div>
         ) : (
+          // 🟦 EMPTY STATE (NO FLOWS)
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No flows found.</p>
             <p className="text-gray-400 text-sm mt-2">
@@ -196,14 +208,7 @@ export default function AutomationPage() {
         )}
       </div>
 
-      <div>
-        {loading && (
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-700 px-4 py-8">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading flows...
-          </div>
-        )}
-      </div>
+      {/* ----------------------- DELETE FLOW DIALOG ----------------------- */}
       <Dialog
         open={!!confirmDeleteId}
         onOpenChange={() => {

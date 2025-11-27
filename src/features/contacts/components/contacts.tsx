@@ -9,6 +9,8 @@ import {
   X,
 } from 'lucide-react';
 import { Info } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -63,7 +65,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<string>('lastVisit-desc');
 
-  const { contacts, pagination, loading } = useAppSelector(
+  const { contacts, pagination, loading, error } = useAppSelector(
     state => state.contact
   );
   const { selectedGroup } = useAppSelector(state => state.group);
@@ -255,6 +257,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
 
   return (
     <section className="space-y-3">
+      {/* --------------------------- CONSTANT HEADER --------------------------- */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">
           {selectedGroupId === null ? 'All Contacts' : selectedGroup?.name}
@@ -267,6 +270,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
           </div>
         ) : (
           <div className="flex gap-2">
+            {/* Create Contact */}
             <Dialog
               open={isCreateDialogOpen}
               onOpenChange={setIsCreateDialogOpen}
@@ -276,10 +280,12 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                   <Plus className="w-4 h-4 mr-1" /> Create Contact
                 </Button>
               </DialogTrigger>
+
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add New Contact</DialogTitle>
                 </DialogHeader>
+
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <Input
@@ -288,6 +294,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                     value={contactName}
                     onChange={e => setContactName(e.target.value)}
                   />
+
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
                     id="phone"
@@ -297,10 +304,9 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                     onKeyDown={e => e.key === 'Enter' && handleCreateContact()}
                   />
                 </div>
+
                 <DialogFooter className="pt-4">
-                  <Button type="submit" onClick={handleCreateContact}>
-                    Save
-                  </Button>
+                  <Button onClick={handleCreateContact}>Save</Button>
                   <Button variant="outline" onClick={handleCancelCreate}>
                     Cancel
                   </Button>
@@ -308,6 +314,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
               </DialogContent>
             </Dialog>
 
+            {/* Import CSV */}
             <Dialog
               open={isImportDialogOpen}
               onOpenChange={setIsImportDialogOpen}
@@ -317,10 +324,12 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                   <UploadCloud className="w-4 h-4 mr-1" /> Import from CSV
                 </Button>
               </DialogTrigger>
+
               <DialogContent className="!max-w-[60vw] w-[60vw] h-[50vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Import Contacts from CSV</DialogTitle>
                 </DialogHeader>
+
                 <div className="border-2 border-dashed rounded-md p-6 text-center text-muted-foreground">
                   Drag and drop your CSV file here or
                   <Input
@@ -330,12 +339,9 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
                     onChange={e => setCsvFile(e.target.files?.[0] || null)}
                   />
                 </div>
+
                 <DialogFooter className="pt-4">
-                  <Button
-                    type="submit"
-                    onClick={handleImportCSV}
-                    disabled={!csvFile}
-                  >
+                  <Button disabled={!csvFile} onClick={handleImportCSV}>
                     Save
                   </Button>
                   <Button
@@ -351,7 +357,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
         )}
       </div>
 
-      {/* Search and Filters */}
+      {/* ------------------------- CONSTANT SEARCH & FILTER ------------------------- */}
       <div className="flex gap-3 items-center">
         <div className="relative flex-1 max-w-md flex gap-2">
           <div className="relative flex-1">
@@ -379,7 +385,9 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
             <Search className="h-4 w-4" />
           </Button>
         </div>
+
         <div className="ml-auto flex gap-3">
+          {/* Sort */}
           <Select value={sortOption} onValueChange={handleSortChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by" />
@@ -394,6 +402,7 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
             </SelectContent>
           </Select>
 
+          {/* Page Size */}
           <Select
             value={pageSize.toString()}
             onValueChange={value => {
@@ -414,9 +423,24 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-8 text-muted-foreground">
-          Loading contacts...
+      {/* ----------------------- CONDITIONAL RENDERING SECTION ---------------------- */}
+      {error ? (
+        <div className="h-30 w-full p-3 my-2 mb-4">
+          <Alert
+            variant="destructive"
+            className="justify-items-start border-destructive"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      ) : loading ? (
+        <div className="text-center py-2 flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="text-lg  text-primary font-medium">
+            Please wait...
+          </span>
         </div>
       ) : contacts.length === 0 ? (
         <p className="text-muted-foreground mt-6">No contacts available.</p>
