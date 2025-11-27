@@ -10,13 +10,8 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getUserProfileThunk } from '@/store/slices/userSlice';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Workflow,
   Megaphone,
@@ -24,8 +19,6 @@ import {
   Users,
   BarChart3,
   Lightbulb,
-  Loader2,
-  AlertCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WhatsAppSignupButton from '@/components/WhatsAppSignup';
@@ -87,156 +80,112 @@ export default function MainHomePage() {
 
   return (
     <>
-      {/* Loading Dialog */}
-      <Dialog open={loading}>
-        <DialogContent
-          className="sm:max-w-md [&>button]:hidden"
-          style={{ backgroundColor: 'rgb(250, 255, 244)' }}
-        >
-          <DialogHeader className="items-center text-center space-y-4">
-            <div className="relative">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: '#CDDF7D' }}
-              >
-                <Loader2
-                  className="h-8 w-8 animate-spin"
-                  style={{ color: '#064734' }}
-                />
-              </div>
-              <div
-                className="absolute inset-0 w-16 h-16 rounded-full animate-ping opacity-20"
-                style={{ backgroundColor: '#CDDF7D' }}
-              ></div>
-            </div>
-            <DialogTitle
-              className="text-xl font-semibold"
-              style={{ color: '#064734' }}
+      <div className="min-h-screen rounded-2xl ">
+        <SiteHeader title="Home" />
+        {error ? (
+          <div className="h-30 w-full p-3 my-2 mb-4">
+            <Alert
+              variant="destructive"
+              className="justify-items-start border-destructive"
             >
-              Loading
-            </DialogTitle>
-            <DialogDescription
-              className="text-base"
-              style={{ color: '#064734', opacity: 0.7 }}
-            >
-              Please wait while we load your homepage...
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-
-      {/* Error Dialog */}
-      <Dialog open={!!error}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
-              Error
-            </DialogTitle>
-            <DialogDescription className="text-red-600">
-              {error}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Retry
-            </Button>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Main Content - Only visible when not loading */}
-      {!loading && (
-        <div className="min-h-screen rounded-2xl ">
-          <SiteHeader title="Home" />
-          {/* Welcome Section */}
-          <div>
-            {!isWhatsAppConnected ? (
-              <div className="text-center py-8">
-                <h2 className="text-xl mb-4">
-                  Connect Your WhatsApp Business Account
+        ) : loading ? (
+          /* LOADING */
+          <div className="text-center py-20 flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 animate-spin" />
+            <span className="text-lg  text-primary font-medium">
+              Please wait...
+            </span>
+          </div>
+        ) : !isWhatsAppConnected ? (
+          /* WHATSAPP NOT CONNECTED */
+          <div className="text-center py-8">
+            <h2 className="text-xl mb-4">
+              Connect Your WhatsApp Business Account
+            </h2>
+            <p className="text-gray-600 mb-6">
+              To start using ChatVerto features, please connect your WhatsApp
+              Business account
+            </p>
+            <WhatsAppSignupButton />
+          </div>
+        ) : (
+          /* WHATSAPP CONNECTED — MAIN DASHBOARD */
+          <>
+            <div className="px-6 pt-6 pb-5">
+              <div className="flex gap-1">
+                <h2 className="text-2xl font-semibold">Welcome back, </h2>
+                <h2 className="text-2xl font-semibold">
+                  {user?.whatsAppDetails?.verifiedName} 👋
                 </h2>
-                <p className="text-gray-600 mb-6">
-                  To start using ChatVerto features, please connect your
-                  WhatsApp Business account
-                </p>
-                <WhatsAppSignupButton />
               </div>
-            ) : (
-              <>
-                <div className="px-6 pt-6 pb-5">
-                  <div className="flex gap-1">
-                    <h2 className="text-2xl font-semibold">Welcome back, </h2>
-                    <h2 className="text-2xl font-semibold">
-                      {user?.whatsAppDetails?.verifiedName} 👋
-                    </h2>
-                  </div>
-                  <p className="text-muted-foreground mt-1">
-                    Manage your WhatsApp automation system from one unified
-                    dashboard.
-                  </p>
-                </div>
+              <p className="text-muted-foreground mt-1">
+                Manage your WhatsApp automation system from one unified
+                dashboard.
+              </p>
+            </div>
 
-                {/* Quick Actions */}
-                <div className="px-6 pb-0">
-                  <Card className="border-l-4 border-primary/80 bg-primary/5">
+            {/* Quick Actions */}
+            <div className="px-6 pb-0">
+              <Card className="border-l-4 border-primary/80 bg-primary/5">
+                <CardHeader className="flex flex-row items-center gap-3">
+                  <Lightbulb className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle className="text-lg">Getting Started</CardTitle>
+                    <CardDescription>
+                      💡 Not sure where to begin? Start by creating your first{' '}
+                      <span className="font-medium text-primary">
+                        automation flow
+                      </span>{' '}
+                      or a new WhatsApp campaign to reach your audience
+                      instantly.
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
+            </div>
+
+            {/* Main Feature Modules */}
+            <div className="rounded-2xl backdrop-blur-md bg-white border border-white/20 shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6 m-5 mt-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10 pt-10">
+                {modules.map((mod, index) => (
+                  <Card
+                    key={index}
+                    className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+                  >
                     <CardHeader className="flex flex-row items-center gap-3">
-                      <Lightbulb className="h-5 w-5 text-primary" />
+                      <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                        <mod.icon className="h-6 w-6" />
+                      </div>
                       <div>
-                        <CardTitle className="text-lg">
-                          Getting Started
-                        </CardTitle>
-                        <CardDescription>
-                          💡 Not sure where to begin? Start by creating your
-                          first{' '}
-                          <span className="font-medium text-primary">
-                            automation flow
-                          </span>{' '}
-                          or a new WhatsApp campaign to reach your audience
-                          instantly.
-                        </CardDescription>
+                        <CardTitle>{mod.title}</CardTitle>
+                        <CardDescription>{mod.description}</CardDescription>
                       </div>
                     </CardHeader>
-                  </Card>
-                </div>
 
-                {/* Main Feature Modules */}
-                <div className="rounded-2xl backdrop-blur-md bg-white border border-white/20 shadow-[0_0_5px_rgba(0,0,0,0.2)] p-6  m-5 mt-10">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-10 pt-10 ">
-                    {modules.map((mod, index) => (
-                      <Card
-                        key={index}
-                        className="transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+                    <CardContent>
+                      <Button
+                        className="mt-2 w-full"
+                        onClick={e => {
+                          e.stopPropagation();
+                          navigate(mod.path);
+                        }}
                       >
-                        <CardHeader className="flex flex-row items-center gap-3">
-                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                            <mod.icon className="h-6 w-6" />
-                          </div>
-                          <div>
-                            <CardTitle>{mod.title}</CardTitle>
-                            <CardDescription>{mod.description}</CardDescription>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <Button
-                            className="mt-2 w-full"
-                            onClick={e => {
-                              e.stopPropagation();
-                              navigate(mod.path);
-                            }}
-                          >
-                            {mod.action}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+                        {mod.action}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+        {/* Getting Started Section */}
+      </div>
     </>
   );
 }
