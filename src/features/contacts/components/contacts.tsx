@@ -133,10 +133,23 @@ export default function Contacts({ selectedGroupId }: ContactsProps) {
   const formatLastVisit = (lastVisit?: Date | string) => {
     if (!lastVisit) return 'Never';
 
-    const date = new Date(lastVisit);
+    // Remove 'Z' if present since dates are already in IST
+    const dateString =
+      typeof lastVisit === 'string' ? lastVisit.replace('Z', '') : lastVisit;
+
+    const date = new Date(dateString);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    // Get dates normalized to midnight
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const diffTime = nowOnly.getTime() - dateOnly.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
       return 'Today';

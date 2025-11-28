@@ -143,6 +143,7 @@ const groupSlice = createSlice({
       })
       .addCase(fetchGroupWithIdThunk.fulfilled, (state, action) => {
         state.selectedGroup = action.payload || null;
+        state.loading = false;
       })
       .addCase(fetchGroupWithIdThunk.rejected, (state, action) => {
         state.loading = false;
