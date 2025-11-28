@@ -1,15 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchAllTemplatesThunk,
   deleteTemplateThunk,
 } from '@/store/slices/templateSlice';
-import { useState } from 'react';
-import { FileText } from 'lucide-react';
-import { AlertCircle } from 'lucide-react';
+import { FileText, AlertCircle, Eye, Trash2, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Dialog,
@@ -18,30 +15,30 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Eye, Trash2 } from 'lucide-react';
 
 export default function TemplatesPage() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const { templates, loading, error } = useAppSelector(state => state.template);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchAllTemplatesThunk());
   }, [dispatch]);
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
   const confirmDelete = async () => {
     if (confirmDeleteId) {
       await dispatch(deleteTemplateThunk(confirmDeleteId));
-      dispatch(fetchAllTemplatesThunk()); // refresh list
-      setConfirmDeleteId(null); // close dialog
+      dispatch(fetchAllTemplatesThunk());
+      setConfirmDeleteId(null);
     }
   };
 
-  const navigate = useNavigate();
-
   return (
     <div className="space-y-1 rounded-b-2xl shadow-[0_0_5px_rgba(0,0,0,0.2)] bg-white p-6">
+      {/* --------------------------- STATIC HEADER --------------------------- */}
       <div className="flex items-center justify-between mb-12">
         <div className="flex items-center gap-2">
           <FileText className="text-primary w-5 h-5" />
@@ -54,47 +51,71 @@ export default function TemplatesPage() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-6 mt-2">
-        {error && (
+      {/* --------------------------- ERROR DISPLAY --------------------------- */}
+      {error && (
+        <div className="h-30 w-full p-3 my-2 mb-4">
           <Alert
             variant="destructive"
             className="justify-items-start border-destructive"
           >
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Template loading failed</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        )}
-      </div>
+        </div>
+      )}
 
-      {templates && (
+      {/* --------------------------- CONDITIONAL AREA --------------------------- */}
+      {error ? (
+        // ❌ Hide table on error
+        <></>
+      ) : loading ? (
+        // ⏳ Loading state
+        <div className="text-center py-20 flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="text-lg  text-primary font-medium">
+            Please wait...
+          </span>
+        </div>
+      ) : !templates || templates.length === 0 ? (
+        // 🟦 Empty state
+        <div className="text-center py-10">
+          <p className="text-gray-500 text-lg">No templates found.</p>
+          <p className="text-gray-400 text-sm mt-1">
+            Create your first template to get started.
+          </p>
+        </div>
+      ) : (
+        // ✅ Table when templates exist
         <div className="overflow-x-auto border rounded-lg">
           <table className="min-w-full text-sm">
             <thead className="bg-primary text-accent">
               <tr>
-                <th className="px-4 py-2 text-center ">Template Name</th>
+                <th className="px-4 py-2 text-center">Template Name</th>
                 <th className="px-4 py-2 text-center">Category</th>
                 <th className="px-4 py-2 text-center">Status</th>
-                <th className="px-4 py-2 text-centert">Rejected Reason</th>
+                <th className="px-4 py-2 text-center">Rejected Reason</th>
                 <th className="px-4 py-2 text-center">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {templates.map(template => (
                 <tr
                   key={template.id}
-                  className="border-t text-center  bg-[#FAFFF4] align-middle"
+                  className="border-t text-center bg-[#FAFFF4] align-middle"
                 >
-                  <td className="px-4 py-2  text-sm font-semibold text-gray-700 tracking-wide ">
+                  <td className="px-4 py-2 font-semibold text-gray-700">
                     {template.name}
                   </td>
-                  <td className="px-4 py-2 text-sm font-semibold text-gray-700 tracking-wide ">
+
+                  <td className="px-4 py-2 font-semibold text-gray-700">
                     {template.category}
                   </td>
 
-                  <td className="px-4 py-2 text-sm font-semibold  tracking-wide ">
+                  <td className="px-4 py-2 font-semibold">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold tracking-wide ${
+                      className={`px-2 py-1 rounded text-xs font-semibold ${
                         template.status === 'APPROVED'
                           ? 'bg-green-100 text-green-800'
                           : template.status === 'REJECTED'
@@ -105,28 +126,32 @@ export default function TemplatesPage() {
                       {template.status}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-sm font-semibold text-gray-700 tracking-wide ">
+
+                  <td className="px-4 py-2 font-semibold text-gray-700">
                     {template.rejected_reason}
                   </td>
-                  <td className="px-4 py-2 space-x-2">
-                    <Link to={`${template.id}/preview`}>
+
+                  <td className="px-4 py-2">
+                    <div className="flex justify-center items-center space-x-2">
+                      <Link to={`${template.id}/preview`}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="hover:bg-muted hover:text-primary"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="hover:bg-muted hover:text-primary"
+                        className="hover:bg-red-100 hover:text-red-600"
+                        onClick={() => setConfirmDeleteId(template.name)}
                       >
-                        <Eye className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
-                    </Link>
-
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="hover:bg-red-100 hover:text-red-600"
-                      onClick={() => setConfirmDeleteId(template.name)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -135,13 +160,7 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      <div>
-        {loading && (
-          <div className="flex items-center gap-2 text-sm text-gray-700 px-4 py-2">
-            <p>Please wait for the templates ...</p>
-          </div>
-        )}
-      </div>
+      {/* --------------------------- DELETE CONFIRMATION --------------------------- */}
       <Dialog
         open={!!confirmDeleteId}
         onOpenChange={() => setConfirmDeleteId(null)}
@@ -152,11 +171,11 @@ export default function TemplatesPage() {
           </DialogHeader>
 
           <p>
-            Are you sure you want to permanently delete{' '}
+            Are you sure you want to delete{' '}
             <strong>
-              {templates.find(c => c.name === confirmDeleteId)?.name}
+              {templates?.find(c => c.name === confirmDeleteId)?.name}
             </strong>
-            ? This action cannot be undone.
+            ? This cannot be undone.
           </p>
 
           <DialogFooter className="pt-4">

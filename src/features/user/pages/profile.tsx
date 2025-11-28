@@ -4,6 +4,8 @@ import { getUserProfileThunk } from '@/store/slices/userSlice';
 import TopCard from '@/features/user/components/topCard';
 import ProfileUpdateForm from '../components/profileUpdateform';
 import { SiteHeader } from '@/components/site-header';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
@@ -17,20 +19,38 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <SiteHeader title="My Profile" />
 
-      {loading && <p className="text-muted-foreground">Loading...</p>}
-
+      {/* 🔴 Error */}
       {error && (
-        <p className="text-sm text-red-500 bg-red-50 border border-red-200 p-3 rounded">
-          {error}
-        </p>
+        <div className="h-30 w-full p-3 my-2 mb-4">
+          <Alert
+            variant="destructive"
+            className="justify-items-start border-destructive"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
       )}
 
-      {user && (
+      {/* ⏳ Loading */}
+      {loading && !error && (
+        <div className="text-center py-20 flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin" />
+          <span className="text-lg  text-primary font-medium">
+            Please wait...
+          </span>
+        </div>
+      )}
+
+      {/* ✅ Success */}
+      {!loading && !error && user && (
         <>
           <TopCard user={user} />
           <ProfileUpdateForm />
 
-          {/* Add more cards like <BusinessInfoCard user={user} /> later here */}
+          {/* Additional sections can be added here */}
+          {/* <BusinessInfoCard user={user} /> */}
         </>
       )}
     </div>
