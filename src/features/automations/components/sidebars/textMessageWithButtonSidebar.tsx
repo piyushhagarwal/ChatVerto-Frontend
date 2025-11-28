@@ -22,6 +22,7 @@ interface SidebarProps {
   initialData: {
     message: string;
     buttons: ButtonItem[];
+    buttonType?: 'reply' | 'url';
   };
   onClose: () => void;
 }
@@ -211,6 +212,9 @@ export default function TextMessageWithButtonsSidebar({
       return;
     }
 
+    // Determine buttonType based on whether buttons have URLs
+    const buttonType: 'reply' | 'url' = urlButtons.length > 0 ? 'url' : 'reply';
+
     const data: any = {
       message: trimmedMessage,
       buttons: validButtons.map(b => ({
@@ -218,6 +222,7 @@ export default function TextMessageWithButtonsSidebar({
         label: b.label.trim(),
         ...(b.url && b.url.trim() ? { url: b.url.trim() } : {}),
       })),
+      buttonType, // Add buttonType to data
     };
 
     dispatch(updateNodeData({ nodeId, data }));

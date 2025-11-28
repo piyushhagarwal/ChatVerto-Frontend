@@ -22,6 +22,7 @@ interface NodeProps {
   data: {
     message: string;
     buttons: ButtonItem[];
+    buttonType?: 'reply' | 'url';
   };
 }
 
@@ -60,7 +61,7 @@ export default function TextMessageWithButtonsNode({ id, data }: NodeProps) {
             <div className="text-xs font-medium text-gray-500 mb-1">
               Message:
             </div>
-            <div className="relative max-h-[80px] overflow-hidden text-sm text-gray-700 whitespace-pre-line group bg-gray-50 p-2 rounded border">
+            <div className="relative max-h-[80px] overflow-hidden text-sm text-gray-700 whitespace-pre-line group bg-gray-50 p-2 rounded-md border">
               <p className="line-clamp-4 group-hover:overflow-auto group-hover:max-h-[200px] group-hover:pr-2 transition-all">
                 {data.message !== '' ? data.message : 'No message set yet.'}
               </p>
@@ -94,27 +95,25 @@ export default function TextMessageWithButtonsNode({ id, data }: NodeProps) {
                     )}
                     <span className="truncate">{btn.label}</span>
                   </div>
-                  {/* Handle only for reply buttons */}
-                  {!isUrlButton && (
-                    <div className="relative">
-                      <Handle
-                        type="source"
-                        position={Position.Right}
-                        id={`button-${btn.id}`}
-                        style={{
-                          right: -27,
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          background: '#3b82f6',
-                          width: 16,
-                          height: 16,
-                          borderRadius: '50%',
-                          border: '2px solid white',
-                          zIndex: 10,
-                        }}
-                      />
-                    </div>
-                  )}
+                  {/* Handle for all buttons */}
+                  <div className="relative">
+                    <Handle
+                      type="source"
+                      position={Position.Right}
+                      id={`button-${btn.id}`}
+                      style={{
+                        right: -27,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: isUrlButton ? '#9333ea' : '#3b82f6',
+                        width: 16,
+                        height: 16,
+                        borderRadius: '50%',
+                        border: '2px solid white',
+                        zIndex: 10,
+                      }}
+                    />
+                  </div>
                 </div>
                 {/* Show URL below for URL buttons */}
                 {isUrlButton && (
