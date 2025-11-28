@@ -158,6 +158,7 @@ const groupSlice = createSlice({
         if (action.payload) {
           state.groups.push(action.payload);
         }
+        state.loading = false;
       })
       .addCase(createGroupThunk.rejected, (state, action) => {
         state.loading = false;
@@ -174,6 +175,7 @@ const groupSlice = createSlice({
           const index = state.groups.findIndex(g => g.id === updatedGroup.id);
           if (index !== -1) state.groups[index] = updatedGroup;
         }
+        state.loading = false;
       })
       .addCase(updateGroupThunk.rejected, (state, action) => {
         state.loading = false;
@@ -187,6 +189,7 @@ const groupSlice = createSlice({
       .addCase(deleteGroupThunk.fulfilled, (state, action) => {
         state.groups = state.groups.filter(g => g.id !== action.payload?.id);
         state.selectedGroup = null;
+        state.loading = false;
       })
       .addCase(deleteGroupThunk.rejected, (state, action) => {
         state.loading = false;
